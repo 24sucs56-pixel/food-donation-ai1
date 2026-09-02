@@ -284,3 +284,124 @@ table{
 }
 
 }
+
+/*=========================================
+      PREMIUM TABLES & STATUS BADGES
+=========================================*/
+
+.premium-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.04);
+    border: 1px solid rgba(0,0,0,0.03);
+    margin-bottom: 30px;
+}
+
+.premium-table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    border: 1px solid #f1f5f9 !important;
+    margin-top: 0 !important;
+    box-shadow: none !important;
+}
+
+.premium-table th {
+    background: #f8fafc !important;
+    color: #475569 !important;
+    font-weight: 600 !important;
+    font-size: 13.5px !important;
+    padding: 16px 20px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+}
+
+.premium-table td {
+    padding: 16px 20px !important;
+    color: #334155 !important;
+    font-size: 14px !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    vertical-align: middle !important;
+}
+
+.premium-table tbody tr:hover td {
+    background: #f8fafc !important;
+}
+
+/* Action Buttons */
+.btn-action {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6px !important;
+    padding: 8px 14px !important;
+    font-size: 12.5px !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    margin: 4px !important;
+}
+
+.btn-approve {
+    background-color: #dcfce7 !important;
+    color: #15803d !important;
+}
+
+.btn-approve:hover {
+    background-color: #16a34a !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2) !important;
+}
+
+.btn-reject {
+    background-color: #fee2e2 !important;
+    color: #b91c1c !important;
+}
+
+.btn-reject:hover {
+    background-color: #dc2626 !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2) !important;
+}
+
+.btn-view {
+    background-color: #e0f2fe !important;
+    color: #0369a1 !important;
+}
+
+.btn-view:hover {
+    background-color: #0284c7 !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.2) !important;
+}
+
+/* Status Badges */
+.badge-status {
+    display: inline-block !important;
+    padding: 6px 12px !important;
+    border-radius: 30px !important;
+    font-size: 12px !important;
+    font-weight: 700 !important;
+    text-transform: capitalize !important;
+}
+
+.badge-pending {
+    background-color: #fef3c7 !important;
+    color: #d97706 !important;
+}
+
+.badge-approved {
+    background-color: #dcfce7 !important;
+    color: #15803d !important;
+}
+
+.badge-rejected {
+    background-color: #fee2e2 !important;
+    color: #b91c1c !important;
+}

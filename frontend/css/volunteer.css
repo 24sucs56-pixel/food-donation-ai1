@@ -74,45 +74,48 @@ header p{
 }
 
 /*=========================================
-            TASK BOX
+            TASK & RATING STATUS BOXES
 =========================================*/
 
-.status-box{
-
-    background:white;
-
-    width:180px;
-
-    padding:18px;
-
-    border-radius:18px;
-
-    text-align:center;
-
-    box-shadow:0 12px 25px rgba(0,0,0,.08);
-
+.status-box {
+    background: #ffffff !important;
+    padding: 16px 24px !important;
+    border-radius: 18px !important;
+    text-align: center !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06) !important;
+    border: 1.5px solid #e2e8f0 !important;
+    min-width: 140px !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.status-box h3{
-
-    color:#64748b;
-
-    font-size:15px;
-
+.task-status-box {
+    background: #ffffff !important;
+    border: 1.5px solid #86efac !important;
+    box-shadow: 0 10px 25px rgba(22, 163, 74, 0.08) !important;
 }
 
-.status-box span{
+.task-status-box:hover {
+    transform: translateY(-3px) !important;
+    box-shadow: 0 14px 28px rgba(22, 163, 74, 0.15) !important;
+    border-color: #22c55e !important;
+}
 
-    display:block;
+.status-box h3 {
+    color: #334155 !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    margin: 0 !important;
+}
 
-    margin-top:10px;
-
-    font-size:34px;
-
-    color:#16a34a;
-
-    font-weight:700;
-
+.status-box span#taskCount {
+    display: block !important;
+    margin-top: 4px !important;
+    font-size: 28px !important;
+    color: #15803d !important;
+    font-weight: 800 !important;
+    line-height: 1.2 !important;
 }
 
 /*=========================================
@@ -273,8 +276,29 @@ header p{
 }
 
 /*=========================================
-            RESPONSIVE
+            RATING STATUS BOX & HOVER
 =========================================*/
+
+.rating-status-box {
+    cursor: pointer !important;
+    position: relative;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.rating-status-box:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 14px 28px rgba(217, 119, 6, 0.16) !important;
+    border-color: #d97706 !important;
+}
+
+.rating-status-box:active {
+    transform: translateY(-1px) !important;
+}
+
+.close-modal:hover {
+    color: #ef4444 !important;
+    background: #fef2f2 !important;
+}
 
 @media(max-width:900px){
 

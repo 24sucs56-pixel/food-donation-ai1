@@ -13,20 +13,20 @@ ngos = [
 
     {
         "name": "Food Care Trust",
-        "category": "Non-Veg",
+        "category": "Non Veg",
         "lat": 9.925200,
         "lng": 78.087000
     },
 
     {
-        "name": "Smile Foundation",
+        "name": "Hope Foundation",
         "category": "Bakery",
         "lat": 9.920000,
         "lng": 78.082500
     },
 
     {
-        "name": "Community Food Bank",
+        "name": "Smile Charity",
         "category": "Fruits",
         "lat": 9.934000,
         "lng": 78.095000
@@ -42,10 +42,14 @@ def calculate_distance(lat1, lon1, lat2, lon2):
 def recommend_ngo(category, latitude, longitude):
 
     matched = []
+    
+    # Normalize category comparison to handle both "Non Veg" and "Non-Veg"
+    normalized_category = category.replace("-", " ").strip().lower()
 
     for ngo in ngos:
+        ngo_category = ngo["category"].replace("-", " ").strip().lower()
 
-        if ngo["category"] == category:
+        if ngo_category == normalized_category:
 
             distance = calculate_distance(
 

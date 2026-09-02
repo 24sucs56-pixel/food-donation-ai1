@@ -1070,7 +1070,7 @@
 
 <section class="contact-section" id="contact">
 
-    <div class="contact-left">
+    <div class="section-header">
 
         <span>CONTACT US</span>
 
@@ -1078,71 +1078,177 @@
 
         <p>
 
-            Have questions? Contact our team anytime.
+            Have questions, need help, or want to partner with us? Reach out anytime.
 
         </p>
 
-        <div class="contact-info">
+    </div>
 
-            <p>
+    <div class="contact-container">
 
-                <i class="fa-solid fa-location-dot"></i>
+        <!-- Left Column: Contact Information -->
+        <div class="contact-info-card">
 
-                Madurai, Tamil Nadu
+            <div class="contact-card-header">
 
-            </p>
+                <span class="info-badge">
+                    <i class="fa-solid fa-headset"></i> 24/7 Support
+                </span>
 
-            <p>
+                <h3>Get in Touch</h3>
 
-                <i class="fa-solid fa-envelope"></i>
+                <p>
+                    Connect with our dedicated support team and AI coordinators for fast assistance.
+                </p>
 
-                SmartFoodDonationai@gmail.com
+            </div>
 
-            </p>
+            <div class="contact-details-list">
 
-            <p>
+                <div class="contact-item">
 
-                <i class="fa-solid fa-phone"></i>
+                    <div class="contact-icon">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
 
-                +91 9876543210
+                    <div class="contact-text">
+                        <h4>Our Location</h4>
+                        <p>Madurai, Tamil Nadu, India</p>
+                    </div>
 
-            </p>
+                </div>
+
+                <div class="contact-item">
+
+                    <div class="contact-icon">
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+
+                    <div class="contact-text">
+                        <h4>Email Us</h4>
+                        <a href="mailto:SmartFoodDonationai@gmail.com">SmartFoodDonationai@gmail.com</a>
+                    </div>
+
+                </div>
+
+                <div class="contact-item">
+
+                    <div class="contact-icon">
+                        <i class="fa-solid fa-phone"></i>
+                    </div>
+
+                    <div class="contact-text">
+                        <h4>Call Us</h4>
+                        <a href="tel:+919876543210">+91 9876543210</a>
+                    </div>
+
+                </div>
+
+                <div class="contact-item">
+
+                    <div class="contact-icon">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+
+                    <div class="contact-text">
+                        <h4>Working Hours</h4>
+                        <p>Open 24/7 for Food Donation Relief</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="contact-highlight-badge">
+                <i class="fa-solid fa-bolt"></i>
+                <div>
+                    <strong>Fast AI Matching Guarantee</strong>
+                    <p>Donations matched and assigned to NGOs within 15 minutes.</p>
+                </div>
+            </div>
 
         </div>
 
-    </div>
+        <!-- Right Column: Structured Contact Form -->
+        <div class="contact-form-card">
 
-    <div class="contact-right">
+            <div class="form-header">
+                <h3>Send Us a Message</h3>
+                <p>Fill in the fields below and our team will get back to you promptly.</p>
+            </div>
 
-        <form>
+            <form class="contact-form" onsubmit="event.preventDefault(); alert('Thank you for reaching out! Your message has been sent successfully.'); this.reset();">
 
-            <input
-                type="text"
-                placeholder="Full Name"
-                required>
+                <div class="form-row">
 
-            <input
-                type="email"
-                placeholder="Email Address"
-                required>
+                    <div class="form-group">
+                        <label for="contact-name">
+                            <i class="fa-solid fa-user"></i> Full Name <span class="required">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-user input-icon"></i>
+                            <input
+                                id="contact-name"
+                                type="text"
+                                placeholder="Enter your full name"
+                                required>
+                        </div>
+                    </div>
 
-            <input
-                type="text"
-                placeholder="Subject">
+                    <div class="form-group">
+                        <label for="contact-email">
+                            <i class="fa-solid fa-envelope"></i> Email Address <span class="required">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="fa-solid fa-envelope input-icon"></i>
+                            <input
+                                id="contact-email"
+                                type="email"
+                                placeholder="Enter your email address"
+                                required>
+                        </div>
+                    </div>
 
-            <textarea
-                rows="6"
-                placeholder="Your Message"></textarea>
+                </div>
 
-            <button
-                class="primary-btn"
-                type="submit">
+                <div class="form-group">
+                    <label for="contact-subject">
+                        <i class="fa-solid fa-tag"></i> Subject <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-tag input-icon"></i>
+                        <input
+                            id="contact-subject"
+                            type="text"
+                            placeholder="e.g. Food Donation, NGO Partnership, Feedback"
+                            required>
+                    </div>
+                </div>
 
-                Send Message
+                <div class="form-group">
+                    <label for="contact-message">
+                        <i class="fa-solid fa-comment-dots"></i> Your Message <span class="required">*</span>
+                    </label>
+                    <div class="input-wrapper textarea-wrapper">
+                        <i class="fa-solid fa-comment-dots input-icon textarea-icon"></i>
+                        <textarea
+                            id="contact-message"
+                            rows="5"
+                            placeholder="Type your message, query, or feedback here..."
+                            required></textarea>
+                    </div>
+                </div>
 
-            </button>
+                <button
+                    class="primary-btn contact-submit-btn"
+                    type="submit">
+                    <span>Send Message</span>
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
 
-        </form>
+            </form>
+
+        </div>
 
     </div>
 
@@ -1154,31 +1260,42 @@
 
 <section class="newsletter">
 
-    <div class="newsletter-content">
+    <div class="newsletter-card">
 
-        <h2>
+        <div class="newsletter-content">
 
-            Stay Updated
+            <span class="newsletter-tag">
+                <i class="fa-solid fa-bell"></i> STAY CONNECTED
+            </span>
 
-        </h2>
+            <h2>Stay Updated with Smart Food AI</h2>
 
-        <p>
+            <p>
+                Subscribe for live donation updates, surplus food alerts in your locality, and new AI features.
+            </p>
 
-            Subscribe for donation updates and AI features.
+            <form class="newsletter-box" onsubmit="event.preventDefault(); alert('Subscribed successfully! Thank you for staying connected.'); this.reset();">
 
-        </p>
+                <div class="newsletter-input-group">
+                    <i class="fa-solid fa-envelope newsletter-icon"></i>
+                    <input
+                        type="email"
+                        placeholder="Enter your email address..."
+                        required>
+                </div>
 
-        <div class="newsletter-box">
+                <button type="submit" class="newsletter-btn">
+                    <span>Subscribe</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
 
-            <input
-                type="email"
-                placeholder="Enter your email">
+            </form>
 
-            <button>
-
-                Subscribe
-
-            </button>
+            <div class="newsletter-benefits">
+                <span><i class="fa-solid fa-circle-check"></i> Instant surplus alerts</span>
+                <span><i class="fa-solid fa-circle-check"></i> Zero spam</span>
+                <span><i class="fa-solid fa-circle-check"></i> Unsubscribe anytime</span>
+            </div>
 
         </div>
 
@@ -1196,20 +1313,19 @@
 
         <div class="footer-about">
 
-            <h2>
-
+            <div class="footer-brand">
                 <i class="fa-solid fa-leaf"></i>
-
-              Smart Food Donation  AI
-
-            </h2>
+                <h2>Smart Food Donation AI</h2>
+            </div>
 
             <p>
-
-                AI Powered Food Donation Management System
-                connecting donors, NGOs and volunteers.
-
+                AI Powered Food Donation Management System connecting donors, NGOs, and volunteers to eliminate hunger and reduce food waste.
             </p>
+
+            <div class="footer-badge">
+                <i class="fa-solid fa-heart"></i>
+                <span>Making Every Meal Count</span>
+            </div>
 
         </div>
 
@@ -1217,13 +1333,15 @@
 
             <h3>Quick Links</h3>
 
-            <a href="#home">Home</a>
+            <a href="#home"><i class="fa-solid fa-chevron-right"></i> Home</a>
 
-            <a href="#features">Features</a>
+            <a href="#features"><i class="fa-solid fa-chevron-right"></i> Features</a>
 
-            <a href="#ai">AI</a>
+            <a href="#statistics"><i class="fa-solid fa-chevron-right"></i> Impact Statistics</a>
 
-            <a href="#contact">Contact</a>
+            <a href="#ai"><i class="fa-solid fa-chevron-right"></i> AI Features</a>
+
+            <a href="#contact"><i class="fa-solid fa-chevron-right"></i> Contact Us</a>
 
         </div>
 
@@ -1231,13 +1349,15 @@
 
             <h3>Services</h3>
 
-            <a href="#">Donate Food</a>
+            <a href="donate.html"><i class="fa-solid fa-chevron-right"></i> Donate Food</a>
 
-            <a href="#">Volunteer</a>
+            <a href="donor.html"><i class="fa-solid fa-chevron-right"></i> Donor Portal</a>
 
-            <a href="#">Find NGO</a>
+            <a href="ngo.html"><i class="fa-solid fa-chevron-right"></i> NGO Hub</a>
 
-            <a href="#">AI Analysis</a>
+            <a href="volunteer.html"><i class="fa-solid fa-chevron-right"></i> Volunteers</a>
+
+            <a href="dashboard.html"><i class="fa-solid fa-chevron-right"></i> Live Dashboard</a>
 
         </div>
 
@@ -1245,30 +1365,28 @@
 
             <h3>Follow Us</h3>
 
+            <p>Join our community across social platforms:</p>
+
             <div class="social-icons">
 
-                <a href="#">
-
+                <a href="#" aria-label="Facebook">
                     <i class="fab fa-facebook-f"></i>
-
                 </a>
 
-                <a href="#">
-
+                <a href="#" aria-label="Instagram">
                     <i class="fab fa-instagram"></i>
-
                 </a>
 
-                <a href="#">
-
+                <a href="#" aria-label="LinkedIn">
                     <i class="fab fa-linkedin-in"></i>
-
                 </a>
 
-                <a href="#">
-
+                <a href="#" aria-label="YouTube">
                     <i class="fab fa-youtube"></i>
+                </a>
 
+                <a href="#" aria-label="X Twitter">
+                    <i class="fab fa-x-twitter"></i>
                 </a>
 
             </div>
@@ -1277,10 +1395,11 @@
 
     </div>
 
-    <div class="copyright">
+    <div class="footer-bottom">
 
-        © 2026 Smart Food Donation System AI.
-        All Rights Reserved.
+        <div class="copyright">
+            © 2026 Smart Food Donation System AI. All Rights Reserved.
+        </div>
 
     </div>
 

@@ -1,71 +1,165 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Smart Food Donation System | Volunteer Dashboard</title>
-
-<link rel="stylesheet" href="css/volunteer.css">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Food Donation | Volunteer Dashboard</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/volunteer.css">
+    <link rel="stylesheet" href="css/layout-fix.css">
+    <link rel="stylesheet" href="css/premium-theme.css">
+    
+    <style>
+        body {
+            background: #f8fffb !important;
+            padding: 40px 20px !important;
+            overflow-y: auto !important;
+            height: auto !important;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #16a34a;
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 25px;
+            transition: transform 0.2s ease;
+        }
+        .back-link:hover {
+            transform: translateX(-4px);
+        }
+        .status-box {
+            background: #ffffff !important;
+            padding: 15px 25px !important;
+            border-radius: 18px !important;
+            box-shadow: 0 10px 30px rgba(31, 154, 82, 0.04) !important;
+            border: 1px solid rgba(22, 163, 74, 0.08) !important;
+            text-align: center !important;
+            min-width: 120px !important;
+        }
+    </style>
 </head>
-
 <body>
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0;">
+        <a href="dashboard.html" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </a>
+        
+        <header style="margin-bottom: 35px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
+            <div>
+                <h1 style="color: #15803d; font-size: 38px; font-weight: 700; margin: 0 0 10px 0;"><i class="fa-solid fa-truck-fast"></i> Volunteer Dashboard</h1>
+                <p style="color: #64748b; font-size: 16px; margin: 0;">Manage food pickup and delivery efficiently.</p>
+            </div>
+            
+            <div style="display: flex; gap: 16px; align-items: stretch; flex-wrap: wrap;">
+                <!-- Today's Tasks Card -->
+                <div class="status-box task-status-box" style="background: #ffffff; padding: 16px 24px; border-radius: 18px; box-shadow: 0 10px 25px rgba(22, 163, 74, 0.08); border: 1.5px solid #86efac; text-align: center; min-width: 140px;">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i class="fa-solid fa-list-check" style="font-size: 13px; color: #16a34a;"></i>
+                        <h3 style="font-size: 12.5px; color: #334155; margin: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;">Today's Tasks</h3>
+                    </div>
+                    <span id="taskCount" style="font-size: 28px; font-weight: 800; color: #15803d; display: block; margin-top: 4px; line-height: 1.2;">0</span>
+                    <span style="font-size: 11.5px; font-weight: 600; color: #16a34a; display: block; margin-top: 2px;">Active Pickups</span>
+                </div>
+                
+                <!-- My Rating Card -->
+                <div class="status-box rating-status-box" id="ratingBox" onclick="openVolunteerReviewsModal()" style="background: #ffffff; padding: 16px 24px; border-radius: 18px; box-shadow: 0 10px 25px rgba(217, 119, 6, 0.09); border: 1.5px solid #fcd34d; text-align: center; min-width: 150px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative;" title="Click to view ratings and reviews from Donors and NGOs">
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i class="fa-solid fa-star" style="font-size: 13px; color: #d97706;"></i>
+                        <h3 style="font-size: 12.5px; color: #334155; margin: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;">My Rating</h3>
+                        <i class="fa-solid fa-circle-info" style="font-size: 11px; color: #d97706;"></i>
+                    </div>
+                    <span id="volunteerRatingVal" style="font-size: 28px; font-weight: 800; color: #d97706; display: block; margin-top: 4px; line-height: 1.2;">0.0 ★</span>
+                    <span id="volunteerRatingCount" style="font-size: 11.5px; font-weight: 600; color: #15803d; display: block; margin-top: 2px; text-decoration: underline;">(0 reviews)</span>
+                </div>
+            </div>
+        </header>
 
-<div class="container">
+        <div id="volunteerContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 25px;">
+            <!-- Donation Cards will appear here -->
+        </div>
+    </div>
 
-<header>
+    <!-- Volunteer Reviews & Ratings Breakdown Modal -->
+    <div id="volunteerReviewsModal" class="modal" style="display:none; position:fixed; z-index:10003; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(15, 23, 42, 0.65); backdrop-filter:blur(6px); align-items:center; justify-content:center;">
+        <div class="modal-content" style="background-color:#ffffff; margin:auto; padding:32px; border:1px solid #e2e8f0; width:92%; max-width:720px; border-radius:24px; position:relative; text-align:left; box-shadow: 0 25px 60px rgba(0,0,0,0.25); animation: zoomIn 0.3s cubic-bezier(0.16, 1, 0.3, 1); box-sizing: border-box;">
+            <span class="close-modal" id="closeReviewsModal" onclick="closeVolunteerReviewsModal()" style="position:absolute; right:22px; top:18px; color:#94a3b8; font-size:28px; font-weight:bold; cursor:pointer; width:36px; height:36px; display:flex; align-items:center; justify-content:center; border-radius:50%; transition:all 0.2s;">&times;</span>
+            
+            <!-- Header -->
+            <div style="margin-bottom: 22px; border-bottom: 1px solid #f1f5f9; padding-bottom: 16px;">
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                    <div style="width: 36px; height: 36px; border-radius: 10px; background: #fef3c7; color: #d97706; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <h2 style="color:#0f172a; margin: 0; font-weight: 700; font-size: 22px;">Volunteer Ratings & Reviews</h2>
+                </div>
+                <p style="color: #64748b; font-size: 14px; margin: 0;">Verified performance feedback from Donors and NGOs for <strong id="modalVolunteerName" style="color: #15803d;">Volunteer</strong></p>
+            </div>
 
-<div>
+            <!-- Rating Hero Summary -->
+            <div style="background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%); border: 1.5px solid #bbf7d0; border-radius: 20px; padding: 22px; margin-bottom: 24px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px;">
+                    <div style="display: flex; align-items: center; gap: 18px;">
+                        <div style="background: #ffffff; padding: 12px 20px; border-radius: 16px; text-align: center; border: 1px solid #86efac; box-shadow: 0 4px 15px rgba(22, 163, 74, 0.1);">
+                            <div id="modalBigRatingScore" style="font-size: 36px; font-weight: 800; color: #d97706; line-height: 1;">0.0</div>
+                            <div id="modalStarIcons" style="color: #d97706; font-size: 13px; margin-top: 4px;">★★★★★</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 16px; font-weight: 700; color: #14532d;" id="modalRatingHeadline">Excellent Performance</div>
+                            <div style="font-size: 13px; color: #166534; margin-top: 2px;">Based on <strong id="modalTotalReviewsCount">0</strong> verified delivery reviews</div>
+                            <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(22, 163, 74, 0.15); color: #15803d; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 600; margin-top: 6px;">
+                                <i class="fa-solid fa-circle-check"></i> 100% On-Time Delivery Track Record
+                            </div>
+                        </div>
+                    </div>
 
-<h1>
-<i class="fa-solid fa-truck-fast"></i>
-Volunteer Dashboard
-</h1>
+                    <!-- Donor vs NGO Split Badges -->
+                    <div style="display: flex; gap: 10px;">
+                        <div style="background: #ffffff; padding: 10px 16px; border-radius: 14px; border: 1px solid #e2e8f0; text-align: center; min-width: 105px;">
+                            <div style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">From Donors</div>
+                            <div id="modalDonorAvgScore" style="font-size: 18px; font-weight: 700; color: #15803d; margin-top: 2px;">0.0 ★</div>
+                            <div id="modalDonorReviewCount" style="font-size: 11px; color: #94a3b8;">0 Reviews</div>
+                        </div>
+                        <div style="background: #ffffff; padding: 10px 16px; border-radius: 14px; border: 1px solid #e2e8f0; text-align: center; min-width: 105px;">
+                            <div style="font-size: 11px; font-weight: 600; color: #64748b; text-transform: uppercase;">From NGOs</div>
+                            <div id="modalNgoAvgScore" style="font-size: 18px; font-weight: 700; color: #2563eb; margin-top: 2px;">0.0 ★</div>
+                            <div id="modalNgoReviewCount" style="font-size: 11px; color: #94a3b8;">0 Reviews</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-<p>
-Manage food pickup and delivery efficiently.
-</p>
+            <!-- Filter tabs -->
+            <div style="display: flex; gap: 8px; margin-bottom: 18px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px;">
+                <button id="filterAllReviewsBtn" onclick="filterVolunteerReviews('all')" style="background: #16a34a; color: white; border: none; padding: 6px 14px; border-radius: 20px; font-size: 12.5px; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                    All Reviews (<span id="filterAllCount">0</span>)
+                </button>
+                <button id="filterDonorReviewsBtn" onclick="filterVolunteerReviews('Donor')" style="background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; padding: 6px 14px; border-radius: 20px; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all 0.2s;">
+                    <i class="fa-solid fa-hand-holding-heart" style="color: #16a34a;"></i> Donors (<span id="filterDonorCount">0</span>)
+                </button>
+                <button id="filterNgoReviewsBtn" onclick="filterVolunteerReviews('NGO')" style="background: #f1f5f9; color: #475569; border: 1px solid #e2e8f0; padding: 6px 14px; border-radius: 20px; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all 0.2s;">
+                    <i class="fa-solid fa-building" style="color: #2563eb;"></i> NGOs (<span id="filterNgoCount">0</span>)
+                </button>
+            </div>
 
-</div>
+            <!-- Reviews List (Scrollable) -->
+            <div id="volunteerReviewsList" style="max-height: 48vh; overflow-y: auto; padding-right: 6px; display: flex; flex-direction: column; gap: 14px;">
+                <!-- Rendered dynamically -->
+            </div>
+        </div>
+    </div>
 
-<div class="status-box">
-
-<h3>Today's Tasks</h3>
-
-<span id="taskCount">0</span>
-
-</div>
-
-</header>
-
-<div id="volunteerContainer">
-
-<!-- Donation Cards will appear here -->
-
-</div>
-
-</div>
-
-<script src="js/volunteer.js"></script>
-<script src="js/auth.js"></script>
-
-<script>
-
-checkRole("volunteer");
-
-</script>
+    <script src="js/volunteer.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        checkRole("volunteer");
+    </script>
 </body>
-
 </html>

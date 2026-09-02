@@ -112,7 +112,7 @@ document.getElementById("recommendation").innerHTML=recommendation;
 // ==========================================
 // AI FOOD SAFETY VARIABLES
 // ==========================================
-const foodCategory = document.getElementById("foodCategory");
+const getFoodCategoryValue = () => { const el = document.querySelector(".foodCategoryInput"); return el ? el.value : ""; };
 const storage = document.getElementById("storage");
 
 const preparedDate = document.getElementById("preparedDate");
@@ -152,7 +152,6 @@ function convertTo24Hour(time, period) {
 function analyzeFood() {
 
     if (
-        !foodCategory ||
         !storage ||
         !preparedDate ||
         !preparedTime ||
@@ -165,9 +164,11 @@ function analyzeFood() {
         return;
     }
 
+    const categoryVal = getFoodCategoryValue();
+
     // Check all required values
     if (
-        !foodCategory.value ||
+        !categoryVal ||
         !storage.value ||
         !preparedDate.value ||
         !preparedTime.value ||
@@ -303,13 +304,13 @@ function analyzeFood() {
     // FOOD CATEGORY
     // ==========================
 
-    if (foodCategory.value === "Non Veg" ||
-        foodCategory.value === "Non-Veg") {
+    if (categoryVal === "Non Veg" ||
+        categoryVal === "Non-Veg") {
 
         freshnessScore -= 10;
 
     }
-    else if (foodCategory.value === "Veg") {
+    else if (categoryVal === "Veg") {
 
         freshnessScore -= 2;
 
@@ -432,7 +433,14 @@ function analyzeFood() {
 // ==========================================================
 // RUN AI WHEN TIME / FOOD DATA CHANGES
 // ==========================================================
-foodCategory.addEventListener("change", analyzeFood);
+const foodInputListEl = document.getElementById("foodInputList");
+if (foodInputListEl) {
+    foodInputListEl.addEventListener("change", (e) => {
+        if (e.target && e.target.classList.contains("foodCategoryInput")) {
+            analyzeFood();
+        }
+    });
+}
 
 storage.addEventListener("change", analyzeFood);
 
@@ -491,8 +499,8 @@ let pickupMarker = null;
 
 const latitudeInput = document.getElementById("latitude");
 const longitudeInput = document.getElementById("longitude");
-const addressInput = document.getElementById("address");
 const locationSearchInput = document.getElementById("locationSearch");
+const addressInput = locationSearchInput;
 const searchLocationBtn = document.getElementById("searchLocationBtn");
 const currentLocationBtn = document.getElementById("currentLocationBtn");
 
@@ -804,6 +812,52 @@ if (foodImageInput && previewImageElement) {
 }
 
 // ==========================================
+// DYNAMIC FOOD ITEMS VARIETIES
+// ==========================================
+const addFoodBtn = document.getElementById("addFoodBtn");
+const foodInputList = document.getElementById("foodInputList");
+
+if (addFoodBtn && foodInputList) {
+    addFoodBtn.addEventListener("click", () => {
+        const newRow = document.createElement("div");
+        newRow.className = "food-input-row";
+        newRow.style.display = "flex";
+        newRow.style.alignItems = "center";
+        newRow.style.gap = "8px";
+        newRow.style.marginBottom = "8px";
+        
+        newRow.innerHTML = `
+            <div class="input-icon" style="flex: 2;">
+                <i class="fa-solid fa-bowl-food"></i>
+                <input
+                    type="text"
+                    class="foodNameInput"
+                    placeholder="Example : Sambar / Bread"
+                    required>
+            </div>
+            <div class="input-icon" style="flex: 1.2;">
+                <i class="fa-solid fa-layer-group"></i>
+                <select class="foodCategoryInput" required style="padding-left: 50px; height: 56px;">
+                    <option value="">Category</option>
+                    <option value="Veg">Veg</option>
+                    <option value="Non Veg">Non Veg</option>
+                    <option value="Bakery">Bakery</option>
+                    <option value="Fruits">Fruits</option>
+                </select>
+            </div>
+            <button type="button" class="remove-food-btn" style="background: #ef4444; border: none; color: white; width: 44px; height: 56px; border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s;" title="Remove food item">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        `;
+        foodInputList.appendChild(newRow);
+        
+        newRow.querySelector(".remove-food-btn").addEventListener("click", () => {
+            newRow.remove();
+        });
+    });
+}
+
+// ==========================================
 // DONATE FOOD FORM SUBMISSION
 // ==========================================
 
@@ -814,8 +868,13 @@ if (donateForm) {
         event.preventDefault();
 
         // Get form values
-        const foodName = document.getElementById("foodName").value.trim();
-        const foodCategory = document.getElementById("foodCategory").value;
+        const foodRows = document.querySelectorAll("#foodInputList .food-input-row");
+        const foodItems = Array.from(foodRows).map(row => {
+            const name = row.querySelector(".foodNameInput").value.trim();
+            const category = row.querySelector(".foodCategoryInput").value;
+            return { name, category };
+        }).filter(item => item.name !== "");
+
         const quantity = document.getElementById("quantity").value;
         const preparedDate = document.getElementById("preparedDate").value;
         const preparedTime = document.getElementById("preparedTime").value;
@@ -824,14 +883,17 @@ if (donateForm) {
         const expiryTime = document.getElementById("expiryTime").value;
         const expiryPeriod = document.getElementById("expiryPeriod").value;
         const storage = document.getElementById("storage").value;
-        const address = document.getElementById("address").value.trim();
+        const address = document.getElementById("locationSearch").value.trim();
         const latitude = document.getElementById("latitude").value;
         const longitude = document.getElementById("longitude").value;
 
+        // Check if any item has missing category
+        const invalidItem = foodItems.find(item => item.name && !item.category);
+
         // Check required fields
         if (
-            !foodName ||
-            !foodCategory ||
+            foodItems.length === 0 ||
+            invalidItem ||
             !quantity ||
             !preparedDate ||
             !preparedTime ||
@@ -840,7 +902,7 @@ if (donateForm) {
             !storage ||
             !address
         ) {
-            alert("Please fill in all required food details.");
+            alert("Please fill in all required food details including categories.");
             return;
         }
 
@@ -856,12 +918,13 @@ if (donateForm) {
         const prepared_time_str = `${String(prep.hour).padStart(2, "0")}:${String(prep.minute).padStart(2, "0")}`;
         const expiry_time_str = `${String(exp.hour).padStart(2, "0")}:${String(exp.minute).padStart(2, "0")}`;
 
-        const donor_email = localStorage.getItem("email") || "test@example.com";
+        const donor_email = localStorage.getItem("email") || "rohan.sharma.donor@gmail.com";
+        const primaryCategory = foodItems.length > 0 ? foodItems[0].category : "";
 
         // Create donation data object
         const donationData = {
-            foodName: foodName,
-            foodCategory: foodCategory,
+            foodName: foodItems,
+            foodCategory: primaryCategory,
             quantity: quantity,
             preparedDate: preparedDate,
             preparedTime: prepared_time_str,
@@ -884,9 +947,9 @@ if (donateForm) {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    food_name: foodName,
+                    food_name: foodItems,
                     quantity: quantity,
-                    category: foodCategory,
+                    category: primaryCategory,
                     prepared_time: prepared_time_str,
                     storage: storage,
                     expiry: expiry_time_str,
@@ -923,6 +986,32 @@ if (donateForm) {
         // Reset form
         donateForm.reset();
 
+        // Reset food items list to only one row
+        if (foodInputList) {
+            foodInputList.innerHTML = `
+                <div class="food-input-row" style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                    <div class="input-icon" style="flex: 2;">
+                        <i class="fa-solid fa-bowl-food"></i>
+                        <input
+                            type="text"
+                            class="foodNameInput"
+                            placeholder="Example : Vegetable Rice"
+                            required>
+                    </div>
+                    <div class="input-icon" style="flex: 1.2;">
+                        <i class="fa-solid fa-layer-group"></i>
+                        <select class="foodCategoryInput" required style="padding-left: 50px; height: 56px;">
+                            <option value="">Category</option>
+                            <option value="Veg">Veg</option>
+                            <option value="Non Veg">Non Veg</option>
+                            <option value="Bakery">Bakery</option>
+                            <option value="Fruits">Fruits</option>
+                        </select>
+                    </div>
+                </div>
+            `;
+        }
+
         // Hide image preview
         const previewImage = document.getElementById("previewImage");
         if (previewImage) {
@@ -941,3 +1030,323 @@ if (donateForm) {
         console.log("Donation saved:", donationData);
     });
 };
+
+document.addEventListener("DOMContentLoaded", () => {
+    const foodFacts = [
+        "Around 1/3 of all food produced globally is lost or wasted every year.",
+        "Donating surplus food reduces landfill methane emissions, fighting climate change.",
+        "Feeding people instead of landfills saves water, land, and energy resources.",
+        "Every donation helps! Even small contributions can feed a family in need today.",
+        "Over 800 million people suffer from hunger, while edible food is wasted.",
+        "AI-powered freshness tracking safeguards beneficiaries and improves efficiency.",
+        "Meal planning and proper storage can prevent up to 40% of household food waste."
+    ];
+    const factTextEl = document.getElementById("topbarFactText");
+    if (factTextEl) {
+        const randomFact = foodFacts[Math.floor(Math.random() * foodFacts.length)];
+        factTextEl.innerText = randomFact;
+    }
+});
+
+// ==========================================
+// DYNAMIC NOTIFICATION SYSTEM FOR DONATE PAGE
+// ==========================================
+
+(function() {
+    // Notification toggling code moved inside inline script in donate.html
+
+    function parseCustomDate(dateStr) {
+        if (!dateStr) return new Date(0);
+        try {
+            const parts = dateStr.split(" ");
+            if (parts.length < 2) return new Date(0);
+            
+            const dateParts = parts[0].split("-");
+            const timeParts = parts[1].split(":");
+            const ampm = parts[2] ? parts[2].toUpperCase() : "AM";
+            
+            if (dateParts.length < 3 || timeParts.length < 2) return new Date(0);
+            
+            const day = parseInt(dateParts[0]);
+            const month = parseInt(dateParts[1]) - 1;
+            const year = parseInt(dateParts[2]);
+            
+            let hour = parseInt(timeParts[0]);
+            const minute = parseInt(timeParts[1]);
+            
+            if (ampm === "PM" && hour < 12) hour += 12;
+            if (ampm === "AM" && hour === 12) hour = 0;
+            
+            return new Date(year, month, day, hour, minute);
+        } catch (e) {
+            return new Date(0);
+        }
+    }
+
+    async function loadDonateNotifications() {
+        try {
+            const response = await fetch("http://127.0.0.1:5000/donations");
+            const result = await response.json();
+            const allDonations = result.data || [];
+            
+            const userEmail = localStorage.getItem("email") || "";
+            const userName = localStorage.getItem("name") || "";
+            const userRole = (localStorage.getItem("role") || "donor").toLowerCase();
+            
+            const notificationBody = document.querySelector("#notificationMenu .notification-body");
+            if (!notificationBody) return;
+            
+            let notifications = [];
+            
+            // Generate notifications based on role
+            if (userRole === "donor") {
+                const myDonations = allDonations.filter(d => d.donor_email === userEmail);
+                myDonations.forEach(d => {
+                    const foodNameText = Array.isArray(d.food_name) 
+                        ? d.food_name.map(f => typeof f === 'object' ? f.name : f).join(", ") 
+                        : (d.food_name || "Food");
+                    
+                    notifications.push({
+                        id: `${d._id}_submitted`,
+                        donationId: d._id,
+                        title: "Donation Submitted",
+                        text: `Your donation of ${foodNameText} was submitted successfully.`,
+                        dateStr: d.created_at,
+                        icon: "📦"
+                    });
+                    
+                    if (d.accepted_at) {
+                        notifications.push({
+                            id: `${d._id}_accepted`,
+                            donationId: d._id,
+                            title: "Donation Accepted",
+                            text: `Your donation of ${foodNameText} was claimed by ${d.ngo || 'an NGO'}.`,
+                            dateStr: d.accepted_at,
+                            icon: "🤝"
+                        });
+                    }
+                    
+                    if (d.picked_at) {
+                        notifications.push({
+                            id: `${d._id}_picked`,
+                            donationId: d._id,
+                            title: "Volunteer Assigned & Picked Up",
+                            text: `Volunteer ${d.volunteer || 'assigned'} has picked up ${foodNameText}.`,
+                            dateStr: d.picked_at,
+                            icon: "🚚"
+                        });
+                    }
+                    
+                    if (d.delivered_at) {
+                        notifications.push({
+                            id: `${d._id}_delivered`,
+                            donationId: d._id,
+                            title: "Donation Delivered",
+                            text: `Your donation of ${foodNameText} has been safely delivered! Thank you.`,
+                            dateStr: d.delivered_at,
+                            icon: "✅"
+                        });
+                    }
+                });
+                
+            } else if (userRole === "ngo") {
+                allDonations.forEach(d => {
+                    const foodNameText = Array.isArray(d.food_name) 
+                        ? d.food_name.map(f => typeof f === 'object' ? f.name : f).join(", ") 
+                        : (d.food_name || "Food");
+                    
+                    if (d.status === "Waiting") {
+                        notifications.push({
+                            id: `${d._id}_available`,
+                            donationId: d._id,
+                            title: "New Donation Available",
+                            text: `Surplus food ${foodNameText} is available for claiming.`,
+                            dateStr: d.created_at,
+                            icon: "🔔"
+                        });
+                    } else if (d.ngo === userName || d.ngo === "Helping Hands NGO") {
+                        notifications.push({
+                            id: `${d._id}_ngo_accepted`,
+                            donationId: d._id,
+                            title: "Donation Claimed by You",
+                            text: `You claimed ${foodNameText}. Awaiting volunteer pickup.`,
+                            dateStr: d.accepted_at,
+                            icon: "🤝"
+                        });
+                        
+                        if (d.picked_at) {
+                            notifications.push({
+                                id: `${d._id}_ngo_picked`,
+                                donationId: d._id,
+                                title: "Donation Picked Up",
+                                text: `Volunteer ${d.volunteer || 'assigned'} picked up ${foodNameText}.`,
+                                dateStr: d.picked_at,
+                                icon: "🚚"
+                            });
+                        }
+                        
+                        if (d.delivered_at) {
+                            notifications.push({
+                                id: `${d._id}_ngo_delivered`,
+                                donationId: d._id,
+                                title: "Donation Delivered Successfully",
+                                text: `${foodNameText} has been delivered to your location.`,
+                                dateStr: d.delivered_at,
+                                icon: "✅"
+                            });
+                        }
+                    }
+                });
+                
+            } else if (userRole === "volunteer") {
+                allDonations.forEach(d => {
+                    const foodNameText = Array.isArray(d.food_name) 
+                        ? d.food_name.map(f => typeof f === 'object' ? f.name : f).join(", ") 
+                        : (d.food_name || "Food");
+                    
+                    if (d.status === "Accepted") {
+                        notifications.push({
+                            id: `${d._id}_vol_available`,
+                            donationId: d._id,
+                            title: "New Pickup Task Available",
+                            text: `Surplus food ${foodNameText} is ready at ${d.address ? d.address.split(',')[0] : 'location'}.`,
+                            dateStr: d.accepted_at,
+                            icon: "🔔"
+                        });
+                    } else if (d.volunteer === userName || d.volunteer === "Vikas Dubey") {
+                        if (d.picked_at) {
+                            notifications.push({
+                                id: `${d._id}_vol_picked`,
+                                donationId: d._id,
+                                title: "Pickup Completed",
+                                text: `You have picked up ${foodNameText} and started delivery.`,
+                                dateStr: d.picked_at,
+                                icon: "🚚"
+                            });
+                        }
+                        
+                        if (d.delivered_at) {
+                            notifications.push({
+                                id: `${d._id}_vol_delivered`,
+                                donationId: d._id,
+                                title: "Task Delivered Successfully",
+                                text: `You delivered ${foodNameText} to ${d.ngo || 'NGO'}.`,
+                                dateStr: d.delivered_at,
+                                icon: "✅"
+                            });
+                        }
+                    }
+                });
+                
+            } else {
+                allDonations.forEach(d => {
+                    const foodNameText = Array.isArray(d.food_name) 
+                        ? d.food_name.map(f => typeof f === 'object' ? f.name : f).join(", ") 
+                        : (d.food_name || "Food");
+                    
+                    notifications.push({
+                        id: `${d._id}_admin_submit`,
+                        donationId: d._id,
+                        title: "Donation Submitted",
+                        text: `${foodNameText} submitted by ${d.donor_email || 'donor'}.`,
+                        dateStr: d.created_at,
+                        icon: "📦"
+                    });
+                });
+            }
+            
+            // Sort
+            notifications.sort((a, b) => {
+                const dateA = parseCustomDate(a.dateStr);
+                const dateB = parseCustomDate(b.dateStr);
+                return dateB - dateA;
+            });
+            
+            notifications = notifications.slice(0, 15);
+            
+            let readIds = [];
+            try {
+                readIds = JSON.parse(localStorage.getItem("read_notifications"));
+                if (!Array.isArray(readIds)) {
+                    readIds = [];
+                }
+            } catch (e) {
+                readIds = [];
+            }
+            
+            const unreadCount = notifications.filter(n => !readIds.includes(n.id)).length;
+            
+            const badge = document.querySelector("#notificationBtn .notification-count");
+            if (badge) {
+                badge.innerText = unreadCount;
+                badge.style.display = unreadCount > 0 ? "flex" : "none";
+            }
+            
+            const newCountSpan = document.querySelector("#notificationMenu .new-count");
+            if (newCountSpan) {
+                newCountSpan.innerText = `${unreadCount} New`;
+                newCountSpan.style.cursor = "pointer";
+                newCountSpan.title = "Click to mark all as read";
+                
+                const newCountClone = newCountSpan.cloneNode(true);
+                newCountSpan.parentNode.replaceChild(newCountClone, newCountSpan);
+                
+                newCountClone.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    notifications.forEach(n => {
+                        if (!readIds.includes(n.id)) {
+                            readIds.push(n.id);
+                        }
+                    });
+                    localStorage.setItem("read_notifications", JSON.stringify(readIds));
+                    loadDonateNotifications();
+                });
+            }
+            
+            notificationBody.innerHTML = "";
+            
+            if (notifications.length === 0) {
+                notificationBody.innerHTML = `
+                    <div style="text-align: center; padding: 30px; color: #888;">
+                        <i class="fa-solid fa-bell-slash" style="font-size: 24px; margin-bottom: 8px;"></i>
+                        <p style="font-size: 13px; margin: 0;">No notifications found</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            notifications.forEach(n => {
+                const isUnread = !readIds.includes(n.id);
+                const unreadStyle = isUnread ? "background-color: #f7fff8; font-weight: 550;" : "";
+                
+                const itemDiv = document.createElement("div");
+                itemDiv.className = "notification-item";
+                if (isUnread) itemDiv.classList.add("unread");
+                itemDiv.style = unreadStyle;
+                
+                itemDiv.innerHTML = `
+                    <div class="notification-icon">${n.icon}</div>
+                    <div style="flex: 1;">
+                        <h4 style="margin: 0 0 4px 0; color: #1e293b; font-size: 13.5px; font-weight: 600;">${n.title}</h4>
+                        <p style="margin: 0 0 6px 0; color: #64748b; font-size: 12px; line-height: 1.4;">${n.text}</p>
+                        <small style="color: #94a3b8; font-size: 11px; display: block;"><i class="fa-regular fa-clock" style="margin-right: 4px;"></i>${n.dateStr || 'Recent'}</small>
+                    </div>
+                `;
+                
+                itemDiv.addEventListener("click", () => {
+                    if (isUnread) {
+                        readIds.push(n.id);
+                        localStorage.setItem("read_notifications", JSON.stringify(readIds));
+                    }
+                    window.location.href = `dashboard.html?viewDonationId=${n.donationId}`;
+                });
+                
+                notificationBody.appendChild(itemDiv);
+            });
+        } catch (error) {
+            console.error("Error loading notifications in donate page:", error);
+        }
+    }
+
+    loadDonateNotifications();
+})();

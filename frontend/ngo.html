@@ -1,50 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Smart Food Donation System | NGO Dashboard</title>
-
-<link rel="stylesheet" href="css/ngo.css">
-
-<link rel="stylesheet"
-href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Food Donation | NGO Dashboard</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
+    <link rel="stylesheet" href="css/ngo.css">
+    <link rel="stylesheet" href="css/layout-fix.css">
+    <link rel="stylesheet" href="css/premium-theme.css">
+    
+    <style>
+        body {
+            background: #f8fffb !important;
+            padding: 40px 20px !important;
+            overflow-y: auto !important;
+            height: auto !important;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            color: #16a34a;
+            font-weight: 600;
+            font-size: 15px;
+            margin-bottom: 25px;
+            transition: transform 0.2s ease;
+        }
+        .back-link:hover {
+            transform: translateX(-4px);
+        }
+    </style>
 </head>
-
 <body>
+    <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0;">
+        <a href="dashboard.html" class="back-link">
+            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+        </a>
+        
+        <header style="margin-bottom: 35px; text-align: left;">
+            <h1 style="color: #15803d; font-size: 38px; font-weight: 700; margin: 0 0 10px 0;">🏢 NGO Dashboard</h1>
+            <p style="color: #64748b; font-size: 16px; margin: 0;">Manage and claim available food donations.</p>
+        </header>
 
-<div class="container">
-
-    <header>
-
-        <h1>
-            🏢 NGO Dashboard
-        </h1>
-
-        <p>
-            View all available food donations.
-        </p>
-
-    </header>
-
-    <div id="donationContainer">
-
+        <div id="donationContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 25px;">
+            <!-- Populated dynamically by js/ngo.js -->
+        </div>
     </div>
 
-</div>
-
-<script src="js/ngo.js"></script>
-<script src="js/auth.js"></script>
-
-<script>
-
-checkRole("ngo");
-
-</script>
+    <script src="js/ngo.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        checkRole("ngo");
+    </script>
 </body>
-
 </html>

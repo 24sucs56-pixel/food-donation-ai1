@@ -1321,3 +1321,25 @@ form {
         flex-basis: 90px !important;
     }
 }
+
+/* Styled Food Variety Tags */
+.food-tag {
+    display: inline-flex !important;
+    align-items: center !important;
+    background: #f0fdf4 !important;
+    color: #16a34a !important;
+    padding: 4px 10px !important;
+    border-radius: 8px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    border: 1px solid #bbf7d0 !important;
+    margin-right: 6px !important;
+    margin-bottom: 6px !important;
+    box-shadow: 0 2px 4px rgba(22, 163, 74, 0.05) !important;
+}
+body.dark-mode .food-tag {
+    background: #14532d !important;
+    color: #4ade80 !important;
+    border: 1px solid #166534 !important;
+}
+

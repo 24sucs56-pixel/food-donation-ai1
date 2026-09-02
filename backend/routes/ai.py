@@ -82,17 +82,18 @@ def get_priority(freshness):
 
 
 def recommend_ngo(category):
+    norm_cat = category.replace("-", " ").strip().lower()
 
-    if category == "Veg":
+    if norm_cat == "veg":
         return "Helping Hands NGO"
 
-    elif category == "Non-Veg":
+    elif norm_cat == "non veg":
         return "Food Care Trust"
 
-    elif category == "Bakery":
+    elif norm_cat == "bakery":
         return "Hope Foundation"
 
-    elif category == "Fruits":
+    elif norm_cat == "fruits":
         return "Smile Charity"
 
     else:

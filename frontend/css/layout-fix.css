@@ -13,11 +13,12 @@
 
 html,
 body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    min-height: 100%;
-    overflow-x: hidden;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
+    background: #f8fffb;
 }
 
 
@@ -26,8 +27,10 @@ body {
 ========================================== */
 
 .dashboard {
-    width: 100%;
-    min-height: 100vh;
+    display: flex !important;
+    width: 100% !important;
+    height: 100% !important;
+    overflow: hidden !important;
 }
 
 
@@ -36,17 +39,44 @@ body {
 ========================================== */
 
 .sidebar {
-    position: fixed !important;
+    position: relative !important;
     top: 0 !important;
     left: 0 !important;
 
     width: 270px !important;
-    height: 100vh !important;
+    min-width: 270px !important;
+    height: 100% !important;
 
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
 
-    z-index: 1000;
+    z-index: 1000 !important;
+    flex-shrink: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+/* Compact sidebar menu and logo */
+.menu li {
+    padding: 10px 16px !important;
+    margin-bottom: 6px !important;
+    border-radius: 10px !important;
+    font-size: 14px !important;
+}
+
+/* Style sidebar scrollbar */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
 }
 
 
@@ -55,18 +85,36 @@ body {
 ========================================== */
 
 .main-content {
-    margin-left: 270px !important;
+    margin-left: 0 !important;
 
-    width: calc(100% - 270px) !important;
+    width: auto !important;
+    flex-grow: 1 !important;
 
     min-width: 0 !important;
-    min-height: 100vh;
+    height: 100% !important;
 
     padding: 30px !important;
 
-    box-sizing: border-box;
+    box-sizing: border-box !important;
 
+    overflow-y: auto !important;
     overflow-x: hidden !important;
+}
+
+/* Style main content scrollbar */
+.main-content::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.main-content::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+.main-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+.main-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
 }
 
 
@@ -81,7 +129,7 @@ body {
 
     margin-left: 0 !important;
 
-    box-sizing: border-box;
+    box-sizing: border-box !important;
 }
 
 
@@ -92,7 +140,8 @@ body {
 .topbar {
     width: 100% !important;
     max-width: 100% !important;
-
+    display: flex !important;
+    justify-content: space-between !important;
     margin: 0 0 30px 0 !important;
 
     box-sizing: border-box;
@@ -361,13 +410,18 @@ body {
 
     .sidebar {
         width: 220px !important;
+        min-width: 220px !important;
     }
 
     .main-content {
-        margin-left: 220px !important;
+        margin-left: 0 !important;
 
-        width: calc(100% - 220px) !important;
+        width: auto !important;
 
+        padding: 20px !important;
+    }
+
+    .container {
         padding: 20px !important;
     }
 
@@ -383,24 +437,40 @@ body {
 
 @media (max-width: 700px) {
 
+    html,
+    body {
+        overflow: auto !important;
+        height: auto !important;
+    }
+
+    .dashboard {
+        display: block !important;
+        height: auto !important;
+        overflow: auto !important;
+    }
+
     .sidebar {
         width: 100% !important;
+        min-width: 0 !important;
         position: relative !important;
         height: auto !important;
+        overflow: visible !important;
     }
 
     .main-content {
         margin-left: 0 !important;
 
         width: 100% !important;
+        height: auto !important;
 
         padding: 15px !important;
+        overflow: visible !important;
     }
 
     .container,
     .ai-analysis,
     .map-section {
-        padding: 20px !important;
+        padding: 15px !important;
     }
 
     .form-grid {
@@ -503,4 +573,135 @@ body {
     border-color: #1f9a52 !important;
 
     box-shadow: 0 6px 18px rgba(31, 154, 82, 0.12) !important;
+}
+
+/* ==========================================
+   SIDEBAR LOGO LAYOUT FIX
+   ========================================== */
+.sidebar .logo {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 10px !important;
+    margin-bottom: 30px !important;
+    padding: 0 !important;
+}
+
+.sidebar .logo img {
+    width: 70px !important;
+    height: 70px !important;
+    object-fit: contain !important;
+    margin: 0 !important;
+}
+
+.sidebar .logo-text {
+    text-align: center !important;
+}
+
+.sidebar .logo-text h2 {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    color: white !important;
+    margin: 0 !important;
+}
+
+.sidebar .logo-text p {
+    font-size: 12px !important;
+    color: #dcfce7 !important;
+    margin-top: 4px !important;
+    opacity: 0.9 !important;
+}
+
+/* ==========================================
+   SUBMIT BUTTON LAYOUT FIX
+   ========================================== */
+.submit-btn {
+    height: auto !important;
+    min-height: 55px !important;
+    padding: 12px 25px !important;
+    line-height: 1.4 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+/* ==========================================
+   UNAUTHORIZED ACCESS SCREEN BUTTONS WRAP FIX
+   ========================================== */
+#unauthorizedSection div {
+    flex-wrap: wrap !important;
+}
+
+/* ==========================================
+   AI ASSISTANT HEADER OVERFLOW FIX
+   ========================================== */
+.ai-header {
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+}
+
+/* ==========================================
+   UNIFIED DASHBOARD HEADER STYLING & CONTAINER ALIGNMENT
+   ========================================== */
+.main-content header {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    gap: 8px !important;
+    margin: 0 0 30px 0 !important;
+    width: 100% !important;
+}
+
+.main-content header h1 {
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    color: #15803d !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.main-content header p {
+    font-size: 15px !important;
+    color: #64748b !important;
+    margin: 0 !important;
+}
+
+/* Specific override for Volunteer Dashboard header to keep its side-by-side status box layout */
+#volunteerSection header {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 20px !important;
+}
+
+#volunteerSection header > div {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+}
+
+/* Remove double padding from nested section containers */
+.main-content .container {
+    padding: 0 !important;
+}
+
+/* ==========================================
+   TOPBAR RESPONSIVENESS OVERRIDES
+   ========================================== */
+.topbar {
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+}
+
+.search-box {
+    max-width: 420px !important;
+    width: 100% !important;
 }

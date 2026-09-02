@@ -125,6 +125,69 @@ document.addEventListener("DOMContentLoaded", () => {
                 <li><strong>Calculates Freshness</strong>: Uses preparation/expiry variables to determine safety priority.</li>
                 <li><strong>Coordinates Logistics</strong>: Instantly calculates distances to nearby NGOs and dispatches local volunteers.</li>
             </ol>
+        `,
+        "How do I become a registered partner NGO?": `
+            <p><strong>🏢 Step-by-Step NGO Registration Guide:</strong></p>
+            <ol style="margin-top: 8px; padding-left: 20px; line-height: 1.6;">
+                <li><strong>Open Register Page</strong>: Go to the Login page and click on "Create Account".</li>
+                <li><strong>Select NGO Role</strong>: Choose the <strong>"NGO"</strong> option from the role selectors.</li>
+                <li><strong>Provide Organization Details</strong>: Enter your organization name, registration number, address, and contact details.</li>
+                <li><strong>Submit & Verify</strong>: Submit the form. Our admin team will verify your credentials within 24 hours, after which you can log in to claim donations.</li>
+            </ol>
+        `,
+        "How does the matching algorithm select volunteers?": `
+            <p><strong>🤖 Volunteer Dispatch & Matching Algorithm:</strong></p>
+            <ol style="margin-top: 8px; padding-left: 20px; line-height: 1.6;">
+                <li><strong>Distance Check</strong>: Calculates the distance between the donation location and active volunteers.</li>
+                <li><strong>Availability Status</strong>: Filters volunteers who are currently online and not on an active delivery.</li>
+                <li><strong>Push Alerts</strong>: Sends a high-priority push notification to the closest 3 volunteers.</li>
+                <li><strong>First Come First Serve</strong>: The first volunteer to tap "Accept" on their dashboard receives the pickup route.</li>
+            </ol>
+        `,
+        "Can I change my pickup address after submitting a donation?": `
+            <p><strong>✏️ Updating Donation Information:</strong></p>
+            <ol style="margin-top: 8px; padding-left: 20px; line-height: 1.6;">
+                <li><strong>Check Claim Status</strong>: You can only edit details if the donation is still in the "Waiting" status.</li>
+                <li><strong>Go to My Donations</strong>: Click on <strong><a href="mydonations.html">My Donations</a></strong> and select the donation.</li>
+                <li><strong>Click Edit</strong>: Press the edit icon to change the pickup address or coordinates.</li>
+                <li><strong>Confirm Changes</strong>: Re-submit the form to update coordinates for nearby volunteers.</li>
+            </ol>
+        `,
+        "What should I do if the food is close to expiry?": `
+            <p><strong>⚠️ Action Plan for Near-Expiry Donations:</strong></p>
+            <ol style="margin-top: 8px; padding-left: 20px; line-height: 1.6;">
+                <li><strong>Immediate Storage</strong>: Keep the food refrigerated or frozen to slow down spoilage.</li>
+                <li><strong>Set Accurate Timings</strong>: Ensure you enter the exact expiry time when donating.</li>
+                <li><strong>AI Flash Alert</strong>: The system automatically tags items with less than 3 hours left as "High Priority".</li>
+                <li><strong>Local Direct Contact</strong>: Direct contact numbers for matching volunteers will be shared to speed up collection.</li>
+            </ol>
+        `,
+        "How does the system notify NGOs about donations?": `
+            <p><strong>🔔 NGO Notification System:</strong></p>
+            <ol style="margin-top: 8px; padding-left: 20px; line-height: 1.6;">
+                <li><strong>Instantly Matches</strong>: The backend checks for nearby matching NGOs as soon as a donor submits food.</li>
+                <li><strong>Dashboard Alert</strong>: An orange alert badge appears on the NGO's top bar notification bell.</li>
+                <li><strong>Map Pins</strong>: Available donations appear immediately as interactive pins on the NGO's map.</li>
+                <li><strong>Claim Window</strong>: NGOs have 30 minutes to claim high-priority foods before they are opened to other agencies.</li>
+            </ol>
+        `,
+        "How can I contact support or view the Help Center?": `
+            <p><strong>📞 Contacting Support & Help Center:</strong></p>
+            <ol style="margin-top: 8px; padding-left: 20px; line-height: 1.6;">
+                <li><strong>Profile Menu</strong>: Click on your avatar in the top bar to open the user menu.</li>
+                <li><strong>Select Help Center</strong>: Click <strong>"Help Center"</strong>.</li>
+                <li><strong>Read FAQs</strong>: Browse through our knowledgebase categories.</li>
+                <li><strong>Submit Support Ticket</strong>: Use the contact form at the bottom of the page to message our admin team directly.</li>
+            </ol>
+        `,
+        "What details can I see inside the Reports panel?": `
+            <p><strong>📈 Analytics and Reports Data Points:</strong></p>
+            <ol style="margin-top: 8px; padding-left: 20px; line-height: 1.6;">
+                <li><strong>Total Registered Donations</strong>: The cumulative count of all donation records logged.</li>
+                <li><strong>Total Claimed & Delivered</strong>: Shows the delivery success rate of claimed items.</li>
+                <li><strong>Impact Charts</strong>: Pie charts representing category distributions (Veg, Non Veg, Bakery, Fruits).</li>
+                <li><strong>Monthly Trends</strong>: Bar graphs showing donations and claims made month-by-month.</li>
+            </ol>
         `
     };
 
@@ -243,14 +306,33 @@ document.addEventListener("DOMContentLoaded", () => {
     if (dashboardInput && dashboardSendBtn && dashboardMessages) {
         // Inject dynamic suggestions panel above input area
         const dashboardAssistant = document.querySelector(".ai-assistant");
+        const chatMain = dashboardAssistant ? dashboardAssistant.querySelector(".ai-chat-main") : null;
         const dashboardSuggestions = document.createElement("div");
         dashboardSuggestions.id = "dashboardSuggestionsPanel";
         dashboardSuggestions.className = "ai-suggestions-panel";
         dashboardSuggestions.style.bottom = "68px"; // Positions panel above input bar
-        dashboardAssistant.insertBefore(dashboardSuggestions, dashboardAssistant.querySelector(".chat-input-area"));
+        
+        if (chatMain) {
+            chatMain.insertBefore(dashboardSuggestions, chatMain.querySelector(".chat-input-area"));
+        }
 
         // Setup initial greeting message with interactive new-user chips
         showDashboardGreeting();
+
+        // Setup sidebar FAQ click listeners
+        const faqListItems = document.querySelectorAll(".faq-list li");
+        if (faqListItems) {
+            faqListItems.forEach(item => {
+                item.addEventListener("click", () => {
+                    const queryText = item.getAttribute("data-query");
+                    if (queryText) {
+                        appendMessage(queryText, "user", dashboardMessages);
+                        scrollToBottom(dashboardMessages);
+                        showBotResponse(queryText, dashboardMessages, dashboardHistory);
+                    }
+                });
+            });
+        }
 
         // Bind dashboard actions
         dashboardSendBtn.addEventListener("click", () => {

@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from database import users, donations
 import bcrypt
+from datetime import datetime
 
 auth = Blueprint("auth", __name__)
 
@@ -42,6 +43,7 @@ def register():
 
     # Initial status
     status = "Approved" if role == "admin" else "Pending Approval"
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     user = {
         "name": name,
@@ -55,6 +57,11 @@ def register():
         "pincode": pincode,
         "address": address,
         "status": status,
+        "email_verified": True,
+        "admin_approved": status == "Approved",
+        "account_status": "active" if status == "Approved" else "pending",
+        "created_at": now_str,
+        "registration_date": now_str,
         "points": 0
     }
 
@@ -208,16 +215,71 @@ def user_profile():
 
     return jsonify({
         "status": "success",
-        "name": user.get("name"),
-        "email": user.get("email"),
+        "name": user.get("name", ""),
+        "email": user.get("email", ""),
         "role": role,
+        "phone": user.get("phone", ""),
+        "address": user.get("address", ""),
+        "state": user.get("state", ""),
+        "district": user.get("district", ""),
+        "city": user.get("city", ""),
+        "pincode": user.get("pincode", ""),
+        "donor_type": user.get("donor_type", ""),
+        "ngo_name": user.get("ngo_name", ""),
+        "registration_number": user.get("registration_number", ""),
+        "vehicle": user.get("vehicle", ""),
         "points": points,
         "certificate": certificate,
         "prize": prize,
         "profile_image": user.get("profile_image", ""),
         "user_status": user.get("status", "Approved"),
+        "account_status": user.get("account_status", "active"),
+        "created_at": user.get("created_at", user.get("registration_date", "")),
         "rating": avg_rating,
         "rating_count": rating_count
+    })
+
+@auth.route("/user/profile/update", methods=["PUT", "POST"])
+def update_user_profile():
+    data = request.get_json(silent=True) or {}
+    email = data.get("email") or request.headers.get("X-User-Email")
+    
+    if not email:
+        return jsonify({"status": "error", "message": "Email is required"}), 400
+
+    target_user = users.find_one({"email": email})
+    if not target_user:
+        return jsonify({"status": "error", "message": "User not found"}), 404
+
+    # Build fields to update
+    editable_keys = ["name", "phone", "address", "state", "district", "city", "pincode", "donor_type", "ngo_name", "registration_number", "vehicle"]
+    update_fields = {}
+    
+    for key in editable_keys:
+        if key in data and data[key] is not None:
+            update_fields[key] = str(data[key]).strip()
+
+    if update_fields:
+        users.update_one({"email": email}, {"$set": update_fields})
+
+    updated_user = users.find_one({"email": email})
+    return jsonify({
+        "status": "success",
+        "message": "Profile updated successfully",
+        "name": updated_user.get("name", ""),
+        "email": updated_user.get("email", ""),
+        "role": updated_user.get("role", ""),
+        "phone": updated_user.get("phone", ""),
+        "address": updated_user.get("address", ""),
+        "state": updated_user.get("state", ""),
+        "district": updated_user.get("district", ""),
+        "city": updated_user.get("city", ""),
+        "pincode": updated_user.get("pincode", ""),
+        "donor_type": updated_user.get("donor_type", ""),
+        "ngo_name": updated_user.get("ngo_name", ""),
+        "registration_number": updated_user.get("registration_number", ""),
+        "vehicle": updated_user.get("vehicle", ""),
+        "profile_image": updated_user.get("profile_image", "")
     })
 
 @auth.route("/user/profile/image", methods=["POST"])
@@ -230,7 +292,26 @@ def update_profile_image():
         return jsonify({"status": "error", "message": "Email and image data are required"}), 400
         
     result = users.update_one({"email": email}, {"$set": {"profile_image": profile_image}})
-    if result.matched_count == 0:
-        return jsonify({"status": "error", "message": "User not found"}), 404
-        
     return jsonify({"status": "success", "message": "Profile image updated successfully"})
+
+@auth.route("/user/change-password", methods=["POST"])
+def change_password():
+    data = request.get_json(silent=True) or {}
+    email = data.get("email") or request.headers.get("X-User-Email")
+    current_password = data.get("current_password")
+    new_password = data.get("new_password")
+    
+    if not email or not current_password or not new_password:
+        return jsonify({"status": "error", "message": "All password fields are required"}), 400
+        
+    user = users.find_one({"email": email})
+    if not user:
+        return jsonify({"status": "error", "message": "User account not found"}), 404
+        
+    if not bcrypt.checkpw(current_password.encode("utf-8"), user["password"]):
+        return jsonify({"status": "error", "message": "Current password is incorrect"}), 401
+        
+    hashed_new = bcrypt.hashpw(new_password.encode("utf-8"), bcrypt.gensalt())
+    users.update_one({"email": email}, {"$set": {"password": hashed_new}})
+    
+    return jsonify({"status": "success", "message": "Password updated successfully!"})

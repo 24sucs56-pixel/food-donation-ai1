@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Portal - Smart Food Donation System</title>
+    
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/layout-fix.css">
+    <link rel="stylesheet" href="css/premium-theme.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/mobile.css">
+    <link rel="icon" href="images/logo.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
+    <style>
+        body {
+            padding: 0 !important;
+            margin: 0 !important;
+            background: #f4f8fb;
+        }
+        .main-content {
+            padding: 30px !important;
+            flex: 1;
+            min-width: 0;
+        }
+        .sidebar nav ul {
+            list-style: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+        .sidebar nav ul li {
+            list-style: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+        }
+    </style>
+</head>
+
+<body>
+<div class="dashboard">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <!-- Mobile Sidebar Close Button -->
+        <button id="adminMobileSidebarClose" class="mobile-sidebar-close" aria-label="Close Navigation Menu">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="logo">
+            <img src="images/logo.png" alt="Smart Food Donation">
+            <div class="logo-text">
+                <h2>Smart Food Donation</h2>
+                <p>Admin Portal</p>
+            </div>
+        </div>
+        
+        <ul class="menu">
+            <li id="sidebarAdminHome" data-page="admin-dashboard" class="active">
+                <i class="fa-solid fa-chart-line"></i>
+                <span>Dashboard</span>
+            </li>
+            <li id="sidebarAdminUsers" data-page="user-management">
+                <i class="fa-solid fa-users-gear"></i>
+                <span>User Management</span>
+            </li>
+            <li id="sidebarAdminNGOs" data-page="ngo-verification">
+                <i class="fa-solid fa-building-circle-check"></i>
+                <span>NGO Verification</span>
+            </li>
+            <li id="sidebarAdminDonors" data-page="donor-verification">
+                <i class="fa-solid fa-hand-holding-heart"></i>
+                <span>Donor Verification</span>
+            </li>
+            <li id="sidebarAdminVolunteers" data-page="volunteer-verification">
+                <i class="fa-solid fa-truck-ramp-box"></i>
+                <span>Volunteer Verification</span>
+            </li>
+            <li id="sidebarAdminDonations" data-page="donation-management">
+                <i class="fa-solid fa-boxes-packing"></i>
+                <span>Donation Management</span>
+            </li>
+            <li id="sidebarAdminReports" data-page="reports">
+                <i class="fa-solid fa-chart-pie"></i>
+                <span>Reports</span>
+            </li>
+            <li id="sidebarAdminSettings" data-page="settings">
+                <i class="fa-solid fa-sliders"></i>
+                <span>System Settings</span>
+            </li>
+            <li class="logout" onclick="logout()">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Logout</span>
+            </li>
+        </ul>
+        
+        <!-- User Badge -->
+        <div class="sidebar-user">
+            <img id="sidebarAdminAvatar" src="images/logo.png" alt="Avatar">
+            <div>
+                <h4 id="sidebarAdminName">Administrator</h4>
+                <p>System Admin</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div id="adminSidebarOverlay" class="sidebar-overlay"></div>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <!-- TOP BAR -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <!-- Mobile Hamburger Menu Button -->
+                <button id="adminMobileMenuBtn" class="mobile-menu-btn" aria-label="Open Navigation Menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+
+            <!-- Food Saving & Donating Facts -->
+            <div class="topbar-fact">
+                <i class="fa-solid fa-lightbulb"></i>
+                <span id="topbarFactText">Loading daily food saving tip...</span>
+            </div>
+            
+            <div class="topbar-right" style="margin-left: auto !important;">
+                <div class="profile-container">
+                    <div id="profileBtn" class="profile-button">
+                        <img id="topAdminAvatar" src="images/logo.png" alt="Admin" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;">
+                        <div class="profile-text">
+                            <h4 id="topAdminName" style="font-size: 14px; margin: 0; font-weight: 600; color: #15803d;">Admin</h4>
+                            <p style="color: #64748b; font-size: 11px; margin: 0;">Administrator</p>
+                        </div>
+                        <i class="fa-solid fa-chevron-down" style="color: #64748b; font-size: 12px; margin-left: 5px;"></i>
+                    </div>
+
+                    <div id="profileMenu" class="profile-menu">
+                        <div class="profile-menu-header">
+                            <img id="topMenuAdminAvatar" src="images/logo.png" alt="Admin" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                            <div>
+                                <h3 id="profileAdminName">Admin</h3>
+                                <p style="color: #64748b; font-size: 11.5px; margin: 0;">Administrator</p>
+                            </div>
+                        </div>
+                        <ul class="profile-menu-list">
+                            <li>
+                                <a href="#" id="profileLinkBtn">
+                                    <i class="fa-solid fa-user-gear"></i> Admin Profile
+                                </a>
+                            </li>
+                            <li>
+                                <a href="#" id="profileSettingsBtn">
+                                    <i class="fa-solid fa-sliders"></i> System Settings
+                                </a>
+                            </li>
+                            <li><hr style="margin: 6px 0; border: 0; border-top: 1px solid #f1f5f9;"></li>
+                            <li>
+                                <a href="#" id="profileLogoutBtn" onclick="logout(); return false;" class="logout" style="color: #ef4444 !important;">
+                                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- SECTIONS -->
+
+        <!-- Section 1: Dashboard Home -->
+        <section class="main-section" id="adminHomeSection">
+            <div class="container">
+                <header class="page-header">
+                    <h1><i class="fa-solid fa-chart-line"></i> Admin Dashboard</h1>
+                    <p>Real-time platform overview, user verification summary, and system activities.</p>
+                </header>
+
+                <!-- 8 Summary Cards Grid -->
+                <div class="cards admin-summary-grid">
+                    <div class="card">
+                        <h2 id="users">0</h2>
+                        <p><i class="fa-solid fa-users"></i> Total Users</p>
+                    </div>
+                    <div class="card">
+                        <h2 id="totalDonors">0</h2>
+                        <p><i class="fa-solid fa-hand-holding-heart"></i> Total Donors</p>
+                    </div>
+                    <div class="card">
+                        <h2 id="totalNGOs">0</h2>
+                        <p><i class="fa-solid fa-building"></i> Total NGOs</p>
+                    </div>
+                    <div class="card">
+                        <h2 id="totalVolunteers">0</h2>
+                        <p><i class="fa-solid fa-truck-ramp-box"></i> Total Volunteers</p>
+                    </div>
+                    <div class="card highlight-card-pending">
+                        <h2 id="pendingVerificationsCount" style="color: #d97706;">0</h2>
+                        <p><i class="fa-solid fa-clock-rotate-left"></i> Pending Verifications</p>
+                    </div>
+                    <div class="card highlight-card-approved">
+                        <h2 id="approvedUsersCount" style="color: #16a34a;">0</h2>
+                        <p><i class="fa-solid fa-circle-check"></i> Approved Users</p>
+                    </div>
+                    <div class="card highlight-card-rejected">
+                        <h2 id="rejectedUsersCount" style="color: #dc2626;">0</h2>
+                        <p><i class="fa-solid fa-circle-xmark"></i> Rejected Users</p>
+                    </div>
+                    <div class="card">
+                        <h2 id="donations">0</h2>
+                        <p><i class="fa-solid fa-boxes-packing"></i> Total Donations</p>
+                    </div>
+                </div>
+
+                <!-- Quick Action Buttons -->
+                <div class="admin-quick-actions-bar">
+                    <h3><i class="fa-solid fa-bolt"></i> Quick Actions</h3>
+                    <div class="quick-action-buttons">
+                        <button class="btn-quick-action" onclick="navigateToSection('sidebarAdminDonors')">
+                            <i class="fa-solid fa-hand-holding-heart"></i> Review Donors
+                        </button>
+                        <button class="btn-quick-action" onclick="navigateToSection('sidebarAdminNGOs')">
+                            <i class="fa-solid fa-building"></i> Review NGOs
+                        </button>
+                        <button class="btn-quick-action" onclick="navigateToSection('sidebarAdminVolunteers')">
+                            <i class="fa-solid fa-truck-ramp-box"></i> Review Volunteers
+                        </button>
+                        <button class="btn-quick-action" onclick="navigateToSection('sidebarAdminUsers')">
+                            <i class="fa-solid fa-users-gear"></i> Manage Users
+                        </button>
+                        <button class="btn-quick-action" onclick="navigateToSection('sidebarAdminDonations')">
+                            <i class="fa-solid fa-boxes-packing"></i> View Donations
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Verification Overview Section -->
+                <div class="verification-overview-section">
+                    <h2><i class="fa-solid fa-shield-halved"></i> Verification Overview</h2>
+                    <div class="overview-grid">
+                        <div class="overview-card">
+                            <div class="overview-header">
+                                <h3><i class="fa-solid fa-hand-holding-heart" style="color: #16a34a;"></i> Donor Verification</h3>
+                                <button class="btn-action btn-view" onclick="navigateToSection('sidebarAdminDonors')">View</button>
+                            </div>
+                            <div class="overview-stats-pills">
+                                <span class="pill pill-pending">Pending: <strong id="donorPendingCount">0</strong></span>
+                                <span class="pill pill-approved">Approved: <strong id="donorApprovedCount">0</strong></span>
+                                <span class="pill pill-rejected">Rejected: <strong id="donorRejectedCount">0</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="overview-card">
+                            <div class="overview-header">
+                                <h3><i class="fa-solid fa-building" style="color: #2563eb;"></i> NGO Verification</h3>
+                                <button class="btn-action btn-view" onclick="navigateToSection('sidebarAdminNGOs')">View</button>
+                            </div>
+                            <div class="overview-stats-pills">
+                                <span class="pill pill-pending">Pending: <strong id="ngoPendingCount">0</strong></span>
+                                <span class="pill pill-approved">Approved: <strong id="ngoApprovedCount">0</strong></span>
+                                <span class="pill pill-rejected">Rejected: <strong id="ngoRejectedCount">0</strong></span>
+                            </div>
+                        </div>
+
+                        <div class="overview-card">
+                            <div class="overview-header">
+                                <h3><i class="fa-solid fa-truck-ramp-box" style="color: #ea580c;"></i> Volunteer Verification</h3>
+                                <button class="btn-action btn-view" onclick="navigateToSection('sidebarAdminVolunteers')">View</button>
+                            </div>
+                            <div class="overview-stats-pills">
+                                <span class="pill pill-pending">Pending: <strong id="volPendingCount">0</strong></span>
+                                <span class="pill pill-approved">Approved: <strong id="volApprovedCount">0</strong></span>
+                                <span class="pill pill-rejected">Rejected: <strong id="volRejectedCount">0</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pending Verifications Quick List & Recent Activity Dual Layout -->
+                <div class="dashboard-dual-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 25px; margin-top: 30px;">
+                    
+                    <!-- Pending Verifications -->
+                    <div class="premium-card">
+                        <h2 style="color: #d97706; margin-bottom: 15px; font-size: 18px; display: flex; align-items: center; justify-content: space-between;">
+                            <span><i class="fa-solid fa-user-clock"></i> Pending Verifications</span>
+                            <span class="badge-status badge-pending" id="dashboardPendingBadge">0 Pending</span>
+                        </h2>
+                        <div id="dashboardPendingList" class="pending-list-container">
+                            <p style="color: #64748b; font-size: 13px; text-align: center; padding: 15px;">No pending verification requests.</p>
+                        </div>
+                    </div>
+
+                    <!-- Recent Admin Activity Log -->
+                    <div class="premium-card">
+                        <h2 style="color: #0f172a; margin-bottom: 15px; font-size: 18px;">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Recent Admin Activity
+                        </h2>
+                        <div id="dashboardRecentActivity" class="activity-log-container">
+                            <p style="color: #64748b; font-size: 13px; text-align: center; padding: 15px;">No recent admin actions logged.</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Dedicated User Management -->
+        <section class="main-section" id="adminUsersSection" style="display: none;">
+            <div class="container">
+                <header class="page-header">
+                    <h1><i class="fa-solid fa-users-gear"></i> User Management</h1>
+                    <p>Complete single-source-of-truth account oversight across Donors, NGOs, Volunteers, and Administrators.</p>
+                </header>
+
+                <!-- Filter Tabs -->
+                <div class="filter-tab-bar">
+                    <button class="filter-tab active" id="tabUserAll" onclick="filterUserManagementTab('all')">All Users (<span id="countTabAll">0</span>)</button>
+                    <button class="filter-tab" id="tabUserPending" onclick="filterUserManagementTab('pending')">Pending (<span id="countTabPending">0</span>)</button>
+                    <button class="filter-tab" id="tabUserApproved" onclick="filterUserManagementTab('approved')">Approved (<span id="countTabApproved">0</span>)</button>
+                    <button class="filter-tab" id="tabUserRejected" onclick="filterUserManagementTab('rejected')">Rejected (<span id="countTabRejected">0</span>)</button>
+                </div>
+
+                <!-- Filter & Search Controls Bar -->
+                <div class="filter-controls-card">
+                    <div class="filter-group-item search-box-item">
+                        <label><i class="fa-solid fa-magnifying-glass"></i> Search</label>
+                        <input type="text" id="userSearchInput" placeholder="Search by name, email, or role..." onkeyup="applyUserManagementFilters()">
+                    </div>
+
+                    <div class="filter-group-item">
+                        <label><i class="fa-solid fa-user-tag"></i> Role</label>
+                        <select id="userRoleFilter" onchange="applyUserManagementFilters()">
+                            <option value="all">All Roles</option>
+                            <option value="donor">Donor</option>
+                            <option value="ngo">NGO</option>
+                            <option value="volunteer">Volunteer</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+
+                    <div class="filter-group-item">
+                        <label><i class="fa-solid fa-circle-nodes"></i> Status</label>
+                        <select id="userStatusFilter" onchange="applyUserManagementFilters()">
+                            <option value="all">All Statuses</option>
+                            <option value="Pending Approval">Pending Approval</option>
+                            <option value="Approved">Approved</option>
+                            <option value="Rejected">Rejected</option>
+                            <option value="active">Active Account</option>
+                            <option value="inactive">Inactive Account</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- User Management Table & Mobile Cards -->
+                <div class="premium-card">
+                    <div class="table-container" style="overflow-x: auto;">
+                        <table class="premium-table responsive-user-table">
+                            <thead>
+                                <tr>
+                                    <th>User Details</th>
+                                    <th>Role</th>
+                                    <th>Email Verified</th>
+                                    <th>Admin Approval</th>
+                                    <th>Account Status</th>
+                                    <th>Audit / History</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userManagementTableBody">
+                                <!-- Dynamic user rows -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Dedicated NGO Verification (Preserved Working Module) -->
+        <section class="main-section" id="adminNGOsSection" style="display: none;">
+            <div class="container">
+                <header class="page-header">
+                    <h1><i class="fa-solid fa-building"></i> NGO Verification</h1>
+                    <p>Review and verify registered non-profit organizations. Inspect NGO certificates and approve or reject profiles.</p>
+                </header>
+
+                <div class="premium-card">
+                    <div class="table-container" style="overflow-x: auto;">
+                        <table class="premium-table">
+                            <thead>
+                                <tr>
+                                    <th>NGO Name</th>
+                                    <th>Contact Person</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Address</th>
+                                    <th>Reg. Number</th>
+                                    <th>Certificate / Aadhar</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ngoVerificationData">
+                                <!-- Dynamic NGO verification requests -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Dedicated Donor Verification -->
+        <section class="main-section" id="adminDonorsSection" style="display: none;">
+            <div class="container">
+                <header class="page-header">
+                    <h1><i class="fa-solid fa-hand-holding-heart"></i> Donor Verification</h1>
+                    <p>Review and verify registered food donors. Inspect FSSAI licenses/documents and approve or reject profiles.</p>
+                </header>
+
+                <div class="premium-card">
+                    <div class="table-container" style="overflow-x: auto;">
+                        <table class="premium-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Address</th>
+                                    <th>Donor Type</th>
+                                    <th>FSSAI / Aadhar</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="donorVerificationData">
+                                <!-- Dynamic donor verification requests -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Dedicated Volunteer Verification -->
+        <section class="main-section" id="adminVolunteersSection" style="display: none;">
+            <div class="container">
+                <header class="page-header">
+                    <h1><i class="fa-solid fa-truck-ramp-box"></i> Volunteer Verification</h1>
+                    <p>Review and verify volunteer applications. Inspect driving licenses/documents and approve or reject profiles.</p>
+                </header>
+
+                <div class="premium-card">
+                    <div class="table-container" style="overflow-x: auto;">
+                        <table class="premium-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Address</th>
+                                    <th>Vehicle Type</th>
+                                    <th>License / Aadhar</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="volunteerVerificationData">
+                                <!-- Dynamic volunteer verification requests -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 6: Dedicated Donation Management -->
+        <section class="main-section" id="adminDonationsSection" style="display: none;">
+            <div class="container">
+                <header class="page-header">
+                    <h1><i class="fa-solid fa-boxes-packing"></i> Donation Management</h1>
+                    <p>Monitor, track, and manage all food donation listings across the entire system.</p>
+                </header>
+
+                <div class="filter-tab-bar" style="margin-bottom: 20px;">
+                    <button class="filter-tab active" id="tabDonationAll" onclick="filterDonationManagementTab('all')">All Donations</button>
+                    <button class="filter-tab" id="tabDonationWaiting" onclick="filterDonationManagementTab('Waiting')">Waiting</button>
+                    <button class="filter-tab" id="tabDonationAccepted" onclick="filterDonationManagementTab('Accepted')">Accepted</button>
+                    <button class="filter-tab" id="tabDonationPicked" onclick="filterDonationManagementTab('Picked')">Picked</button>
+                    <button class="filter-tab" id="tabDonationDelivered" onclick="filterDonationManagementTab('Delivered')">Delivered</button>
+                </div>
+
+                <div class="premium-card">
+                    <div class="table-container" style="overflow-x: auto;">
+                        <table class="premium-table">
+                            <thead>
+                                <tr>
+                                    <th>Food Item</th>
+                                    <th>Category</th>
+                                    <th>Freshness</th>
+                                    <th>AI Verification</th>
+                                    <th>Recommendation</th>
+                                    <th>Donor Email</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminDonationsTableBody">
+                                <!-- Dynamic donation items -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 7: Reports & Analytics -->
+        <section class="main-section" id="adminReportsSection" style="display: none;">
+            <div class="container">
+                <header class="page-header">
+                    <h1><i class="fa-solid fa-chart-pie"></i> Reports & Analytics</h1>
+                    <p>Visual representation of system metrics and chronological donation data.</p>
+                </header>
+
+                <div class="charts">
+                    <div class="chart-card">
+                        <h2>📊 Platform Performance & Insights</h2>
+                        <div class="kpi-metrics-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                            <div class="kpi-mini-card" style="background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #f1f5f9; text-align: left;">
+                                <span style="font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 600;">System Efficiency</span>
+                                <h3 style="margin: 5px 0 0 0; color: #16a34a; font-size: 22px; font-weight: 700;">A+ Rating</h3>
+                            </div>
+                            <div class="kpi-mini-card" style="background: #f8fafc; padding: 15px; border-radius: 12px; border: 1px solid #f1f5f9; text-align: left;">
+                                <span style="font-size: 11px; color: #64748b; text-transform: uppercase; font-weight: 600;">Avg Transit Speed</span>
+                                <h3 style="margin: 5px 0 0 0; color: #2563eb; font-size: 22px; font-weight: 700;">24 Mins</h3>
+                            </div>
+                        </div>
+                        <div class="performance-bars" style="margin-top: 25px; display: flex; flex-direction: column; gap: 18px;">
+                            <div>
+                                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 6px;">
+                                    <span style="color: #334155; font-family: 'Poppins', sans-serif;">Delivery Success Rate</span>
+                                    <span id="deliverySuccessRateText" style="color: #16a34a;">0%</span>
+                                </div>
+                                <div style="height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden;">
+                                    <div id="deliverySuccessRateBar" style="height: 100%; background: #16a34a; width: 0%; transition: width 0.8s ease-in-out;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 6px;">
+                                    <span style="color: #334155; font-family: 'Poppins', sans-serif;">Active Deliveries In-Transit</span>
+                                    <span id="transitRateText" style="color: #2563eb;">0%</span>
+                                </div>
+                                <div style="height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden;">
+                                    <div id="transitRateBar" style="height: 100%; background: #2563eb; width: 0%; transition: width 0.8s ease-in-out;"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 600; margin-bottom: 6px;">
+                                    <span style="color: #334155; font-family: 'Poppins', sans-serif;">Donation Claim Rate</span>
+                                    <span id="claimRateText" style="color: #ea580c;">0%</span>
+                                </div>
+                                <div style="height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden;">
+                                    <div id="claimRateBar" style="height: 100%; background: #ea580c; width: 0%; transition: width 0.8s ease-in-out;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="chart-card" style="position: relative;">
+                        <h2>🥗 System Lifecycle & Performance</h2>
+                        <div style="position: relative; width: 100%; height: 250px; margin-top: 15px;">
+                            <canvas id="categoryChart"></canvas>
+                            <div style="position: absolute; top: 57%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: none;">
+                                <h3 id="volPerfAvgText" style="margin: 0; font-size: 26px; font-weight: 700; color: #16a34a; font-family: 'Poppins', sans-serif;">92%</h3>
+                                <span style="font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; font-family: 'Poppins', sans-serif;">Avg Vol Perf</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-around; margin-top: 20px; font-size: 13px; font-weight: 500; color: #475569; font-family: 'Poppins', sans-serif;">
+                            <div style="text-align: center;">
+                                <span style="display: inline-block; width: 10px; height: 10px; background-color: #38bdf8; border-radius: 50%; margin-right: 6px;"></span>
+                                <span>Submitted</span>
+                            </div>
+                            <div style="text-align: center;">
+                                <span style="display: inline-block; width: 10px; height: 10px; background-color: #f43f5e; border-radius: 50%; margin-right: 6px;"></span>
+                                <span>NGO Claimed</span>
+                            </div>
+                            <div style="text-align: center;">
+                                <span style="display: inline-block; width: 10px; height: 10px; background-color: #10b981; border-radius: 50%; margin-right: 6px;"></span>
+                                <span>Delivered</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <br><br>
+                <h2 style="color: #0f172a; margin-bottom: 20px;"><i class="fa-solid fa-clock-rotate-left"></i> Recent Donations Log</h2>
+                <div class="premium-card">
+                    <div class="table-container" style="overflow-x: auto;">
+                        <table class="premium-table">
+                            <thead>
+                                <tr>
+                                    <th>Food</th>
+                                    <th>Category</th>
+                                    <th>Freshness</th>
+                                    <th>AI Result</th>
+                                    <th>Recommendation</th>
+                                    <th>Status</th>
+                                    <th>Donor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recentData">
+                                <!-- Dynamic recent donations -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 8: System Settings -->
+        <section class="main-section" id="adminSettingsSection" style="display: none;">
+            <div class="container">
+                <header style="margin-bottom: 35px;">
+                    <h1 style="color: #15803d; font-size: 38px;"><i class="fa-solid fa-sliders"></i> System Settings</h1>
+                    <p style="color: #666; font-size: 17px; margin-top: 10px;">Manage your administrator account credentials, platform configurations, and global constants.</p>
+                </header>
+
+                <div class="settings-profile-header">
+                    <div class="settings-avatar-container">
+                        <img class="settings-avatar" id="settingsAdminAvatar" src="images/logo.png" alt="Profile Picture">
+                        <div class="settings-avatar-upload-btn" id="changeAdminAvatarBtn"><i class="fa-solid fa-camera"></i></div>
+                        <input type="file" id="adminProfileImageFileInput" accept="image/png, image/jpeg, image/jpg, image/webp" style="display: none;">
+                    </div>
+                    <div class="settings-profile-info">
+                        <h3 id="settingsAdminProfileName">Active Admin</h3>
+                        <p>Manage your system administrator account parameters.</p>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 30px;">
+                    <div class="premium-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="color: #15803d; font-size: 20px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 10px;">
+                                <i class="fa-solid fa-user-gear"></i> Administrator Profile
+                            </h3>
+                            <button type="button" id="editAdminProfileBtn" style="background: #2563eb; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-pen-to-square"></i> Edit
+                            </button>
+                        </div>
+
+                        <form id="adminProfileEditForm" onsubmit="return false;">
+                            <div style="display: flex; flex-direction: column; gap: 14px;">
+                                <div>
+                                    <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 4px; font-weight: 500;">Full Name</label>
+                                    <input type="text" id="adminSettingsName" disabled style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); outline: none;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 4px; font-weight: 500;">Email Address (Primary Key)</label>
+                                    <input type="email" id="adminSettingsEmail" disabled style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: #f1f5f9; font-family: inherit; font-size: 14px; color: #64748b; outline: none;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 4px; font-weight: 500;">Registered Role</label>
+                                    <input type="text" value="ADMINISTRATOR" disabled style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: #f1f5f9; font-family: inherit; font-size: 14px; text-transform: uppercase; color: #16a34a; font-weight: 700; outline: none;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 4px; font-weight: 500;">Phone Number</label>
+                                    <input type="text" id="adminSettingsPhone" disabled placeholder="e.g. +91 98765 43210" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); outline: none;">
+                                </div>
+                                <div>
+                                    <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 4px; font-weight: 500;">Complete Address</label>
+                                    <input type="text" id="adminSettingsAddress" disabled placeholder="Central Admin Headquarters, Madurai" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); outline: none;">
+                                </div>
+
+                                <div id="adminProfileSaveContainer" style="display: none; margin-top: 10px;">
+                                    <button type="button" id="saveAdminProfileBtn" style="width: 100%; padding: 12px; background: #16a34a; color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                        <i class="fa-solid fa-floppy-disk"></i> Save Admin Profile Changes
+                                    </button>
+                                </div>
+
+                                <div id="adminProfileSaveMsg" style="display: none; padding: 10px; border-radius: 8px; font-size: 13px; text-align: center; font-weight: 600;"></div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="premium-card">
+                        <h3 style="color: #15803d; font-size: 20px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-sliders"></i> Global Platform Controls
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 20px;">
+                            <div class="switch-container" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="switch-label-group">
+                                    <h4 style="margin: 0; font-size: 15px; font-weight: 600;">System Auto-Verifications</h4>
+                                    <p style="margin: 3px 0 0 0; font-size: 12px; color: #64748b;">Automatically approve matching coordinates</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="switch-container" style="display: flex; justify-content: space-between; align-items: center;">
+                                <div class="switch-label-group">
+                                    <h4 style="margin: 0; font-size: 15px; font-weight: 600;">System Logging Mode</h4>
+                                    <p style="margin: 3px 0 0 0; font-size: 12px; color: #64748b;">Log all request payloads to server console</p>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+</div>
+
+<!-- Document Preview Modal -->
+<div id="documentModal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.6); align-items:center; justify-content:center;">
+    <div class="modal-content" style="background-color:#fff; margin:auto; padding:20px; border:1px solid #888; width:85%; max-width:700px; border-radius:15px; position:relative; text-align:center; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: zoomIn 0.3s;">
+        <span class="close-modal" id="closeDocModal" style="position:absolute; right:20px; top:15px; color:#aaa; font-size:28px; font-weight:bold; cursor:pointer;">&times;</span>
+        <h2 style="color:#16a34a; margin-bottom:15px; font-weight: 600;" id="modalDocTitle">Verification Document</h2>
+        <img id="modalDocImg" src="" alt="Document Preview" style="max-width:100%; max-height:500px; border-radius:8px; border: 1px solid #eee; object-fit: contain;">
+    </div>
+</div>
+
+<!-- User Details View Modal -->
+<div id="userDetailsModal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.6); align-items:center; justify-content:center;">
+    <div class="modal-content" style="background-color:#fff; margin:auto; padding:25px; border:1px solid #e2e8f0; width:90%; max-width:600px; border-radius:16px; position:relative; text-align:left; box-shadow: 0 15px 35px rgba(0,0,0,0.25); animation: zoomIn 0.3s;">
+        <span class="close-modal" id="closeUserDetailsModal" style="position:absolute; right:20px; top:15px; color:#94a3b8; font-size:26px; font-weight:bold; cursor:pointer;">&times;</span>
+        <h2 style="color:#15803d; margin-bottom:15px; font-weight: 700; display: flex; align-items: center; gap: 10px;" id="modalUserDetailTitle">
+            <i class="fa-solid fa-address-card"></i> User Profile Details
+        </h2>
+        <div id="modalUserDetailsBody" style="display: flex; flex-direction: column; gap: 12px; font-size: 14px; color: #334155;">
+            <!-- Dynamic profile fields injected here -->
+        </div>
+        <div style="margin-top: 20px; text-align: right;">
+            <button class="btn-action" style="background-color: #cbd5e1; color: #334155;" onclick="document.getElementById('userDetailsModal').style.display='none'">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Action Confirmation Modal -->
+<div id="confirmationModal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.6); align-items:center; justify-content:center;">
+    <div class="modal-content" style="background-color:#fff; margin:auto; padding:25px; border:1px solid #e2e8f0; width:85%; max-width:480px; border-radius:16px; position:relative; text-align:center; box-shadow: 0 15px 35px rgba(0,0,0,0.25); animation: zoomIn 0.3s;">
+        <h2 style="color:#0f172a; margin-bottom:12px; font-weight: 700; font-size: 20px;" id="confirmModalTitle">Confirm Action</h2>
+        <p style="color:#64748b; font-size:14px; margin-bottom:20px;" id="confirmModalMessage">Are you sure you want to perform this action?</p>
+        <div style="display:flex; justify-content:center; gap:15px;">
+            <button class="btn-action" style="background-color:#e2e8f0; color:#334155; padding: 10px 20px; font-size: 14px;" id="confirmModalCancelBtn">Cancel</button>
+            <button class="btn-action btn-approve" style="padding: 10px 20px; font-size: 14px;" id="confirmModalExecuteBtn">Proceed</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/admin.js"></script>
+
+<script>
+checkRole("admin");
+</script>
+</body>
+
+</html>

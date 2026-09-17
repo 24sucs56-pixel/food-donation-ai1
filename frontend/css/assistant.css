@@ -433,4 +433,35 @@ body.dark-mode .ai-suggestion-item i {
     color: #22c55e;
 }
 
+/* ==========================================================
+   MOBILE RESPONSIVE OVERRIDES (<= 768px)
+========================================================== */
+@media (max-width: 768px) {
+    .floating-ai {
+        right: 15px;
+        bottom: 25px;
+        width: 52px;
+        height: 52px;
+        font-size: 20px;
+    }
+
+    .ai-chat-widget {
+        right: 10px;
+        left: 10px;
+        bottom: 85px;
+        width: auto !important;
+        max-width: calc(100vw - 20px) !important;
+        height: calc(100vh - 120px) !important;
+        max-height: 560px !important;
+        border-radius: 18px;
+    }
+
+    .ai-suggestions-panel {
+        left: 10px;
+        right: 10px;
+        bottom: 60px;
+    }
+}
+
+
 

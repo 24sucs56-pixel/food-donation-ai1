@@ -231,3 +231,49 @@ console.log("Donate Button Clicked");
 
 });
 
+/* ==========================================================
+                MOBILE NAVIGATION DRAWER (Landing Page)
+========================================================== */
+const landingNavToggle = document.getElementById("landingNavToggle");
+const landingMobileDrawer = document.getElementById("landingMobileDrawer");
+const landingDrawerClose = document.getElementById("landingDrawerClose");
+const landingDrawerOverlay = document.getElementById("landingDrawerOverlay");
+
+function openLandingDrawer() {
+    if (landingMobileDrawer) landingMobileDrawer.classList.add("open");
+    if (landingDrawerOverlay) landingDrawerOverlay.classList.add("active");
+    document.body.style.overflow = "hidden";
+}
+
+function closeLandingDrawer() {
+    if (landingMobileDrawer) landingMobileDrawer.classList.remove("open");
+    if (landingDrawerOverlay) landingDrawerOverlay.classList.remove("active");
+    document.body.style.overflow = "";
+}
+
+if (landingNavToggle) {
+    landingNavToggle.addEventListener("click", (e) => {
+        e.stopPropagation();
+        openLandingDrawer();
+    });
+}
+
+if (landingDrawerClose) {
+    landingDrawerClose.addEventListener("click", (e) => {
+        e.stopPropagation();
+        closeLandingDrawer();
+    });
+}
+
+if (landingDrawerOverlay) {
+    landingDrawerOverlay.addEventListener("click", closeLandingDrawer);
+}
+
+document.querySelectorAll(".landing-drawer-links a").forEach(link => {
+    link.addEventListener("click", closeLandingDrawer);
+});
+
+document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeLandingDrawer();
+});
+

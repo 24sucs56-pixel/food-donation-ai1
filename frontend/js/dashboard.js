@@ -106,6 +106,15 @@ if(chatUserName){
         if (role.toLowerCase() === "ngo") displayRole = "NGO";
         profileRole.innerText = displayRole;
     }
+    const profileEmailInit = document.getElementById("profileEmail");
+    const profileRoleBadgeInit = document.getElementById("profileRoleBadge");
+    const userEmailInit = localStorage.getItem("email") || "user@email.com";
+    if (profileEmailInit) profileEmailInit.innerText = userEmailInit;
+    if (profileRoleBadgeInit) {
+        let badgeRoleText = role.toUpperCase();
+        if (badgeRoleText === "ADMIN") badgeRoleText = "ADMINISTRATOR";
+        profileRoleBadgeInit.innerText = badgeRoleText;
+    }
 
     // Dynamic Profile Avatar based on User Role or Custom Upload
     function updateAllAvatars(src) {
@@ -129,14 +138,19 @@ if(chatUserName){
 
     // Role-based Sidebar Menu Visibility Guard
     const roleMenuVisibility = {
-        donor: ["sidebarHome", "sidebarDonate", "sidebarMyDonations", "sidebarAI", "sidebarSettings", "logoutBtn"],
-        ngo: ["sidebarHome", "sidebarNGO", "sidebarAI", "sidebarSettings", "logoutBtn"],
-        volunteer: ["sidebarHome", "sidebarVolunteer", "sidebarAI", "sidebarSettings", "logoutBtn"],
-        admin: ["sidebarHome", "sidebarDonate", "sidebarMyDonations", "sidebarNGO", "sidebarVolunteer", "sidebarAI", "sidebarReports", "sidebarAdminUsers", "sidebarSettings", "logoutBtn"]
+        donor: ["sidebarHome", "sidebarDonate", "sidebarMyDonations", "sidebarAI", "sidebarReports", "sidebarSettings", "logoutBtn"],
+        ngo: ["sidebarHome", "sidebarNGO", "sidebarNgoAccepted", "sidebarNearbyDonors", "sidebarVolunteer", "sidebarReports", "sidebarSettings", "logoutBtn"],
+        volunteer: ["sidebarHome", "sidebarVolunteer", "sidebarNGO", "sidebarDeliveries", "sidebarReports", "sidebarSettings", "logoutBtn"],
+        admin: ["sidebarHome", "sidebarAdminUsers", "sidebarAdminNGOs", "sidebarAdminDonations", "sidebarAdminVolunteers", "sidebarReports", "sidebarSettings", "logoutBtn"]
     };
 
     const allowedMenus = roleMenuVisibility[role.toLowerCase()] || roleMenuVisibility.donor;
-    const allMenuIds = ["sidebarHome", "sidebarDonate", "sidebarMyDonations", "sidebarNGO", "sidebarVolunteer", "sidebarAI", "sidebarReports", "sidebarAdminUsers", "sidebarSettings", "logoutBtn"];
+    const allMenuIds = [
+        "sidebarHome", "sidebarDonate", "sidebarMyDonations", "sidebarNGO", 
+        "sidebarNgoAccepted", "sidebarNearbyDonors", "sidebarVolunteer", "sidebarDeliveries", "sidebarAI", "sidebarReports", "sidebarAdminUsers", 
+        "sidebarAdminNGOs", "sidebarAdminDonations", "sidebarAdminVolunteers", 
+        "sidebarSettings", "logoutBtn"
+    ];
     
     allMenuIds.forEach(menuId => {
         const menuItem = document.getElementById(menuId);
@@ -149,6 +163,67 @@ if(chatUserName){
         }
     });
 
+    // Customize navigation labels per role
+    const ngoMenuText = document.querySelector("#sidebarNGO span");
+    const myDonationsMenuText = document.querySelector("#sidebarMyDonations span");
+    const volunteerMenuText = document.querySelector("#sidebarVolunteer span");
+
+    if (role.toLowerCase() === "ngo") {
+        if (ngoMenuText) ngoMenuText.innerText = "Available Donations";
+        if (myDonationsMenuText) myDonationsMenuText.innerText = "Accepted Donations";
+        if (volunteerMenuText) volunteerMenuText.innerText = "Volunteers";
+    } else if (role.toLowerCase() === "volunteer") {
+        if (volunteerMenuText) volunteerMenuText.innerText = "Assigned Pickups";
+        if (ngoMenuText) ngoMenuText.innerText = "Nearby Donations";
+    } else if (role.toLowerCase() === "donor") {
+        if (myDonationsMenuText) myDonationsMenuText.innerText = "My Donations";
+    } else if (role.toLowerCase() === "admin") {
+        if (myDonationsMenuText) myDonationsMenuText.innerText = "Donation Management";
+    }
+
+    // Dynamic Dashboard Card Content Filtering per Role
+    function applyRoleDashboardFilters(currentRole) {
+        const cardTotalDonations = document.getElementById("cardTotalDonations");
+        const cardMealsSaved = document.getElementById("cardMealsSaved");
+        const cardConnectedNgos = document.getElementById("cardConnectedNgos");
+        const cardAiFoodSafety = document.getElementById("cardAiFoodSafety");
+        const rewardsSection = document.getElementById("rewardsSection");
+        const volunteerRatingCard = document.getElementById("volunteerRatingCard");
+
+        const normalizedRole = (currentRole || "donor").toLowerCase().trim();
+
+        if (normalizedRole === "donor") {
+            if (cardTotalDonations) cardTotalDonations.style.display = "flex";
+            if (cardMealsSaved) cardMealsSaved.style.display = "flex";
+            if (cardConnectedNgos) cardConnectedNgos.style.display = "flex";
+            if (cardAiFoodSafety) cardAiFoodSafety.style.display = "flex";
+            if (rewardsSection) rewardsSection.style.display = "block";
+            if (volunteerRatingCard) volunteerRatingCard.style.display = "none";
+        } else if (normalizedRole === "ngo") {
+            if (cardTotalDonations) cardTotalDonations.style.display = "flex";
+            if (cardMealsSaved) cardMealsSaved.style.display = "flex";
+            if (cardConnectedNgos) cardConnectedNgos.style.display = "flex";
+            if (cardAiFoodSafety) cardAiFoodSafety.style.display = "flex";
+            if (rewardsSection) rewardsSection.style.display = "none";
+            if (volunteerRatingCard) volunteerRatingCard.style.display = "none";
+        } else if (normalizedRole === "volunteer") {
+            if (cardTotalDonations) cardTotalDonations.style.display = "flex";
+            if (cardMealsSaved) cardMealsSaved.style.display = "flex";
+            if (cardConnectedNgos) cardConnectedNgos.style.display = "none";
+            if (cardAiFoodSafety) cardAiFoodSafety.style.display = "flex";
+            if (rewardsSection) rewardsSection.style.display = "block";
+            if (volunteerRatingCard) volunteerRatingCard.style.display = "block";
+        } else if (normalizedRole === "admin") {
+            if (cardTotalDonations) cardTotalDonations.style.display = "flex";
+            if (cardMealsSaved) cardMealsSaved.style.display = "flex";
+            if (cardConnectedNgos) cardConnectedNgos.style.display = "flex";
+            if (cardAiFoodSafety) cardAiFoodSafety.style.display = "flex";
+            if (rewardsSection) rewardsSection.style.display = "block";
+            if (volunteerRatingCard) volunteerRatingCard.style.display = "block";
+        }
+    }
+    applyRoleDashboardFilters(role);
+
     // ==========================
     // Logout
     // ==========================
@@ -157,6 +232,8 @@ if(chatUserName){
         btn.addEventListener("click", function (e) {
             e.preventDefault();
             localStorage.clear();
+            sessionStorage.clear();
+            alert("Logged out successfully.");
             window.location.href = "login.html";
         });
     });
@@ -164,26 +241,153 @@ if(chatUserName){
     // ==========================================
     // SIDEBAR TAB SWITCHING WITH ROLE GUARDS
     // ==========================================
-    const currentRole = (localStorage.getItem("role") || "donor").toLowerCase();
+    const currentRole = (localStorage.getItem("role") || "donor").toLowerCase().trim();
 
     const sections = {
-        sidebarHome: { el: document.getElementById("dashboardHomeSection"), roles: ["donor", "ngo", "volunteer"] },
-        sidebarDonate: { el: document.getElementById("donateSection"), roles: ["donor"] },
-        sidebarMyDonations: { el: document.getElementById("myDonationsSection"), roles: ["donor"] },
-        sidebarNGO: { el: document.getElementById("ngoSection"), roles: ["ngo"] },
-        sidebarVolunteer: { el: document.getElementById("volunteerSection"), roles: ["volunteer"] },
-        sidebarAI: { el: document.querySelector(".ai-assistant"), roles: ["donor", "ngo", "volunteer"] },
-        sidebarReports: { el: document.getElementById("reportsSection"), roles: ["admin"] },
+        sidebarHome: { el: document.getElementById("dashboardHomeSection"), roles: ["donor", "ngo", "volunteer", "admin"] },
+        sidebarDonate: { el: document.getElementById("donateSection"), roles: ["donor", "admin"] },
+        sidebarMyDonations: { el: document.getElementById("myDonationsSection"), roles: ["donor", "admin"] },
+        sidebarNGO: { el: document.getElementById("ngoSection"), roles: ["ngo", "volunteer", "admin"] },
+        sidebarNgoAccepted: { el: document.getElementById("ngoAcceptedSection"), roles: ["ngo", "admin"] },
+        sidebarNearbyDonors: { el: document.getElementById("nearbyDonorsSection"), roles: ["ngo", "admin"] },
+        sidebarVolunteer: { el: document.getElementById("volunteerSection"), roles: ["volunteer", "ngo", "admin"] },
+        sidebarDeliveries: { el: document.getElementById("volunteerSection"), roles: ["volunteer", "admin"] },
+        sidebarAI: { el: document.getElementById("aiSection") || document.querySelector(".ai-assistant"), roles: ["donor", "ngo", "volunteer", "admin"] },
+        sidebarReports: { el: document.getElementById("reportsSection"), roles: ["donor", "ngo", "volunteer", "admin"] },
         sidebarAdminUsers: { el: document.getElementById("adminUsersSection"), roles: ["admin"] },
-        sidebarSettings: { el: document.getElementById("settingsSection"), roles: ["donor", "ngo", "volunteer"] }
+        sidebarAdminNGOs: { el: document.getElementById("adminUsersSection"), roles: ["admin"] },
+        sidebarAdminDonations: { el: document.getElementById("myDonationsSection"), roles: ["admin"] },
+        sidebarAdminVolunteers: { el: document.getElementById("adminUsersSection"), roles: ["admin"] },
+        sidebarSettings: { el: document.getElementById("settingsSection"), roles: ["donor", "ngo", "volunteer", "admin"] },
+        sidebarProfile: { el: document.getElementById("profileSection"), roles: ["donor", "ngo", "volunteer", "admin"] },
+        profileSection: { el: document.getElementById("profileSection"), roles: ["donor", "ngo", "volunteer", "admin"] }
     };
 
+    // ==========================================
+    // MOBILE NAVIGATION DRAWER CONTROLS
+    // ==========================================
+    const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+    const mobileSidebarClose = document.getElementById("mobileSidebarClose");
+    const sidebarOverlay = document.getElementById("sidebarOverlay");
+    const sidebar = document.querySelector(".sidebar");
+
+    function openMobileMenu() {
+        if (sidebar) sidebar.classList.add("mobile-open");
+        if (sidebarOverlay) sidebarOverlay.classList.add("active");
+        document.body.style.overflow = "hidden";
+    }
+
+    function closeMobileMenu() {
+        if (sidebar) sidebar.classList.remove("mobile-open");
+        if (sidebarOverlay) sidebarOverlay.classList.remove("active");
+        document.body.style.overflow = "";
+    }
+
+    if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            openMobileMenu();
+        });
+    }
+
+    if (mobileSidebarClose) {
+        mobileSidebarClose.addEventListener("click", (e) => {
+            e.stopPropagation();
+            closeMobileMenu();
+        });
+    }
+
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener("click", () => {
+            closeMobileMenu();
+        });
+    }
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            closeMobileMenu();
+        }
+    });
+
+    async function loadNgoVolunteersList() {
+        const container = document.getElementById("ngoVolunteersContainer");
+        if (!container) return;
+        container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-light);"><i class="fa-solid fa-spinner fa-spin" style="font-size: 24px; color: #16a34a;"></i><p style="margin-top: 10px;">Loading volunteers network...</p></div>`;
+
+        let volunteers = [
+            { name: "Vikas Dubey", phone: "+91 98765 43210", vehicle: "Two Wheeler (Bike)", city: "Madurai", status: "Active & Available", rating: 4.9, completed: 34 },
+            { name: "Arun Kumar", phone: "+91 98765 12345", vehicle: "Mini Van / Four Wheeler", city: "Madurai", status: "In Transit", rating: 4.8, completed: 28 },
+            { name: "Meera Krishnan", phone: "+91 98123 45678", vehicle: "Electric Scooter", city: "Madurai", status: "Active & Available", rating: 5.0, completed: 42 },
+            { name: "Rajesh Sharma", phone: "+91 97890 12345", vehicle: "Cargo Auto", city: "Madurai", status: "Active & Available", rating: 4.7, completed: 19 }
+        ];
+
+        try {
+            const response = await fetch("http://127.0.0.1:5000/allusers");
+            if (response.ok) {
+                const users = await response.json();
+                const realVols = users.filter(u => u.role === "volunteer");
+                if (realVols.length > 0) {
+                    volunteers = realVols.map((v, i) => ({
+                        name: v.name || `Volunteer ${i+1}`,
+                        phone: v.phone || "+91 98765 43210",
+                        vehicle: v.vehicle || "Motorbike / Scooter",
+                        city: v.city || "Madurai",
+                        status: "Active & Available",
+                        rating: 4.8 + (i % 3) * 0.1,
+                        completed: 15 + i * 7
+                    }));
+                }
+            }
+        } catch (err) {
+            console.log("Using default volunteers dataset:", err);
+        }
+
+        container.innerHTML = `
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;">
+                ${volunteers.map(vol => `
+                    <div class="premium-card" style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 46px; height: 46px; background: rgba(22, 163, 74, 0.1); color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700;">
+                                    <i class="fa-solid fa-user-check"></i>
+                                </div>
+                                <div>
+                                    <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #0f172a;">${vol.name}</h3>
+                                    <span style="font-size: 12px; color: #16a34a; font-weight: 600;">🟢 ${vol.status}</span>
+                                </div>
+                            </div>
+                            <span style="background: #fef3c7; color: #d97706; border: 1px solid #fde68a; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px;">
+                                ${vol.rating.toFixed(1)} ★
+                            </span>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px; margin-bottom: 15px; font-size: 13px;">
+                            <div style="margin-bottom: 6px; color: #334155;"><i class="fa-solid fa-truck" style="color: #64748b; width: 20px;"></i> <b>Vehicle:</b> ${vol.vehicle}</div>
+                            <div style="margin-bottom: 6px; color: #334155;"><i class="fa-solid fa-phone" style="color: #64748b; width: 20px;"></i> <b>Contact:</b> ${vol.phone}</div>
+                            <div style="color: #334155;"><i class="fa-solid fa-circle-check" style="color: #16a34a; width: 20px;"></i> <b>Deliveries Completed:</b> ${vol.completed}</div>
+                        </div>
+
+                        <a href="tel:${vol.phone.replace(/[^0-9+]/g, '')}" class="submit-btn" style="width: 100%; padding: 10px; margin: 0; background: #16a34a; text-align: center; text-decoration: none; display: block; font-size: 13px; font-weight: 600;">
+                            <i class="fa-solid fa-phone" style="margin-right: 6px;"></i> Call Volunteer for Pickup
+                        </a>
+                    </div>
+                `).join("")}
+            </div>
+        `;
+    }
+
     function switchTab(clickedId) {
+        const activeRole = (localStorage.getItem("role") || "donor").toLowerCase().trim();
         const target = sections[clickedId];
         if (!target) return;
 
+        // Auto close mobile drawer and profile dropdown on selection
+        closeMobileMenu();
+        const pm = document.getElementById("profileMenu");
+        if (pm) pm.classList.remove("show", "active");
+
         // Check Role Guard (Admin has access to everything)
-        const isAuthorized = currentRole === "admin" || target.roles.includes(currentRole);
+        const isAuthorized = activeRole === "admin" || target.roles.includes(activeRole);
 
         // Deactivate all menu items
         document.querySelectorAll(".menu li").forEach(item => item.classList.remove("active"));
@@ -192,27 +396,82 @@ if(chatUserName){
         const clickedItem = document.getElementById(clickedId);
         if (clickedItem) clickedItem.classList.add("active");
 
-        // Hide all sections, including unauthorizedSection
-        Object.values(sections).forEach(sec => {
-            if (sec.el) sec.el.style.display = "none";
+        // Hide all known main dashboard sections strictly
+        const allDashSectionIds = [
+            "dashboardHomeSection", "donateSection", "myDonationsSection",
+            "ngoSection", "ngoAcceptedSection", "nearbyDonorsSection",
+            "volunteerSection", "reportsSection", "adminUsersSection",
+            "settingsSection", "profileSection", "aiSection", "unauthorizedSection"
+        ];
+        allDashSectionIds.forEach(secId => {
+            const sec = document.getElementById(secId);
+            if (sec) sec.style.setProperty("display", "none", "important");
         });
-        const unauthSec = document.getElementById("unauthorizedSection");
-        if (unauthSec) unauthSec.style.display = "none";
+        Object.values(sections).forEach(sec => {
+            if (sec.el) sec.el.style.setProperty("display", "none", "important");
+        });
+
+        if (!target.el) {
+            const sectionMap = {
+                sidebarHome: "dashboardHomeSection",
+                sidebarDonate: "donateSection",
+                sidebarMyDonations: "myDonationsSection",
+                sidebarNGO: "ngoSection",
+                sidebarNgoAccepted: "ngoAcceptedSection",
+                sidebarNearbyDonors: "nearbyDonorsSection",
+                sidebarVolunteer: "volunteerSection",
+                sidebarDeliveries: "volunteerSection",
+                sidebarReports: "reportsSection",
+                sidebarSettings: "settingsSection",
+                sidebarProfile: "profileSection",
+                sidebarAI: "aiSection",
+                aiSection: "aiSection",
+                ai: "aiSection",
+                profileSection: "profileSection",
+                profile: "profileSection",
+                myProfile: "profileSection"
+            };
+            if (sectionMap[clickedId]) {
+                target.el = document.getElementById(sectionMap[clickedId]);
+            }
+        }
 
         if (isAuthorized) {
-            // Show clicked section
+            // Show target section cleanly
             if (target.el) {
-                target.el.style.display = "block";
+                target.el.style.setProperty("display", "block", "important");
+                
+                if ((clickedId === "sidebarSettings" || clickedId === "profileSection" || clickedId === "sidebarProfile") && typeof loadFullUserProfile === "function") {
+                    loadFullUserProfile();
+                }
+
+                // SPECIAL LOGIC FOR VOLUNTEER SECTION BASED ON ROLE
+                if (clickedId === "sidebarVolunteer") {
+                    const volDashView = document.querySelector("#volunteerSection .volunteer-dashboard-view");
+                    const ngoVolView = document.querySelector("#volunteerSection .ngo-volunteers-view");
+
+                    if (activeRole === "ngo") {
+                        if (volDashView) volDashView.style.display = "none";
+                        if (ngoVolView) ngoVolView.style.display = "block";
+                        loadNgoVolunteersList();
+                    } else if (activeRole === "volunteer" || activeRole === "admin") {
+                        if (ngoVolView) ngoVolView.style.display = "none";
+                        if (volDashView) volDashView.style.display = "block";
+                        if (typeof loadVolunteerTasks === "function") loadVolunteerTasks();
+                        if (typeof loadVolunteerRating === "function") loadVolunteerRating();
+                    }
+                }
                 
                 // Reload tab contents dynamically to fetch fresh data
-                if (clickedId === "sidebarMyDonations" && typeof loadDonorDonations === "function") {
+                if ((clickedId === "sidebarMyDonations" || clickedId === "sidebarAdminDonations") && typeof loadDonorDonations === "function") {
                     loadDonorDonations();
                 } else if (clickedId === "sidebarNGO" && typeof loadDonations === "function") {
                     loadDonations();
-                } else if (clickedId === "sidebarVolunteer" && typeof loadVolunteerTasks === "function") {
-                    loadVolunteerTasks();
-                    if (typeof loadVolunteerRating === "function") loadVolunteerRating();
-                } else if (clickedId === "sidebarAdminUsers" && typeof loadAdminUsersVerification === "function") {
+                } else if (clickedId === "sidebarNgoAccepted" && typeof loadNgoAcceptedDonations === "function") {
+                    loadNgoAcceptedDonations();
+                } else if (clickedId === "sidebarNearbyDonors" && typeof loadNearbyDonors === "function") {
+                    loadNearbyDonors();
+                } else if ((clickedId === "sidebarAdminUsers" || clickedId === "sidebarAdminNGOs" || clickedId === "sidebarAdminVolunteers") && typeof loadAdminUsersVerification === "function") {
                     loadAdminUsersVerification();
                 }
                 
@@ -220,21 +479,29 @@ if(chatUserName){
                 if (clickedId === "sidebarDonate" && typeof pickupMap !== "undefined" && pickupMap) {
                     setTimeout(() => {
                         pickupMap.invalidateSize();
-                    }, 200);
+                    }, 250);
+                } else if (clickedId === "sidebarNearbyDonors" && typeof nearbyDonorsMapInstance !== "undefined" && nearbyDonorsMapInstance) {
+                    setTimeout(() => {
+                        nearbyDonorsMapInstance.invalidateSize();
+                    }, 250);
+                } else if (clickedId === "sidebarHome" && window.donationChartInstance) {
+                    setTimeout(() => {
+                        window.donationChartInstance.resize();
+                    }, 100);
                 }
             }
         } else {
-            // Show unauthorized section
-            if (unauthSec) {
-                unauthSec.style.display = "block";
-                const unauthMsg = document.getElementById("unauthorizedMsg");
-                if (unauthMsg) {
-                    unauthMsg.innerHTML = `This module is restricted to <strong>${target.roles.map(r => r.toUpperCase()).join(", ")}</strong> accounts. <br><br>Your current account is logged in as a <strong>${currentRole.toUpperCase()}</strong>.`;
-                }
+            // Quiet fallback to home dashboard without displaying any error banner
+            const homeTarget = sections["sidebarHome"];
+            if (homeTarget && homeTarget.el) {
+                homeTarget.el.style.display = "block";
             }
         }
     }
     window.switchTab = switchTab;
+    window.navigateToSection = function(targetId) {
+        switchTab(targetId);
+    };
 
     // Attach listeners to sidebar items
     Object.keys(sections).forEach(id => {
@@ -244,15 +511,482 @@ if(chatUserName){
         }
     });
 
-    // Populate profile details in Settings
-    const settingsName = document.getElementById("settingsName");
-    const settingsEmail = document.getElementById("settingsEmail");
-    const settingsRole = document.getElementById("settingsRole");
-    if (settingsName) settingsName.value = localStorage.getItem("name") || "Guest User";
-    if (settingsEmail) settingsEmail.value = localStorage.getItem("email") || "guest@smartfooddonation.org";
-    if (settingsRole) settingsRole.value = localStorage.getItem("role") || "donor";
-    const settingsProfileName = document.getElementById("settingsProfileName");
-    if (settingsProfileName) settingsProfileName.innerText = localStorage.getItem("name") || "Guest User";
+    // ==========================================
+    // FULL ROLE-AWARE USER PROFILE LOGIC
+    // ==========================================
+    async function loadFullUserProfile() {
+        const userEmail = localStorage.getItem("email");
+        const activeRole = (localStorage.getItem("role") || "donor").toLowerCase().trim();
+
+        if (!userEmail) return;
+
+        try {
+            const res = await fetch(`http://127.0.0.1:5000/user/profile?email=${encodeURIComponent(userEmail)}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.status === "success") {
+                    // Update LocalStorage with server profile truth
+                    if (data.name) localStorage.setItem("name", data.name);
+                    if (data.role) localStorage.setItem("role", data.role);
+                    if (data.profile_image) {
+                        localStorage.setItem("profile_image", data.profile_image);
+                    }
+
+                    // Update UI Labels
+                    const nameVal = data.name || localStorage.getItem("name") || "User";
+                    const roleVal = (data.role || activeRole).toUpperCase();
+
+                    if (userName) userName.innerText = nameVal;
+                    if (userRole) userRole.innerText = roleVal;
+                    if (sidebarUser) sidebarUser.innerText = nameVal;
+                    if (profileName) profileName.innerText = nameVal;
+                    if (profileRole) profileRole.innerText = roleVal;
+
+                    const profileEmailEl = document.getElementById("profileEmail");
+                    if (profileEmailEl) profileEmailEl.innerText = data.email || userEmail;
+
+                    const profileRoleBadgeEl = document.getElementById("profileRoleBadge");
+                    if (profileRoleBadgeEl) {
+                        let roleBadgeText = roleVal;
+                        if (roleVal.toLowerCase() === "admin") roleBadgeText = "ADMINISTRATOR";
+                        profileRoleBadgeEl.innerText = roleBadgeText;
+                    }
+
+                    const settingsNameInput = document.getElementById("settingsName");
+                    const settingsEmailInput = document.getElementById("settingsEmail");
+                    const settingsRoleInput = document.getElementById("settingsRole");
+                    const settingsPhoneInput = document.getElementById("settingsPhone");
+                    const settingsAddressInput = document.getElementById("settingsAddress");
+                    const settingsCityInput = document.getElementById("settingsCity");
+                    const settingsPincodeInput = document.getElementById("settingsPincode");
+                    const settingsProfileNameHeader = document.getElementById("settingsProfileName");
+
+                    if (settingsNameInput) settingsNameInput.value = nameVal;
+                    if (settingsEmailInput) settingsEmailInput.value = data.email || userEmail;
+                    if (settingsRoleInput) settingsRoleInput.value = roleVal;
+                    if (settingsPhoneInput) settingsPhoneInput.value = data.phone || "";
+                    if (settingsAddressInput) settingsAddressInput.value = data.address || "";
+                    if (settingsCityInput) settingsCityInput.value = data.city || "";
+                    if (settingsPincodeInput) settingsPincodeInput.value = data.pincode || "";
+                    if (settingsProfileNameHeader) settingsProfileNameHeader.innerText = nameVal;
+
+                    // Achievement Stats
+                    const settingsPointsEl = document.getElementById("settingsPoints");
+                    const settingsRankEl = document.getElementById("settingsRank");
+                    const settingsPrizeEl = document.getElementById("settingsPrize");
+                    const settingsStatusEl = document.getElementById("settingsStatus");
+
+                    if (settingsPointsEl) settingsPointsEl.innerText = data.points || 0;
+                    if (settingsRankEl) settingsRankEl.innerText = data.certificate || "Contributor";
+                    if (settingsPrizeEl) settingsPrizeEl.innerText = data.prize || "None";
+                    if (settingsStatusEl) {
+                        settingsStatusEl.innerText = data.user_status || "Approved";
+                        settingsStatusEl.style.color = (data.user_status === "Approved") ? "#16a34a" : "#d97706";
+                    }
+
+                    // Role Specific Inputs Display & Value Assignment
+                    const donorFields = document.getElementById("settingsDonorFields");
+                    const ngoFields = document.getElementById("settingsNgoFields");
+                    const volunteerFields = document.getElementById("settingsVolunteerFields");
+
+                    if (donorFields) donorFields.style.display = (activeRole === "donor") ? "block" : "none";
+                    if (ngoFields) ngoFields.style.display = (activeRole === "ngo") ? "flex" : "none";
+                    if (volunteerFields) volunteerFields.style.display = (activeRole === "volunteer") ? "block" : "none";
+
+                    if (activeRole === "donor") {
+                        const donorTypeSelect = document.getElementById("settingsDonorType");
+                        if (donorTypeSelect && data.donor_type) donorTypeSelect.value = data.donor_type;
+                    } else if (activeRole === "ngo") {
+                        const ngoNameInput = document.getElementById("settingsNgoName");
+                        const regNumInput = document.getElementById("settingsRegNumber");
+                        if (ngoNameInput) ngoNameInput.value = data.ngo_name || "";
+                        if (regNumInput) regNumInput.value = data.registration_number || "";
+                    } else if (activeRole === "volunteer") {
+                        const vehicleSelect = document.getElementById("settingsVehicle");
+                        if (vehicleSelect && data.vehicle) vehicleSelect.value = data.vehicle;
+                    }
+
+                    // Update Avatars
+                    let avatarImage = data.profile_image || localStorage.getItem("profile_image");
+                    if (!avatarImage) {
+                        avatarImage = "images/user1.png";
+                        if (activeRole === "ngo") avatarImage = "images/user2.png";
+                        else if (activeRole === "volunteer") avatarImage = "images/user3.png";
+                        else if (activeRole === "admin") avatarImage = "images/logo.png";
+                    }
+                    updateAllAvatars(avatarImage);
+                }
+            }
+        } catch (err) {
+            console.error("Error loading user profile:", err);
+        }
+    }
+    loadFullUserProfile();
+
+    // Edit Profile Toggle Handler
+    const editProfileBtn = document.getElementById("editProfileBtn");
+    const saveProfileBtn = document.getElementById("saveProfileBtn");
+    const profileSaveContainer = document.getElementById("profileSaveContainer");
+    const profileSaveMsg = document.getElementById("profileSaveMsg");
+
+    let isEditingProfile = false;
+
+    if (editProfileBtn) {
+        editProfileBtn.addEventListener("click", () => {
+            isEditingProfile = !isEditingProfile;
+            const editableInputs = document.querySelectorAll("#profileEditForm input:not(#settingsEmail):not(#settingsRole), #profileEditForm select");
+            
+            editableInputs.forEach(input => {
+                input.disabled = !isEditingProfile;
+            });
+
+            if (isEditingProfile) {
+                editProfileBtn.style.background = "#dc2626";
+                editProfileBtn.innerHTML = `<i class="fa-solid fa-xmark"></i> Cancel`;
+                if (profileSaveContainer) profileSaveContainer.style.display = "block";
+            } else {
+                editProfileBtn.style.background = "#2563eb";
+                editProfileBtn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Edit`;
+                if (profileSaveContainer) profileSaveContainer.style.display = "none";
+            }
+        });
+    }
+
+    if (saveProfileBtn) {
+        saveProfileBtn.addEventListener("click", async () => {
+            const userEmail = localStorage.getItem("email");
+            const activeRole = (localStorage.getItem("role") || "donor").toLowerCase().trim();
+
+            if (!userEmail) return;
+
+            saveProfileBtn.disabled = true;
+            saveProfileBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
+
+            const payload = {
+                email: userEmail,
+                name: document.getElementById("settingsName")?.value || "",
+                phone: document.getElementById("settingsPhone")?.value || "",
+                address: document.getElementById("settingsAddress")?.value || "",
+                city: document.getElementById("settingsCity")?.value || "",
+                pincode: document.getElementById("settingsPincode")?.value || ""
+            };
+
+            if (activeRole === "donor") {
+                payload.donor_type = document.getElementById("settingsDonorType")?.value || "";
+            } else if (activeRole === "ngo") {
+                payload.ngo_name = document.getElementById("settingsNgoName")?.value || "";
+                payload.registration_number = document.getElementById("settingsRegNumber")?.value || "";
+            } else if (activeRole === "volunteer") {
+                payload.vehicle = document.getElementById("settingsVehicle")?.value || "";
+            }
+
+            try {
+                const res = await fetch("http://127.0.0.1:5000/user/profile/update", {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-User-Email": userEmail
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await res.json();
+                if (res.ok && result.status === "success") {
+                    if (result.name) localStorage.setItem("name", result.name);
+                    
+                    if (profileSaveMsg) {
+                        profileSaveMsg.style.display = "block";
+                        profileSaveMsg.style.background = "#dcfce7";
+                        profileSaveMsg.style.color = "#15803d";
+                        profileSaveMsg.innerText = "✓ Profile updated successfully!";
+                        setTimeout(() => { profileSaveMsg.style.display = "none"; }, 4000);
+                    }
+
+                    // Reload full profile to sync all UI elements
+                    await loadFullUserProfile();
+
+                    // Re-lock form inputs
+                    if (editProfileBtn) editProfileBtn.click();
+                } else {
+                    if (profileSaveMsg) {
+                        profileSaveMsg.style.display = "block";
+                        profileSaveMsg.style.background = "#fee2e2";
+                        profileSaveMsg.style.color = "#dc2626";
+                        profileSaveMsg.innerText = result.message || "Failed to update profile";
+                    }
+                }
+            } catch (err) {
+                console.error("Profile save error:", err);
+                if (profileSaveMsg) {
+                    profileSaveMsg.style.display = "block";
+                    profileSaveMsg.style.background = "#fee2e2";
+                    profileSaveMsg.style.color = "#dc2626";
+                    profileSaveMsg.innerText = "Error connecting to server.";
+                }
+            } finally {
+                saveProfileBtn.disabled = false;
+                saveProfileBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Save Profile Changes`;
+            }
+        });
+    }
+
+    // ==========================================
+    // TOPBAR PROFILE MENU DROPDOWN & MODALS
+    // ==========================================
+    function positionProfileMenu() {
+        const btn = document.getElementById("profileBtn");
+        const menu = document.getElementById("profileMenu");
+        if (!btn || !menu) return;
+
+        const rect = btn.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        
+        menu.style.position = "fixed";
+        menu.style.top = (rect.bottom + 8) + "px";
+        
+        const rightDist = viewportWidth - rect.right;
+        if (rightDist < 12) {
+            menu.style.right = "12px";
+        } else {
+            menu.style.right = rightDist + "px";
+        }
+        menu.style.left = "auto";
+        
+        if (viewportWidth <= 768) {
+            menu.style.width = "min(280px, calc(100vw - 24px))";
+        } else {
+            menu.style.width = "280px";
+        }
+    }
+
+    const profileBtn = document.getElementById("profileBtn");
+    const profileMenu = document.getElementById("profileMenu");
+    const profileOverlay = document.getElementById("profileOverlay");
+
+    function closeProfileMenu() {
+        if (profileMenu) profileMenu.classList.remove("show", "active");
+        if (profileOverlay) profileOverlay.classList.remove("show", "active");
+    }
+
+    function openProfileMenu() {
+        if (!profileMenu) return;
+        positionProfileMenu();
+        profileMenu.classList.add("show", "active");
+        if (profileOverlay) profileOverlay.classList.add("show", "active");
+    }
+
+    if (profileBtn && profileMenu) {
+        profileMenu.addEventListener("click", (e) => {
+            e.stopPropagation();
+        });
+
+        let isTouchHandled = false;
+        profileBtn.addEventListener("touchend", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            isTouchHandled = true;
+            const isOpen = profileMenu.classList.contains("show") || profileMenu.classList.contains("active");
+            if (isOpen) {
+                closeProfileMenu();
+            } else {
+                openProfileMenu();
+            }
+            setTimeout(() => { isTouchHandled = false; }, 400);
+        });
+
+        profileBtn.addEventListener("click", (e) => {
+            if (isTouchHandled) return;
+            e.stopPropagation();
+            const isOpen = profileMenu.classList.contains("show") || profileMenu.classList.contains("active");
+            if (isOpen) {
+                closeProfileMenu();
+            } else {
+                openProfileMenu();
+            }
+        });
+
+        if (profileOverlay) {
+            profileOverlay.addEventListener("click", () => {
+                closeProfileMenu();
+            });
+        }
+
+        document.addEventListener("click", (e) => {
+            if (!profileMenu.contains(e.target) && !profileBtn.contains(e.target)) {
+                closeProfileMenu();
+            }
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                closeProfileMenu();
+            }
+        });
+
+        window.addEventListener("resize", () => {
+            if (profileMenu.classList.contains("show") || profileMenu.classList.contains("active")) {
+                positionProfileMenu();
+            }
+        });
+    }
+
+    const profileMenuEditProfile = document.getElementById("profileMenuEditProfile");
+    if (profileMenuEditProfile) {
+        profileMenuEditProfile.addEventListener("click", (e) => {
+            e.preventDefault();
+            closeProfileMenu();
+            if (typeof switchTab === "function") switchTab("profileSection");
+        });
+    }
+
+    const profileMenuChangePassword = document.getElementById("profileMenuChangePassword");
+    const changePasswordModal = document.getElementById("changePasswordModal");
+    const closeChangePasswordModal = document.getElementById("closeChangePasswordModal");
+
+    if (profileMenuChangePassword && changePasswordModal) {
+        profileMenuChangePassword.addEventListener("click", (e) => {
+            e.preventDefault();
+            closeProfileMenu();
+            changePasswordModal.style.display = "flex";
+        });
+    }
+
+    if (closeChangePasswordModal && changePasswordModal) {
+        closeChangePasswordModal.addEventListener("click", () => {
+            changePasswordModal.style.display = "none";
+        });
+    }
+
+    const profileMenuHelp = document.getElementById("profileMenuHelp");
+    const helpCenterModal = document.getElementById("helpCenterModal");
+    const closeHelpCenterModal = document.getElementById("closeHelpCenterModal");
+
+    if (profileMenuHelp && helpCenterModal) {
+        profileMenuHelp.addEventListener("click", (e) => {
+            e.preventDefault();
+            closeProfileMenu();
+            helpCenterModal.style.display = "flex";
+        });
+    }
+
+    if (closeHelpCenterModal && helpCenterModal) {
+        closeHelpCenterModal.addEventListener("click", () => {
+            helpCenterModal.style.display = "none";
+        });
+    }
+
+    window.addEventListener("click", (e) => {
+        if (e.target === changePasswordModal) {
+            changePasswordModal.style.display = "none";
+        }
+        if (e.target === helpCenterModal) {
+            helpCenterModal.style.display = "none";
+        }
+    });
+
+    // ==========================================
+    // CHANGE PASSWORD FORM HANDLER
+    // ==========================================
+    const changePasswordForm = document.getElementById("changePasswordForm");
+    const changePasswordMsg = document.getElementById("changePasswordMsg");
+    const savePasswordBtn = document.getElementById("savePasswordBtn");
+
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const email = localStorage.getItem("email");
+            const currentPassword = document.getElementById("currentPasswordInput")?.value || "";
+            const newPassword = document.getElementById("newPasswordInput")?.value || "";
+            const confirmPassword = document.getElementById("confirmPasswordInput")?.value || "";
+
+            if (!email) {
+                if (changePasswordMsg) {
+                    changePasswordMsg.style.display = "block";
+                    changePasswordMsg.style.background = "#fee2e2";
+                    changePasswordMsg.style.color = "#dc2626";
+                    changePasswordMsg.innerText = "Error: User session not found. Please log in again.";
+                }
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                if (changePasswordMsg) {
+                    changePasswordMsg.style.display = "block";
+                    changePasswordMsg.style.background = "#fee2e2";
+                    changePasswordMsg.style.color = "#dc2626";
+                    changePasswordMsg.innerText = "New password and confirm password do not match.";
+                }
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                if (changePasswordMsg) {
+                    changePasswordMsg.style.display = "block";
+                    changePasswordMsg.style.background = "#fee2e2";
+                    changePasswordMsg.style.color = "#dc2626";
+                    changePasswordMsg.innerText = "New password must be at least 6 characters long.";
+                }
+                return;
+            }
+
+            if (savePasswordBtn) {
+                savePasswordBtn.disabled = true;
+                savePasswordBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Updating...`;
+            }
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/user/change-password", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        current_password: currentPassword,
+                        new_password: newPassword
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.status === "success") {
+                    if (changePasswordMsg) {
+                        changePasswordMsg.style.display = "block";
+                        changePasswordMsg.style.background = "#dcfce7";
+                        changePasswordMsg.style.color = "#15803d";
+                        changePasswordMsg.innerText = "✓ Password changed successfully!";
+                    }
+                    document.getElementById("currentPasswordInput").value = "";
+                    document.getElementById("newPasswordInput").value = "";
+                    document.getElementById("confirmPasswordInput").value = "";
+                    setTimeout(() => {
+                        if (changePasswordModal) changePasswordModal.style.display = "none";
+                        if (changePasswordMsg) changePasswordMsg.style.display = "none";
+                    }, 2000);
+                } else {
+                    if (changePasswordMsg) {
+                        changePasswordMsg.style.display = "block";
+                        changePasswordMsg.style.background = "#fee2e2";
+                        changePasswordMsg.style.color = "#dc2626";
+                        changePasswordMsg.innerText = result.message || "Failed to change password.";
+                    }
+                }
+            } catch (err) {
+                console.error("Change password error:", err);
+                if (changePasswordMsg) {
+                    changePasswordMsg.style.display = "block";
+                    changePasswordMsg.style.background = "#fee2e2";
+                    changePasswordMsg.style.color = "#dc2626";
+                    changePasswordMsg.innerText = "Error connecting to server.";
+                }
+            } finally {
+                if (savePasswordBtn) {
+                    savePasswordBtn.disabled = false;
+                    savePasswordBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Update Password`;
+                }
+            }
+        });
+    }
 
     // ==========================================
     // UPDATE DASHBOARD STATS WITH REAL DATA
@@ -264,8 +998,16 @@ if(chatUserName){
             const result = await response.json();
             const allDonations = result.data || [];
 
+            const userEmail = localStorage.getItem("email");
+            const activeRole = (localStorage.getItem("role") || "donor").toLowerCase().trim();
+
+            let roleDonations = allDonations;
+            if (activeRole === "donor" && userEmail) {
+                roleDonations = allDonations.filter(d => d.donor_email === userEmail);
+            }
+
             // 1. Total Donations
-            const totalDonations = allDonations.length;
+            const totalDonations = roleDonations.length;
             const totalDonationsEl = document.getElementById("totalDonations");
             if (totalDonationsEl) {
                 totalDonationsEl.innerText = totalDonations;
@@ -273,7 +1015,7 @@ if(chatUserName){
             }
 
             // 2. Meals Saved (sum of quantity of all delivered donations)
-            const deliveredDonations = allDonations.filter(d => d.status === "Delivered");
+            const deliveredDonations = roleDonations.filter(d => d.status === "Delivered");
             const mealsSaved = deliveredDonations.reduce((sum, d) => sum + parseInt(d.quantity || 0), 0);
             const mealsSavedEl = document.getElementById("mealsSaved");
             if (mealsSavedEl) {
@@ -283,11 +1025,11 @@ if(chatUserName){
 
             // 3. Connected NGOs
             const activeNgos = new Set();
-            allDonations.forEach(d => {
+            roleDonations.forEach(d => {
                 if (d.ngo) activeNgos.add(d.ngo);
                 if (d.recommended_ngo) activeNgos.add(d.recommended_ngo);
             });
-            const connectedNgos = activeNgos.size || 4;
+            const connectedNgos = activeNgos.size || (activeRole === "donor" ? (roleDonations.length > 0 ? activeNgos.size : 0) : 4);
             const connectedNgosEl = document.getElementById("connectedNgos");
             if (connectedNgosEl) {
                 connectedNgosEl.innerText = connectedNgos;
@@ -295,7 +1037,7 @@ if(chatUserName){
             }
 
             // 4. AI Food Safety (average freshness percentage)
-            const freshDonations = allDonations.filter(d => typeof d.freshness === "number");
+            const freshDonations = roleDonations.filter(d => typeof d.freshness === "number");
             let avgFreshness = 95;
             if (freshDonations.length > 0) {
                 const totalFreshness = freshDonations.reduce((sum, d) => sum + d.freshness, 0);
@@ -470,67 +1212,7 @@ if(chatUserName){
     // Default: switch to sidebarHome tab on page load
     switchTab("sidebarHome");
 
-    // =========================================
-    //         PROFILE DROPDOWN INTERACTIVITY
-    // =========================================
-    const profileBtn = document.getElementById("profileBtn");
-    const profileMenu = document.getElementById("profileMenu");
 
-    if (profileBtn && profileMenu) {
-        profileBtn.addEventListener("click", function (e) {
-            e.stopPropagation();
-            profileMenu.classList.toggle("show");
-        });
-
-        document.addEventListener("click", function () {
-            profileMenu.classList.remove("show");
-        });
-
-        profileMenu.addEventListener("click", function (e) {
-            e.stopPropagation();
-        });
-
-        // Option 1: My Profile
-        const myProfileLink = document.getElementById("profileMenuMyProfile");
-        if (myProfileLink) {
-            myProfileLink.addEventListener("click", (e) => {
-                e.preventDefault();
-                switchTab("sidebarSettings");
-                profileMenu.classList.remove("show");
-            });
-        }
-
-        // Option 2: Settings
-        const settingsLink = document.getElementById("profileMenuSettings");
-        if (settingsLink) {
-            settingsLink.addEventListener("click", (e) => {
-                e.preventDefault();
-                switchTab("sidebarSettings");
-                profileMenu.classList.remove("show");
-            });
-        }
-
-        // Option 3: Notifications
-        const notificationsLink = document.getElementById("profileMenuNotifications");
-        if (notificationsLink) {
-            notificationsLink.addEventListener("click", (e) => {
-                e.preventDefault();
-                const notifBtn = document.getElementById("notificationBtn");
-                if (notifBtn) notifBtn.click();
-                profileMenu.classList.remove("show");
-            });
-        }
-
-        // Option 4: Help Center
-        const helpLink = document.getElementById("profileMenuHelp");
-        if (helpLink) {
-            helpLink.addEventListener("click", (e) => {
-                e.preventDefault();
-                switchTab("sidebarAI");
-                profileMenu.classList.remove("show");
-            });
-        }
-    }
 
 });
 /*=========================================
@@ -541,7 +1223,7 @@ const chartCanvas = document.getElementById("donationChart");
 
 if (chartCanvas && typeof Chart !== "undefined") {
 
-    new Chart(chartCanvas, {
+    window.donationChartInstance = new Chart(chartCanvas, {
 
         type: "line",
 
@@ -601,6 +1283,13 @@ if (chartCanvas && typeof Chart !== "undefined") {
 
         }
 
+    });
+
+    // Auto-resize chart on window resize and mobile orientation change
+    window.addEventListener("resize", () => {
+        if (window.donationChartInstance) {
+            window.donationChartInstance.resize();
+        }
     });
 
 }
@@ -824,6 +1513,103 @@ async function loadDonationData() {
 // Load donations when dashboard opens
 loadDonationData();
 console.log("🔥 LIVE DONATION CODE IS RUNNING WITH OFFLINE FALLBACK");
+
+// =======================================
+// USER PROFILE POPULATION ENGINE
+// =======================================
+async function loadFullUserProfile() {
+    const email = localStorage.getItem("email") || "";
+    const role = (localStorage.getItem("role") || "donor").toLowerCase().trim();
+    const name = localStorage.getItem("name") || "User";
+
+    // Set header banner info
+    const settingsProfileName = document.getElementById("settingsProfileName");
+    if (settingsProfileName) settingsProfileName.innerText = name;
+
+    const profileName = document.getElementById("profileName");
+    if (profileName) profileName.innerText = name;
+
+    const userName = document.getElementById("userName");
+    if (userName) userName.innerText = name;
+
+    const userRole = document.getElementById("userRole");
+    if (userRole) userRole.innerText = role.toUpperCase();
+
+    const profileRole = document.getElementById("profileRole");
+    if (profileRole) profileRole.innerText = role.toUpperCase();
+
+    // Set form fields
+    const settingsName = document.getElementById("settingsName");
+    if (settingsName) settingsName.value = name;
+
+    const settingsEmail = document.getElementById("settingsEmail");
+    if (settingsEmail) settingsEmail.value = email;
+
+    const settingsRole = document.getElementById("settingsRole");
+    if (settingsRole) settingsRole.value = role.toUpperCase();
+
+    // Toggle role-specific fields
+    const donorFields = document.getElementById("settingsDonorFields");
+    const ngoFields = document.getElementById("settingsNgoFields");
+    const volFields = document.getElementById("settingsVolunteerFields");
+
+    if (donorFields) donorFields.style.display = role === "donor" ? "block" : "none";
+    if (ngoFields) ngoFields.style.display = role === "ngo" ? "flex" : "none";
+    if (volFields) volFields.style.display = role === "volunteer" ? "block" : "none";
+
+    // Fetch live user data from server API
+    if (email) {
+        try {
+            const res = await fetch(`http://127.0.0.1:5000/user/profile?email=${encodeURIComponent(email)}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.status === "success") {
+                    if (data.name) {
+                        localStorage.setItem("name", data.name);
+                        if (settingsProfileName) settingsProfileName.innerText = data.name;
+                        if (settingsName) settingsName.value = data.name;
+                    }
+                    const settingsPhone = document.getElementById("settingsPhone");
+                    if (settingsPhone) settingsPhone.value = data.phone || "";
+
+                    const settingsAddress = document.getElementById("settingsAddress");
+                    if (settingsAddress) settingsAddress.value = data.address || "";
+
+                    const settingsCity = document.getElementById("settingsCity");
+                    if (settingsCity) settingsCity.value = data.city || "Madurai";
+
+                    const settingsPincode = document.getElementById("settingsPincode");
+                    if (settingsPincode) settingsPincode.value = data.pincode || "625001";
+
+                    if (role === "donor") {
+                        const donorType = document.getElementById("settingsDonorType");
+                        if (donorType && data.donor_type) donorType.value = data.donor_type;
+                    } else if (role === "ngo") {
+                        const ngoName = document.getElementById("settingsNgoName");
+                        if (ngoName) ngoName.value = data.ngo_name || data.name || "";
+                        const regNum = document.getElementById("settingsRegNumber");
+                        if (regNum) regNum.value = data.reg_number || "";
+                    } else if (role === "volunteer") {
+                        const vehicle = document.getElementById("settingsVehicle");
+                        if (vehicle && data.vehicle) vehicle.value = data.vehicle;
+                    }
+
+                    if (data.profile_image) {
+                        localStorage.setItem("profile_image", data.profile_image);
+                        if (typeof updateAllAvatars === "function") updateAllAvatars(data.profile_image);
+                    }
+                }
+            }
+        } catch (err) {
+            console.warn("Could not fetch server profile data:", err);
+        }
+    }
+
+    if (typeof loadUserProfileAndRewards === "function") {
+        loadUserProfileAndRewards();
+    }
+}
+window.loadFullUserProfile = loadFullUserProfile;
 
 // =======================================
 // REWARDS & CERTIFICATIONS MANAGEMENT
@@ -1691,3 +2477,159 @@ window.loadNotifications = function(allDonations) {
         }, 1000);
     }
 })();
+
+// ==========================================
+// NGO DEDICATED MODULES: ACCEPTED DONATIONS & NEARBY DONORS
+// ==========================================
+
+async function loadNgoAcceptedDonations() {
+    const container = document.getElementById("ngoAcceptedContainer");
+    if (!container) return;
+
+    container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-light);"><i class="fa-solid fa-spinner fa-spin" style="font-size: 24px; color: #16a34a;"></i><p style="margin-top: 10px;">Loading your accepted donations...</p></div>`;
+
+    const loggedInNgo = localStorage.getItem("name") || "Demo NGO Trust";
+
+    try {
+        const response = await fetch("http://127.0.0.1:5000/donations");
+        if (response.ok) {
+            const result = await response.json();
+            const allDonations = result.data || [];
+            // Filter accepted/claimed donations for this NGO
+            const accepted = allDonations.filter(d => 
+                (d.ngo === loggedInNgo || d.ngo === "Demo NGO Trust" || d.ngo === "Helping Hands NGO") && 
+                ["Accepted", "Picked", "Delivered", "In Transit"].includes(d.status)
+            );
+
+            if (accepted.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; background: white; border-radius: 16px; border: 1px solid var(--border); box-shadow: var(--shadow);">
+                        <i class="fa-solid fa-box-open" style="font-size: 40px; color: #94a3b8; margin-bottom: 12px;"></i>
+                        <h3 style="margin: 0; color: #334155; font-size: 18px;">No Accepted Donations Yet</h3>
+                        <p style="color: #64748b; font-size: 14px; margin-top: 6px;">Browse Available Donations to claim food for your NGO.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+                    ${accepted.map(d => {
+                        let statusClass = "progress";
+                        if (d.status === "Delivered") statusClass = "delivered";
+
+                        const foodNameText = Array.isArray(d.food_name) 
+                            ? d.food_name.map(f => typeof f === 'object' ? f.name : f).join(", ") 
+                            : (d.food_name || "Food Items");
+
+                        return `
+                            <div class="premium-card" style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                                    <div>
+                                        <span class="card-badge category-veg" style="background: #e0f2fe; color: #0284c7; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;">${d.category || 'Surplus Food'}</span>
+                                        <h3 style="margin: 6px 0 0 0; font-size: 17px; font-weight: 700; color: #0f172a;">${foodNameText}</h3>
+                                    </div>
+                                    <span class="status ${statusClass}" style="padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 700;">
+                                        ${d.status}
+                                    </span>
+                                </div>
+
+                                <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px; margin-bottom: 15px; font-size: 13px;">
+                                    <div style="margin-bottom: 6px; color: #334155;"><i class="fa-solid fa-users" style="color: #64748b; width: 20px;"></i> <b>Quantity:</b> ${d.quantity || 50} servings</div>
+                                    <div style="margin-bottom: 6px; color: #334155;"><i class="fa-solid fa-user-heart" style="color: #64748b; width: 20px;"></i> <b>Donor:</b> ${d.donor_email ? d.donor_email.split('@')[0] : 'Murugan Idli Shop'}</div>
+                                    <div style="margin-bottom: 6px; color: #334155;"><i class="fa-solid fa-location-dot" style="color: #16a34a; width: 20px;"></i> <b>Pickup Address:</b> ${d.address || 'Madurai Central'}</div>
+                                    <div style="color: #334155;"><i class="fa-solid fa-truck" style="color: #0284c7; width: 20px;"></i> <b>Logistics:</b> ${d.volunteer ? `${d.volunteer} (Assigned)` : 'Waiting for Volunteer Assignment'}</div>
+                                </div>
+
+                                <a href="tel:+919842145671" class="submit-btn" style="width: 100%; padding: 10px; margin: 0; background: #16a34a; text-align: center; text-decoration: none; display: block; font-size: 13px; font-weight: 600;">
+                                    <i class="fa-solid fa-phone" style="margin-right: 6px;"></i> Contact Donor for Pickup
+                                </a>
+                            </div>
+                        `;
+                    }).join("")}
+                </div>
+            `;
+        }
+    } catch (err) {
+        console.error("Error loading accepted donations:", err);
+    }
+}
+
+let nearbyDonorsMapInstance = null;
+
+async function loadNearbyDonors() {
+    const container = document.getElementById("nearbyDonorsContainer");
+    if (!container) return;
+
+    container.innerHTML = `<div style="text-align:center; padding: 40px; color: var(--text-light);"><i class="fa-solid fa-spinner fa-spin" style="font-size: 24px; color: #16a34a;"></i><p style="margin-top: 10px;">Finding donors near your location...</p></div>`;
+
+    const nearbyDonorsList = [
+        { name: "Rohan Sharma (Individual Donor)", address: "Plot 14, Anna Nagar, Madurai", distance: "1.8 km", availableFood: "Rice Meals", category: "Veg", quantity: "50 portions", phone: "+91 98765 43210", lat: 9.9252, lng: 78.1198 },
+        { name: "Murugan Idli Shop", address: "194 West Masi Street, Madurai", distance: "2.4 km", availableFood: "Idli & Sambar", category: "Veg", quantity: "80 portions", phone: "+91 98421 45671", lat: 9.9195, lng: 78.1193 },
+        { name: "Priya Patel", address: "Green Meadows, Tallakulam, Madurai", distance: "3.1 km", availableFood: "Veg Meals & Chapathi", category: "Veg", quantity: "35 portions", phone: "+91 98420 11998", lat: 9.9380, lng: 78.1380 },
+        { name: "Kumar Mess & Catering", address: "80 Feet Road, KK Nagar, Madurai", distance: "3.9 km", availableFood: "Vegetable Biryani", category: "Veg", quantity: "100 portions", phone: "+91 98432 12345", lat: 9.9280, lng: 78.1450 },
+        { name: "Modern Supermarket & Fresh Bakery", address: "Mattuthavani, Madurai", distance: "4.5 km", availableFood: "Fresh Bread & Bakery Items", category: "Bakery", quantity: "60 items", phone: "+91 97900 11224", lat: 9.9520, lng: 78.1520 }
+    ];
+
+    // Initialize or resize map
+    setTimeout(() => {
+        const mapEl = document.getElementById("nearbyDonorsMap");
+        if (mapEl && typeof L !== "undefined") {
+            if (!nearbyDonorsMapInstance) {
+                nearbyDonorsMapInstance = L.map("nearbyDonorsMap").setView([9.9252, 78.1198], 13);
+                L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(nearbyDonorsMapInstance);
+
+                // Add donor markers
+                nearbyDonorsList.forEach(donor => {
+                    L.marker([donor.lat, donor.lng])
+                        .addTo(nearbyDonorsMapInstance)
+                        .bindPopup(`<b>${donor.name}</b><br>${donor.availableFood} (${donor.quantity})<br>📍 ${donor.distance} away`);
+                });
+            }
+            nearbyDonorsMapInstance.invalidateSize();
+        }
+    }, 250);
+
+    container.innerHTML = `
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px;">
+            ${nearbyDonorsList.map(donor => `
+                <div class="premium-card" style="background: white; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <div style="width: 44px; height: 44px; background: rgba(22, 163, 74, 0.1); color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 700;">
+                                <i class="fa-solid fa-store"></i>
+                            </div>
+                            <div>
+                                <h3 style="margin: 0; font-size: 16px; font-weight: 700; color: #0f172a;">${donor.name}</h3>
+                                <span style="font-size: 12px; color: #16a34a; font-weight: 600;">📍 ${donor.distance} away</span>
+                            </div>
+                        </div>
+                        <span style="background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 20px;">
+                            ${donor.category}
+                        </span>
+                    </div>
+
+                    <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px; margin-bottom: 15px; font-size: 13px;">
+                        <div style="margin-bottom: 6px; color: #334155;"><i class="fa-solid fa-bowl-food" style="color: #64748b; width: 20px;"></i> <b>Available Food:</b> ${donor.availableFood}</div>
+                        <div style="margin-bottom: 6px; color: #334155;"><i class="fa-solid fa-layer-group" style="color: #64748b; width: 20px;"></i> <b>Quantity:</b> ${donor.quantity}</div>
+                        <div style="color: #334155;"><i class="fa-solid fa-location-dot" style="color: #16a34a; width: 20px;"></i> <b>Location:</b> ${donor.address}</div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="document.getElementById('sidebarNGO').click()" class="submit-btn" style="flex: 1; padding: 10px; margin: 0; background: #16a34a; font-size: 12.5px; font-weight: 600;">
+                            <i class="fa-solid fa-eye" style="margin-right: 4px;"></i> View Donations
+                        </button>
+                        <a href="tel:${donor.phone.replace(/[^0-9+]/g, '')}" class="submit-btn" style="flex: 1; padding: 10px; margin: 0; background: #0284c7; text-align: center; text-decoration: none; display: block; font-size: 12.5px; font-weight: 600;">
+                            <i class="fa-solid fa-phone" style="margin-right: 4px;"></i> Call Donor
+                        </a>
+                    </div>
+                </div>
+            `).join("")}
+        </div>
+    `;
+}
+
+window.loadNgoAcceptedDonations = loadNgoAcceptedDonations;
+window.loadNearbyDonors = loadNearbyDonors;

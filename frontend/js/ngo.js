@@ -251,8 +251,13 @@ async function loadDonations() {
     }
 }
 
-// Initial Load
-loadDonations();
+// Initial Load (Only for NGO and Admin roles)
+(function initNgoDonations() {
+    const currentRole = (localStorage.getItem("role") || "").toLowerCase().trim();
+    if (currentRole === "ngo" || currentRole === "admin") {
+        loadDonations();
+    }
+})();
 
 // ======================================
 // Accept Button

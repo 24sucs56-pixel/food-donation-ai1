@@ -228,4 +228,10 @@ async function submitVolunteerRating(donationId, role, ratingValue) {
 }
 window.submitVolunteerRating = submitVolunteerRating;
 
-loadDonorDonations();
+// Initial Load (Only for Donor and Admin roles)
+(function initDonorDonations() {
+    const currentRole = (localStorage.getItem("role") || "").toLowerCase().trim();
+    if (currentRole === "donor" || currentRole === "admin") {
+        loadDonorDonations();
+    }
+})();

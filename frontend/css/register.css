@@ -547,3 +547,30 @@ input[type="file"]{
 
 }
 
+@media(max-width:600px){
+    .register-container{
+        width:100% !important;
+        margin:10px auto !important;
+        border-radius:16px !important;
+    }
+    .register-left{
+        padding:25px 20px !important;
+    }
+    .register-right{
+        padding:25px 18px !important;
+    }
+    .register-left h1{
+        font-size:22px !important;
+    }
+    .register-right h2{
+        font-size:24px !important;
+    }
+    .role-selection{
+        grid-template-columns:repeat(2, 1fr) !important;
+        gap:8px !important;
+    }
+    .role-card{
+        padding:10px 8px !important;
+    }
+}
+

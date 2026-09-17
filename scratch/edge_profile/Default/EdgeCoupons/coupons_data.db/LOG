@@ -1,0 +1,15 @@
+2026/09/15-11:33:56.736 1bdc Reusing MANIFEST C:\Users\ELCOT\Documents\food donation ai\scratch\edge_profile\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/09/15-11:33:56.738 1bdc Recovering log #29
+2026/09/15-11:33:56.738 1bdc Reusing old log C:\Users\ELCOT\Documents\food donation ai\scratch\edge_profile\Default\EdgeCoupons/coupons_data.db/000029.log 
+2026/09/15-11:33:56.967 4614 Level-0 table #33: started
+2026/09/15-11:33:56.975 4614 Level-0 table #33: 683455 bytes OK
+2026/09/15-11:33:56.977 4614 Delete type=0 #29
+2026/09/15-11:33:56.978 128c Compacting 4@0 + 1@1 files
+2026/09/15-11:33:56.984 128c Generated table #34@0: 4 keys, 683351 bytes
+2026/09/15-11:33:56.984 128c Compacted 4@0 + 1@1 files => 683351 bytes
+2026/09/15-11:33:56.985 128c compacted to: files[ 0 1 1 0 0 0 0 ]
+2026/09/15-11:33:56.986 128c Delete type=2 #21
+2026/09/15-11:33:56.986 128c Delete type=2 #24
+2026/09/15-11:33:56.986 128c Delete type=2 #27
+2026/09/15-11:33:56.986 128c Delete type=2 #30
+2026/09/15-11:33:56.986 128c Delete type=2 #33

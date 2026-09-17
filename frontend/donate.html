@@ -29,6 +29,8 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 <link rel="stylesheet" href="css/donate.css">
 <link rel="stylesheet" href="css/layout-fix.css">
 <link rel="stylesheet" href="css/assistant.css">
+<link rel="stylesheet" href="css/mobile.css">
+<link rel="icon" href="images/logo.png" type="image/png">
 </head>
 <body>
 
@@ -37,6 +39,11 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     <!-- SIDEBAR -->
 
     <aside class="sidebar">
+
+        <!-- Mobile Sidebar Close Button -->
+        <button id="mobileSidebarClose" class="mobile-sidebar-close" aria-label="Close Navigation Menu">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
 
         <div class="logo">
 
@@ -142,10 +149,20 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 </div>
     </aside>
 
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
     <!-- MAIN CONTENT -->
 
     <main class="main-content">
         <header class="topbar">
+
+    <div class="topbar-left">
+        <!-- Mobile Hamburger Menu Button -->
+        <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Open Navigation Menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
 
     <!-- Food Saving & Donating Facts -->
     <div class="topbar-fact" style="display: flex; align-items: center; gap: 10px; color: #15803d; font-weight: 550; font-size: 14.5px; max-width: 60%; line-height: 1.4; background: rgba(22, 163, 74, 0.06); padding: 10px 18px; border-radius: 12px; border: 1px solid rgba(22, 163, 74, 0.15);">
@@ -696,9 +713,13 @@ Donate Food
     <i class="fa-solid fa-robot"></i>
 </button>
 
+<script src="js/auth.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/donate.js"></script>
 <script src="js/assistant.js"></script>
+<script>
+    checkRole(["donor", "admin"]);
+</script>
 
 </body>
 </html>

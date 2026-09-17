@@ -652,6 +652,33 @@ body{
 }
 
 }
+
+@media(max-width:600px){
+    .login-container{
+        width:100% !important;
+        margin:10px auto !important;
+        border-radius:16px !important;
+    }
+    .login-left{
+        padding:25px 20px !important;
+    }
+    .login-right{
+        padding:30px 20px !important;
+    }
+    .login-left h1{
+        font-size:22px !important;
+    }
+    .login-right h2{
+        font-size:24px !important;
+    }
+    .role-selection{
+        grid-template-columns:repeat(2, 1fr) !important;
+        gap:8px !important;
+    }
+    .role-card{
+        padding:10px 8px !important;
+    }
+}
 .login-container{
 
     animation:fadeIn .8s ease;

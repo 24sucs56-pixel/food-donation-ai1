@@ -1,247 +1,645 @@
 let statusChart = null;
 let categoryChart = null;
+
+// Global Data Stores
+window.allAdminUsersList = [];
+window.adminUserDocuments = {};
+window.activeUserTab = "all";
+window.activeDonationTab = "all";
+
 // =======================================
-// LOAD ADMIN DASHBOARD
+// LOAD ADMIN DASHBOARD METRICS & OVERVIEW
 // =======================================
-
-async function loadDashboard(){
-
-    try{
-
-        const response = await fetch(
-            "http://127.0.0.1:5000/admin/dashboard"
-        );
-
+async function loadDashboard() {
+    try {
+        const response = await fetch("http://127.0.0.1:5000/admin/dashboard");
         const data = await response.json();
-loadStatusChart(data);
+        
+        if (data.status !== "success") {
+            console.error("Failed to load dashboard metrics");
+            return;
+        }
 
-loadCategoryChart(data);
-        // Statistics
+        // 8 Summary Cards
+        setElementText("users", data.total_users || 0);
+        setElementText("totalDonors", data.total_donors || 0);
+        setElementText("totalNGOs", data.total_ngos || 0);
+        setElementText("totalVolunteers", data.total_volunteers || 0);
+        setElementText("pendingVerificationsCount", data.pending_verifications || 0);
+        setElementText("approvedUsersCount", data.approved_users || 0);
+        setElementText("rejectedUsersCount", data.rejected_users || 0);
+        setElementText("donations", data.total_donations || 0);
 
-        document.getElementById("users").innerHTML =
-            data.total_users;
+        // Verification Overview Breakdown Pills
+        if (data.verification_overview) {
+            const donorOverview = data.verification_overview.donor || {};
+            setElementText("donorPendingCount", donorOverview.pending || 0);
+            setElementText("donorApprovedCount", donorOverview.approved || 0);
+            setElementText("donorRejectedCount", donorOverview.rejected || 0);
 
-        document.getElementById("donations").innerHTML =
-            data.total_donations;
+            const ngoOverview = data.verification_overview.ngo || {};
+            setElementText("ngoPendingCount", ngoOverview.pending || 0);
+            setElementText("ngoApprovedCount", ngoOverview.approved || 0);
+            setElementText("ngoRejectedCount", ngoOverview.rejected || 0);
 
-        document.getElementById("waiting").innerHTML =
-            data.waiting;
+            const volOverview = data.verification_overview.volunteer || {};
+            setElementText("volPendingCount", volOverview.pending || 0);
+            setElementText("volApprovedCount", volOverview.approved || 0);
+            setElementText("volRejectedCount", volOverview.rejected || 0);
+        }
 
-        document.getElementById("accepted").innerHTML =
-            data.accepted;
+        // Render Pending Verifications List on Dashboard
+        renderDashboardPendingList(data.pending_users_list || []);
 
-        document.getElementById("picked").innerHTML =
-            data.picked;
+        // Render Recent Admin Activity Log on Dashboard
+        renderDashboardRecentActivity(data.recent_activity || []);
 
-        document.getElementById("delivered").innerHTML =
-            data.delivered;
+        // Charts & Performance Indicators
+        loadStatusChart(data);
+        loadCategoryChart(data);
 
-        // Recent Donations
+        // Recent Donations Log Table
+        const table = document.getElementById("recentData");
+        if (table) {
+            table.innerHTML = "";
+            (data.recent || []).forEach(item => {
+                const foodNameText = Array.isArray(item.food_name) 
+                    ? item.food_name.map(f => typeof f === 'object' ? `${f.name} (${f.category})` : f).join(", ") 
+                    : (item.food_name || "");
+                table.innerHTML += `
+                    <tr>
+                        <td><strong>${foodNameText}</strong></td>
+                        <td>${item.category || '-'}</td>
+                        <td>${item.freshness || 0}%</td>
+                        <td><span class="badge ${ (item.ai_result || '').toLowerCase()}">${item.ai_result || '-'}</span></td>
+                        <td>${item.recommendation || '-'}</td>
+                        <td><span class="badge-status badge-pending">${item.status || '-'}</span></td>
+                        <td>${item.donor_email || '-'}</td>
+                    </tr>
+                `;
+            });
+            if ((data.recent || []).length === 0) {
+                table.innerHTML = `<tr><td colspan="7" style="padding: 20px; color: #64748b; text-align: center;">No recent donations recorded.</td></tr>`;
+            }
+        }
 
-        const table =
-            document.getElementById("recentData");
+    } catch (error) {
+        console.error("Unable to load dashboard:", error);
+    }
+}
 
-        table.innerHTML = "";
+// Render pending users list widget on dashboard
+function renderDashboardPendingList(pendingUsers) {
+    const container = document.getElementById("dashboardPendingList");
+    const badge = document.getElementById("dashboardPendingBadge");
+    if (badge) badge.innerText = `${pendingUsers.length} Pending`;
+    if (!container) return;
 
-        data.recent.forEach(item => {
-            const foodNameText = Array.isArray(item.food_name) 
-                ? item.food_name.map(f => typeof f === 'object' ? `${f.name} (${f.category})` : f).join(", ") 
-                : (item.food_name || "");
-            table.innerHTML += `
-
-            <tr>
-
-                <td>${foodNameText}</td>
-
-                <td>${item.category}</td>
-
-                <td>${item.freshness}%</td>
-
-                <td>
-
-                    <span class="badge ${item.ai_result.toLowerCase()}">
-
-                        ${item.ai_result}
-
-                    </span>
-
-                </td>
-
-                <td>${item.recommendation}</td>
-
-                <td>${item.status}</td>
-
-                <td>${item.donor_email}</td>
-
-            </tr>
-
-            `;
-
-        });
-
+    if (pendingUsers.length === 0) {
+        container.innerHTML = `<p style="color: #64748b; font-size: 13px; text-align: center; padding: 15px;">No pending verification requests.</p>`;
+        return;
     }
 
-    catch(error){
+    let html = `<div style="display: flex; flex-direction: column; gap: 10px;">`;
+    pendingUsers.forEach(u => {
+        let roleTarget = "sidebarAdminUsers";
+        if (u.role === "donor") roleTarget = "sidebarAdminDonors";
+        else if (u.role === "ngo") roleTarget = "sidebarAdminNGOs";
+        else if (u.role === "volunteer") roleTarget = "sidebarAdminVolunteers";
 
-        console.log(error);
+        html += `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #fff8e6; border: 1px solid #fef3c7; padding: 10px 14px; border-radius: 10px;">
+                <div>
+                    <h4 style="margin: 0; font-size: 14px; font-weight: 600; color: #1e293b;">${u.name}</h4>
+                    <p style="margin: 2px 0 0 0; font-size: 12px; color: #64748b;">${u.email} &bull; <strong style="text-transform: uppercase; color: #d97706;">${u.role}</strong></p>
+                </div>
+                <button class="btn-action btn-view" onclick="navigateToSection('${roleTarget}')" style="padding: 5px 10px; font-size: 11.5px;">Review</button>
+            </div>
+        `;
+    });
+    html += `</div>`;
+    container.innerHTML = html;
+}
 
-        alert("Unable to load dashboard.");
+// Render real recent admin activity audit log on dashboard
+function renderDashboardRecentActivity(activities) {
+    const container = document.getElementById("dashboardRecentActivity");
+    if (!container) return;
 
+    if (activities.length === 0) {
+        container.innerHTML = `<p style="color: #64748b; font-size: 13px; text-align: center; padding: 15px;">No recent admin actions logged.</p>`;
+        return;
     }
 
+    let html = `<div style="display: flex; flex-direction: column; gap: 10px;">`;
+    activities.forEach(act => {
+        const isApprove = act.status === "Approved";
+        const iconClass = isApprove ? "fa-circle-check" : "fa-circle-xmark";
+        const iconColor = isApprove ? "#16a34a" : "#dc2626";
+        const badgeClass = isApprove ? "badge-approved" : "badge-rejected";
+
+        html += `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #f1f5f9; padding: 10px 14px; border-radius: 10px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid ${iconClass}" style="color: ${iconColor}; font-size: 16px;"></i>
+                    <div>
+                        <h4 style="margin: 0; font-size: 13.5px; font-weight: 600; color: #1e293b;">${act.user_name} (${act.user_role})</h4>
+                        <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #64748b;">${act.user_email} &bull; ${act.timestamp || ''}</p>
+                    </div>
+                </div>
+                <span class="badge-status ${badgeClass}" style="font-size: 11px; padding: 3px 8px;">${act.status}</span>
+            </div>
+        `;
+    });
+    html += `</div>`;
+    container.innerHTML = html;
 }
 
 // =======================================
-// USER VERIFICATIONS FLOW (Separated by role)
+// LOAD ALL USERS & VERIFICATION DATA
 // =======================================
-
-// Global store for base64 documents to avoid HTML markup bloat/crashes
-window.adminUserDocuments = {};
-
-async function loadVerifications() {
+async function loadUsersData() {
     try {
         const response = await fetch("http://127.0.0.1:5000/admin/users");
         const res = await response.json();
         
         if (res.status !== "success") {
-            console.error("Failed to load users");
+            console.error("Failed to load users data");
             return;
         }
-        
-        const donorTbody = document.getElementById("donorVerificationData");
-        const ngoTbody = document.getElementById("ngoVerificationData");
-        const volunteerTbody = document.getElementById("volunteerVerificationData");
-        
-        if (donorTbody) donorTbody.innerHTML = "";
-        if (ngoTbody) ngoTbody.innerHTML = "";
-        if (volunteerTbody) volunteerTbody.innerHTML = "";
-        
-        const usersList = res.data || [];
-        
-        // Reset documents store
+
+        window.allAdminUsersList = res.data || [];
         window.adminUserDocuments = {};
-        
-        let donorCount = 0;
-        let ngoCount = 0;
-        let volunteerCount = 0;
 
-        usersList.forEach(user => {
-            // Save document in memory if it exists
-            if (user.document_image) {
-                window.adminUserDocuments[user.email] = {
-                    name: user.name,
-                    document: user.document_image,
-                    role: user.role
+        // Cache document images
+        window.allAdminUsersList.forEach(u => {
+            if (u.document_image) {
+                window.adminUserDocuments[u.email] = {
+                    name: u.name,
+                    document: u.document_image,
+                    role: u.role
                 };
-            }
-
-            // Build full address formatting
-            let fullAddress = `
-                ${user.address || '-'}<br>
-                ${user.city || ''}, ${user.district || ''}<br>
-                ${user.state || ''} - ${user.pincode || ''}
-            `;
-
-            let statusBadge = "";
-            let actionButtons = "";
-            
-            if (user.status === "Pending Approval") {
-                statusBadge = `<span class="badge-status badge-pending">Pending Approval</span>`;
-                actionButtons = `
-                    <button class="btn-action btn-approve" onclick="verifyUser('${user.email}', 'Approved')">Approve</button>
-                    <button class="btn-action btn-reject" onclick="verifyUser('${user.email}', 'Rejected')">Reject</button>
-                `;
-            } else if (user.status === "Approved") {
-                statusBadge = `<span class="badge-status badge-approved">Approved</span>`;
-                actionButtons = `
-                    <button class="btn-action btn-reject" onclick="verifyUser('${user.email}', 'Rejected')">Reject</button>
-                `;
-            } else {
-                statusBadge = `<span class="badge-status badge-rejected">Rejected</span>`;
-                actionButtons = `
-                    <button class="btn-action btn-approve" onclick="verifyUser('${user.email}', 'Approved')">Approve</button>
-                `;
-            }
-
-            let documentCol = "<span style='color:#94a3b8;'>No document</span>";
-            
-            if (user.role === "donor") {
-                donorCount++;
-                if (user.document_image) {
-                    documentCol = `<button class="btn-action btn-view" onclick="viewDocument('${user.email}')">View FSSAI / Aadhar</button>`;
-                }
-                if (donorTbody) {
-                    donorTbody.innerHTML += `
-                        <tr>
-                            <td><strong>${user.name}</strong></td>
-                            <td>${user.email}</td>
-                            <td>${user.phone || '-'}</td>
-                            <td>${fullAddress}</td>
-                            <td><strong>${user.donor_type || 'General'}</strong></td>
-                            <td>${documentCol}</td>
-                            <td>${statusBadge}</td>
-                            <td>${actionButtons}</td>
-                        </tr>
-                    `;
-                }
-            } else if (user.role === "ngo") {
-                ngoCount++;
-                if (user.document_image) {
-                    documentCol = `<button class="btn-action btn-view" onclick="viewDocument('${user.email}')">View Certificate / Aadhar</button>`;
-                }
-                if (ngoTbody) {
-                    ngoTbody.innerHTML += `
-                        <tr>
-                            <td><strong>${user.ngo_name || '-'}</strong></td>
-                            <td>${user.name}</td>
-                            <td>${user.email}</td>
-                            <td>${user.phone || '-'}</td>
-                            <td>${fullAddress}</td>
-                            <td><strong>${user.registration_number || '-'}</strong></td>
-                            <td>${documentCol}</td>
-                            <td>${statusBadge}</td>
-                            <td>${actionButtons}</td>
-                        </tr>
-                    `;
-                }
-            } else if (user.role === "volunteer") {
-                volunteerCount++;
-                if (user.document_image) {
-                    documentCol = `<button class="btn-action btn-view" onclick="viewDocument('${user.email}')">View License / Aadhar</button>`;
-                }
-                if (volunteerTbody) {
-                    volunteerTbody.innerHTML += `
-                        <tr>
-                            <td><strong>${user.name}</strong></td>
-                            <td>${user.email}</td>
-                            <td>${user.phone || '-'}</td>
-                            <td>${fullAddress}</td>
-                            <td><strong>${user.vehicle || 'None'}</strong></td>
-                            <td>${documentCol}</td>
-                            <td>${statusBadge}</td>
-                            <td>${actionButtons}</td>
-                        </tr>
-                    `;
-                }
             }
         });
 
-        // Insert empty rows if counts are zero
-        if (donorCount === 0 && donorTbody) {
-            donorTbody.innerHTML = `<tr><td colspan="8" style="padding: 20px; color: #64748b; text-align: center;">No donor registration requests found.</td></tr>`;
-        }
-        if (ngoCount === 0 && ngoTbody) {
-            ngoTbody.innerHTML = `<tr><td colspan="9" style="padding: 20px; color: #64748b; text-align: center;">No NGO registration requests found.</td></tr>`;
-        }
-        if (volunteerCount === 0 && volunteerTbody) {
-            volunteerTbody.innerHTML = `<tr><td colspan="8" style="padding: 20px; color: #64748b; text-align: center;">No volunteer registration requests found.</td></tr>`;
-        }
+        // Populate all views
+        renderUserManagement();
+        renderRoleVerifications();
 
     } catch (error) {
-        console.error("Error loading verification requests:", error);
+        console.error("Error loading users data:", error);
     }
 }
 
+// =======================================
+// USER MANAGEMENT PAGE CONTROLS
+// =======================================
+function renderUserManagement() {
+    const allUsers = window.allAdminUsersList || [];
+    
+    // Update tab counters
+    const countAll = allUsers.length;
+    const countPending = allUsers.filter(u => u.status === "Pending Approval").length;
+    const countApproved = allUsers.filter(u => u.status === "Approved").length;
+    const countRejected = allUsers.filter(u => u.status === "Rejected").length;
+
+    setElementText("countTabAll", countAll);
+    setElementText("countTabPending", countPending);
+    setElementText("countTabApproved", countApproved);
+    setElementText("countTabRejected", countRejected);
+
+    applyUserManagementFilters();
+}
+
+function filterUserManagementTab(tabName) {
+    window.activeUserTab = tabName;
+    document.querySelectorAll(".filter-tab-bar .filter-tab").forEach(tab => {
+        tab.classList.remove("active");
+    });
+    const selectedTabBtn = document.getElementById(`tabUser${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`);
+    if (selectedTabBtn) selectedTabBtn.classList.add("active");
+    
+    applyUserManagementFilters();
+}
+
+function applyUserManagementFilters() {
+    const tbody = document.getElementById("userManagementTableBody");
+    if (!tbody) return;
+
+    let users = window.allAdminUsersList || [];
+    const searchVal = (document.getElementById("userSearchInput")?.value || "").toLowerCase().trim();
+    const roleVal = document.getElementById("userRoleFilter")?.value || "all";
+    const statusVal = document.getElementById("userStatusFilter")?.value || "all";
+    const activeTab = window.activeUserTab || "all";
+
+    // 1. Tab Filter
+    if (activeTab === "pending") {
+        users = users.filter(u => u.status === "Pending Approval");
+    } else if (activeTab === "approved") {
+        users = users.filter(u => u.status === "Approved");
+    } else if (activeTab === "rejected") {
+        users = users.filter(u => u.status === "Rejected");
+    }
+
+    // 2. Search Query Filter
+    if (searchVal) {
+        users = users.filter(u => 
+            (u.name || "").toLowerCase().includes(searchVal) ||
+            (u.email || "").toLowerCase().includes(searchVal) ||
+            (u.role || "").toLowerCase().includes(searchVal) ||
+            (u.phone || "").toLowerCase().includes(searchVal)
+        );
+    }
+
+    // 3. Role Filter
+    if (roleVal !== "all") {
+        users = users.filter(u => (u.role || "").toLowerCase() === roleVal);
+    }
+
+    // 4. Status Filter
+    if (statusVal !== "all") {
+        if (statusVal === "active") {
+            users = users.filter(u => u.account_status === "active" || u.status === "Approved");
+        } else if (statusVal === "inactive") {
+            users = users.filter(u => u.account_status === "inactive" || u.status === "Rejected");
+        } else {
+            users = users.filter(u => u.status === statusVal);
+        }
+    }
+
+    tbody.innerHTML = "";
+
+    if (users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="padding: 25px; color: #64748b; text-align: center;">No matching users found for the selected criteria.</td></tr>`;
+        return;
+    }
+
+    users.forEach(u => {
+        let statusBadge = "";
+        let actionButtons = "";
+        
+        if (u.status === "Pending Approval") {
+            statusBadge = `<span class="badge-status badge-pending">Pending Approval</span>`;
+            actionButtons = `
+                <button class="btn-action btn-approve" onclick="confirmVerifyAction('${u.email}', 'Approved', '${u.name}', '${u.role}')">Approve</button>
+                <button class="btn-action btn-reject" onclick="confirmVerifyAction('${u.email}', 'Rejected', '${u.name}', '${u.role}')">Reject</button>
+            `;
+        } else if (u.status === "Approved") {
+            statusBadge = `<span class="badge-status badge-approved">Approved</span>`;
+            actionButtons = `
+                <button class="btn-action btn-reject" onclick="confirmVerifyAction('${u.email}', 'Rejected', '${u.name}', '${u.role}')">Reject</button>
+            `;
+        } else {
+            statusBadge = `<span class="badge-status badge-rejected">Rejected</span>`;
+            actionButtons = `
+                <button class="btn-action btn-approve" onclick="confirmVerifyAction('${u.email}', 'Approved', '${u.name}', '${u.role}')">Approve</button>
+            `;
+        }
+
+        actionButtons += `<button class="btn-action btn-view" onclick="viewUserDetails('${u.email}')">View</button>`;
+
+        let emailVerifiedBadge = u.email_verified 
+            ? `<span style="color:#16a34a; font-weight:600;"><i class="fa-solid fa-circle-check"></i> Yes</span>` 
+            : `<span style="color:#dc2626; font-weight:600;"><i class="fa-solid fa-circle-xmark"></i> No</span>`;
+
+        let accountStatusBadge = u.status === "Approved" 
+            ? `<span style="background:#dcfce7; color:#15803d; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:600;">Active</span>` 
+            : (u.status === "Rejected" ? `<span style="background:#fee2e2; color:#b91c1c; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:600;">Inactive</span>` : `<span style="background:#fef3c7; color:#d97706; padding:4px 8px; border-radius:12px; font-size:12px; font-weight:600;">Pending</span>`);
+
+        let auditInfo = "-";
+        if (u.status === "Approved" && u.approved_at) {
+            auditInfo = `<div style="font-size:11.5px; color:#475569;">Approved on<br><strong>${u.approved_at}</strong></div>`;
+        } else if (u.status === "Rejected" && u.rejected_at) {
+            auditInfo = `<div style="font-size:11.5px; color:#b91c1c;">Rejected on<br><strong>${u.rejected_at}</strong></div>`;
+        } else {
+            auditInfo = `<div style="font-size:11.5px; color:#64748b;">Registered<br><strong>${u.created_at || u.registration_date || 'Recent'}</strong></div>`;
+        }
+
+        tbody.innerHTML += `
+            <tr>
+                <td>
+                    <div style="text-align: left;">
+                        <strong style="color: #0f172a; font-size: 14.5px;">${u.name}</strong><br>
+                        <span style="color: #64748b; font-size: 12.5px;">${u.email}</span><br>
+                        <span style="color: #94a3b8; font-size: 11.5px;">${u.phone || ''}</span>
+                    </div>
+                </td>
+                <td><strong style="text-transform: uppercase; color: #16a34a; font-size: 12.5px;">${u.role}</strong></td>
+                <td>${emailVerifiedBadge}</td>
+                <td>${statusBadge}</td>
+                <td>${accountStatusBadge}</td>
+                <td>${auditInfo}</td>
+                <td>${actionButtons}</td>
+            </tr>
+        `;
+    });
+}
+
+// =======================================
+// RENDER ROLE SPECIFIC VERIFICATION TABLES
+// =======================================
+function renderRoleVerifications() {
+    const users = window.allAdminUsersList || [];
+    
+    const donorTbody = document.getElementById("donorVerificationData");
+    const ngoTbody = document.getElementById("ngoVerificationData");
+    const volunteerTbody = document.getElementById("volunteerVerificationData");
+    
+    if (donorTbody) donorTbody.innerHTML = "";
+    if (ngoTbody) ngoTbody.innerHTML = "";
+    if (volunteerTbody) volunteerTbody.innerHTML = "";
+
+    let donorCount = 0;
+    let ngoCount = 0;
+    let volunteerCount = 0;
+
+    users.forEach(user => {
+        let fullAddress = `
+            ${user.address || '-'}<br>
+            ${user.city || ''}, ${user.district || ''}<br>
+            ${user.state || ''} ${user.pincode ? '- ' + user.pincode : ''}
+        `;
+
+        let statusBadge = "";
+        let actionButtons = "";
+        
+        if (user.status === "Pending Approval") {
+            statusBadge = `<span class="badge-status badge-pending">Pending Approval</span>`;
+            actionButtons = `
+                <button class="btn-action btn-approve" onclick="confirmVerifyAction('${user.email}', 'Approved', '${user.name}', '${user.role}')">Approve</button>
+                <button class="btn-action btn-reject" onclick="confirmVerifyAction('${user.email}', 'Rejected', '${user.name}', '${user.role}')">Reject</button>
+            `;
+        } else if (user.status === "Approved") {
+            statusBadge = `<span class="badge-status badge-approved">Approved</span>`;
+            actionButtons = `
+                <button class="btn-action btn-reject" onclick="confirmVerifyAction('${user.email}', 'Rejected', '${user.name}', '${user.role}')">Reject</button>
+            `;
+        } else {
+            statusBadge = `<span class="badge-status badge-rejected">Rejected</span>`;
+            actionButtons = `
+                <button class="btn-action btn-approve" onclick="confirmVerifyAction('${user.email}', 'Approved', '${user.name}', '${user.role}')">Approve</button>
+            `;
+        }
+
+        actionButtons += `<button class="btn-action btn-view" onclick="viewUserDetails('${user.email}')">Details</button>`;
+
+        let documentCol = "<span style='color:#94a3b8;'>No document</span>";
+        if (user.document_image) {
+            documentCol = `<button class="btn-action btn-view" onclick="viewDocument('${user.email}')">View Document</button>`;
+        }
+
+        if (user.role === "donor") {
+            donorCount++;
+            if (donorTbody) {
+                donorTbody.innerHTML += `
+                    <tr>
+                        <td><strong>${user.name}</strong></td>
+                        <td>${user.email}</td>
+                        <td>${user.phone || '-'}</td>
+                        <td>${fullAddress}</td>
+                        <td><strong>${user.donor_type || 'Individual'}</strong></td>
+                        <td>${documentCol}</td>
+                        <td>${statusBadge}</td>
+                        <td>${actionButtons}</td>
+                    </tr>
+                `;
+            }
+        } else if (user.role === "ngo") {
+            ngoCount++;
+            if (ngoTbody) {
+                ngoTbody.innerHTML += `
+                    <tr>
+                        <td><strong>${user.ngo_name || '-'}</strong></td>
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td>${user.phone || '-'}</td>
+                        <td>${fullAddress}</td>
+                        <td><strong>${user.registration_number || '-'}</strong></td>
+                        <td>${documentCol}</td>
+                        <td>${statusBadge}</td>
+                        <td>${actionButtons}</td>
+                    </tr>
+                `;
+            }
+        } else if (user.role === "volunteer") {
+            volunteerCount++;
+            if (volunteerTbody) {
+                volunteerTbody.innerHTML += `
+                    <tr>
+                        <td><strong>${user.name}</strong></td>
+                        <td>${user.email}</td>
+                        <td>${user.phone || '-'}</td>
+                        <td>${fullAddress}</td>
+                        <td><strong>${user.vehicle || 'Two Wheeler'}</strong></td>
+                        <td>${documentCol}</td>
+                        <td>${statusBadge}</td>
+                        <td>${actionButtons}</td>
+                    </tr>
+                `;
+            }
+        }
+    });
+
+    if (donorCount === 0 && donorTbody) {
+        donorTbody.innerHTML = `<tr><td colspan="8" style="padding: 20px; color: #64748b; text-align: center;">No donor verification requests found.</td></tr>`;
+    }
+    if (ngoCount === 0 && ngoTbody) {
+        ngoCount = 0;
+        ngoTbody.innerHTML = `<tr><td colspan="9" style="padding: 20px; color: #64748b; text-align: center;">No NGO verification requests found.</td></tr>`;
+    }
+    if (volunteerCount === 0 && volunteerTbody) {
+        volunteerTbody.innerHTML = `<tr><td colspan="8" style="padding: 20px; color: #64748b; text-align: center;">No volunteer verification requests found.</td></tr>`;
+    }
+}
+
+// =======================================
+// DONATION MANAGEMENT MODULE
+// =======================================
+async function loadDonationManagement() {
+    try {
+        const response = await fetch("http://127.0.0.1:5000/admin/donations");
+        const res = await response.json();
+        
+        if (res.status !== "success") return;
+
+        window.allAdminDonationsList = res.data || [];
+        applyDonationManagementFilters();
+    } catch (error) {
+        console.error("Error loading donations list:", error);
+    }
+}
+
+function filterDonationManagementTab(tabStatus) {
+    window.activeDonationTab = tabStatus;
+    const tabIds = ["All", "Waiting", "Accepted", "Picked", "Delivered"];
+    tabIds.forEach(id => {
+        const btn = document.getElementById(`tabDonation${id}`);
+        if (btn) btn.classList.remove("active");
+    });
+
+    const activeCap = tabStatus === "all" ? "All" : tabStatus;
+    const activeBtn = document.getElementById(`tabDonation${activeCap}`);
+    if (activeBtn) activeBtn.classList.add("active");
+
+    applyDonationManagementFilters();
+}
+
+function applyDonationManagementFilters() {
+    const tbody = document.getElementById("adminDonationsTableBody");
+    if (!tbody) return;
+
+    let donations = window.allAdminDonationsList || [];
+    const activeTab = window.activeDonationTab || "all";
+
+    if (activeTab !== "all") {
+        donations = donations.filter(d => d.status === activeTab);
+    }
+
+    tbody.innerHTML = "";
+
+    if (donations.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" style="padding: 25px; color: #64748b; text-align: center;">No donations found for this status.</td></tr>`;
+        return;
+    }
+
+    donations.forEach(d => {
+        const foodNameText = Array.isArray(d.food_name) 
+            ? d.food_name.map(f => typeof f === 'object' ? `${f.name} (${f.category})` : f).join(", ") 
+            : (d.food_name || "");
+
+        let badgeClass = "badge-pending";
+        if (d.status === "Delivered") badgeClass = "badge-approved";
+        else if (d.status === "Accepted" || d.status === "Picked") badgeClass = "btn-view";
+
+        tbody.innerHTML += `
+            <tr>
+                <td><strong>${foodNameText}</strong></td>
+                <td>${d.category || '-'}</td>
+                <td>${d.freshness || 0}%</td>
+                <td><span class="badge ${(d.ai_result || '').toLowerCase()}">${d.ai_result || '-'}</span></td>
+                <td>${d.recommendation || '-'}</td>
+                <td>${d.donor_email || '-'}</td>
+                <td><span class="badge-status ${badgeClass}">${d.status || '-'}</span></td>
+            </tr>
+        `;
+    });
+}
+
+// =======================================
+// CONFIRMATION & VERIFICATION ACTIONS
+// =======================================
+window.confirmVerifyAction = function(email, targetStatus, userName, role) {
+    const modal = document.getElementById("confirmationModal");
+    const title = document.getElementById("confirmModalTitle");
+    const msg = document.getElementById("confirmModalMessage");
+    const executeBtn = document.getElementById("confirmModalExecuteBtn");
+    const cancelBtn = document.getElementById("confirmModalCancelBtn");
+
+    if (!modal || !title || !msg || !executeBtn) return;
+
+    const actionText = targetStatus === "Approved" ? "Approve" : "Reject";
+    title.innerText = `${actionText} User Registration?`;
+    msg.innerText = `Are you sure you want to ${actionText.toLowerCase()} ${userName} (${role})?`;
+
+    if (targetStatus === "Approved") {
+        executeBtn.className = "btn-action btn-approve";
+        executeBtn.innerText = "Approve";
+    } else {
+        executeBtn.className = "btn-action btn-reject";
+        executeBtn.innerText = "Reject";
+    }
+
+    modal.style.display = "flex";
+
+    executeBtn.onclick = async () => {
+        modal.style.display = "none";
+        await executeVerifyUser(email, targetStatus);
+    };
+
+    if (cancelBtn) {
+        cancelBtn.onclick = () => {
+            modal.style.display = "none";
+        };
+    }
+};
+
+async function executeVerifyUser(email, status) {
+    try {
+        const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
+        const response = await fetch("http://127.0.0.1:5000/admin/users/verify", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-User-Email": adminEmail,
+                "X-User-Role": "admin"
+            },
+            body: JSON.stringify({
+                email: email,
+                status: status
+            })
+        });
+
+        const res = await response.json();
+        if (response.ok) {
+            // Dynamically refresh data across dashboard and verifications without manual browser reload
+            await loadDashboard();
+            await loadUsersData();
+        } else {
+            alert(res.message || "Failed to update user status.");
+        }
+    } catch (error) {
+        console.error("Error executing user status update:", error);
+        alert("Unable to complete verification update.");
+    }
+}
+
+// User details modal viewer
+window.viewUserDetails = function(email) {
+    const user = (window.allAdminUsersList || []).find(u => u.email === email);
+    if (!user) return;
+
+    const modal = document.getElementById("userDetailsModal");
+    const body = document.getElementById("modalUserDetailsBody");
+    const title = document.getElementById("modalUserDetailTitle");
+
+    if (!modal || !body || !title) return;
+
+    title.innerHTML = `<i class="fa-solid fa-address-card"></i> Profile Details: ${user.name}`;
+
+    let roleSpecifics = "";
+    if (user.role === "donor") {
+        roleSpecifics = `<div><strong>Donor Type:</strong> ${user.donor_type || 'Individual'}</div>`;
+    } else if (user.role === "ngo") {
+        roleSpecifics = `
+            <div><strong>NGO Name:</strong> ${user.ngo_name || '-'}</div>
+            <div><strong>Reg Number:</strong> ${user.registration_number || '-'}</div>
+        `;
+    } else if (user.role === "volunteer") {
+        roleSpecifics = `<div><strong>Vehicle:</strong> ${user.vehicle || 'None'}</div>`;
+    }
+
+    body.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div><strong>Name:</strong> ${user.name}</div>
+            <div><strong>Email:</strong> ${user.email}</div>
+            <div><strong>Phone:</strong> ${user.phone || '-'}</div>
+            <div><strong>Role:</strong> <span style="text-transform:uppercase; font-weight:700; color:#16a34a;">${user.role}</span></div>
+            <div><strong>Email Verified:</strong> ${user.email_verified ? 'Yes' : 'No'}</div>
+            <div><strong>Approval Status:</strong> ${user.status}</div>
+            <div><strong>Account Status:</strong> ${user.account_status || 'active'}</div>
+            <div><strong>Registered Date:</strong> ${user.created_at || user.registration_date || '-'}</div>
+        </div>
+        <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 10px 0;">
+        ${roleSpecifics}
+        <div><strong>Full Address:</strong> ${user.address || '-'}, ${user.city || ''}, ${user.district || ''}, ${user.state || ''} ${user.pincode || ''}</div>
+        ${user.approved_at ? `<div style="color:#15803d; font-size:12px; margin-top:6px;">Approved on ${user.approved_at} by ${user.approved_by || 'Admin'}</div>` : ''}
+        ${user.rejected_at ? `<div style="color:#b91c1c; font-size:12px; margin-top:6px;">Rejected on ${user.rejected_at} by ${user.rejected_by || 'Admin'}</div>` : ''}
+    `;
+
+    modal.style.display = "flex";
+};
+
+// Document modal viewer
 window.viewDocument = function(email) {
     const docData = window.adminUserDocuments[email];
     if (!docData) return;
@@ -260,128 +658,221 @@ window.viewDocument = function(email) {
     modal.style.display = "flex";
 };
 
-window.verifyUser = async function(email, status) {
-    if (!confirm(`Are you sure you want to change this user status to ${status}?`)) {
-        return;
-    }
-    try {
-        const response = await fetch("http://127.0.0.1:5000/admin/users/verify", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                email: email,
-                status: status
-            })
-        });
-        
-        const res = await response.json();
-        alert(res.message);
-        if (response.ok) {
-            loadVerifications();
-            loadDashboard(); // Refresh metrics
-        }
-    } catch (error) {
-        console.error(error);
-        alert("Failed to update verification status.");
-    }
+// =======================================
+// SECTION NAVIGATION & ROUTING ENGINE
+// =======================================
+const ADMIN_SECTION_MAP = {
+    // Exact sidebar IDs
+    sidebarAdminHome: "adminHomeSection",
+    sidebarAdminUsers: "adminUsersSection",
+    sidebarAdminNGOs: "adminNGOsSection",
+    sidebarAdminDonors: "adminDonorsSection",
+    sidebarAdminVolunteers: "adminVolunteersSection",
+    sidebarAdminDonations: "adminDonationsSection",
+    sidebarAdminReports: "adminReportsSection",
+    sidebarAdminSettings: "adminSettingsSection",
+
+    // data-page & hyphenated strings
+    "admin-dashboard": "adminHomeSection",
+    "user-management": "adminUsersSection",
+    "ngo-verification": "adminNGOsSection",
+    "donor-verification": "adminDonorsSection",
+    "volunteer-verification": "adminVolunteersSection",
+    "donation-management": "adminDonationsSection",
+    "reports": "adminReportsSection",
+    "settings": "adminSettingsSection",
+    "system-settings": "adminSettingsSection",
+
+    // Short names & clean aliases
+    dashboard: "adminHomeSection",
+    users: "adminUsersSection",
+    usermanagement: "adminUsersSection",
+    ngos: "adminNGOsSection",
+    ngoverification: "adminNGOsSection",
+    donors: "adminDonorsSection",
+    donorverification: "adminDonorsSection",
+    volunteers: "adminVolunteersSection",
+    volunteerverification: "adminVolunteersSection",
+    donations: "adminDonationsSection",
+    donationmanagement: "adminDonationsSection",
+
+    // Direct section IDs & global sidebar aliases
+    sidebarHome: "adminHomeSection",
+    sidebarSettings: "adminSettingsSection",
+    sidebarProfile: "adminProfileSection",
+    sidebaradminhome: "adminHomeSection",
+    sidebaradminsettings: "adminSettingsSection",
+    sidebaradminprofile: "adminProfileSection",
+    adminHomeSection: "adminHomeSection",
+    adminUsersSection: "adminUsersSection",
+    adminNGOsSection: "adminNGOsSection",
+    adminDonorsSection: "adminDonorsSection",
+    adminVolunteersSection: "adminVolunteersSection",
+    adminDonationsSection: "adminDonationsSection",
+    adminReportsSection: "adminReportsSection",
+    adminSettingsSection: "adminSettingsSection",
+    adminProfileSection: "adminProfileSection",
+    profile: "adminProfileSection",
+    "admin-profile": "adminProfileSection",
+    adminprofile: "adminProfileSection"
 };
 
-// Close modal handlers
-document.addEventListener("DOMContentLoaded", () => {
-    const closeBtn = document.getElementById("closeDocModal");
-    if (closeBtn) {
-        closeBtn.addEventListener("click", () => {
-            document.getElementById("documentModal").style.display = "none";
-        });
+const ADMIN_SIDEBAR_ID_MAP = {
+    adminHomeSection: "sidebarAdminHome",
+    adminUsersSection: "sidebarAdminUsers",
+    adminNGOsSection: "sidebarAdminNGOs",
+    adminDonorsSection: "sidebarAdminDonors",
+    adminVolunteersSection: "sidebarAdminVolunteers",
+    adminDonationsSection: "sidebarAdminDonations",
+    adminReportsSection: "sidebarAdminReports",
+    adminSettingsSection: "sidebarAdminSettings",
+    adminProfileSection: "sidebarAdminProfile",
+
+    "admin-dashboard": "sidebarAdminHome",
+    "user-management": "sidebarAdminUsers",
+    "ngo-verification": "sidebarAdminNGOs",
+    "donor-verification": "sidebarAdminDonors",
+    "volunteer-verification": "sidebarAdminVolunteers",
+    "donation-management": "sidebarAdminDonations",
+    "reports": "sidebarAdminReports",
+    "settings": "sidebarAdminSettings",
+    "system-settings": "sidebarAdminSettings",
+    "profile": "sidebarAdminProfile",
+    "admin-profile": "sidebarAdminProfile",
+
+    dashboard: "sidebarAdminHome",
+    users: "sidebarAdminUsers",
+    ngos: "sidebarAdminNGOs",
+    donors: "sidebarAdminDonors",
+    volunteers: "sidebarAdminVolunteers",
+    donations: "sidebarAdminDonations",
+    settings: "sidebarAdminSettings",
+    profile: "sidebarAdminProfile"
+};
+
+window.navigateToSection = function(target) {
+    if (!target) return;
+    
+    // Normalize target string (lowercase, remove hyphens/underscores/spaces)
+    const cleanKey = String(target).toLowerCase().replace(/[-_\s]/g, "");
+
+    const targetSectionId = ADMIN_SECTION_MAP[target] || ADMIN_SECTION_MAP[target.toLowerCase()] || ADMIN_SECTION_MAP[cleanKey];
+    if (!targetSectionId) {
+        console.warn("Unknown admin navigation target:", target);
+        return;
     }
 
-    // Close when clicking outside content
-    window.addEventListener("click", (e) => {
-        const modal = document.getElementById("documentModal");
-        if (e.target === modal) {
-            modal.style.display = "none";
+    const targetSidebarId = ADMIN_SIDEBAR_ID_MAP[targetSectionId] || ADMIN_SIDEBAR_ID_MAP[target] || ADMIN_SIDEBAR_ID_MAP[cleanKey] || target;
+
+    // Save active state to sessionStorage for page refresh persistence
+    try { sessionStorage.setItem("activeAdminTab", targetSidebarId); } catch(e){}
+
+    // Close profile dropdown menu if open whenever navigating sections
+    const pm = document.getElementById("profileMenu");
+    if (pm) pm.classList.remove("active", "show");
+
+    // Close mobile menu drawer if open
+    if (typeof window.closeAdminMobileMenu === "function") {
+        window.closeAdminMobileMenu();
+    } else {
+        const sidebar = document.querySelector(".sidebar");
+        const overlay = document.getElementById("adminSidebarOverlay");
+        if (sidebar) sidebar.classList.remove("mobile-open");
+        if (overlay) overlay.classList.remove("active");
+        document.body.style.overflow = "";
+    }
+
+    // Update sidebar active menu highlight across all possible menu items
+    const allSidebarIds = [
+        "sidebarAdminHome", "sidebarAdminUsers", "sidebarAdminNGOs",
+        "sidebarAdminDonors", "sidebarAdminVolunteers", "sidebarAdminDonations",
+        "sidebarAdminReports", "sidebarAdminProfile", "sidebarAdminSettings"
+    ];
+    allSidebarIds.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) btn.classList.remove("active");
+    });
+
+    document.querySelectorAll(".sidebar .menu li").forEach(li => {
+        const dp = li.getAttribute("data-page");
+        const liId = li.id;
+        if (liId === targetSidebarId || dp === target || (dp && ADMIN_SECTION_MAP[dp] === targetSectionId)) {
+            li.classList.add("active");
+        } else {
+            li.classList.remove("active");
         }
     });
-});
+
+    const activeBtn = document.getElementById(targetSidebarId);
+    if (activeBtn) activeBtn.classList.add("active");
+
+    // Hide all sections strictly and display only the target section
+    const allSectionIds = [
+        "adminHomeSection", "adminUsersSection", "adminNGOsSection",
+        "adminDonorsSection", "adminVolunteersSection", "adminDonationsSection",
+        "adminReportsSection", "adminSettingsSection", "adminProfileSection"
+    ];
+    allSectionIds.forEach(secId => {
+        const sec = document.getElementById(secId);
+        if (sec) sec.style.setProperty("display", "none", "important");
+    });
+
+    const targetSec = document.getElementById(targetSectionId);
+    if (targetSec) {
+        targetSec.style.setProperty("display", "block", "important");
+    }
+
+    // Scroll to top of main content for optimal mobile user experience
+    window.scrollTo({ top: 0, behavior: "smooth" });
+};
+
+// Global alias for role navigation compatibility
+window.switchTab = function(target) {
+    window.navigateToSection(target);
+};
 
 // =======================================
-// DONATION STATUS CHART
+// CHARTS (DONATION STATUS & CATEGORY)
 // =======================================
-
-function loadStatusChart(data){
+function loadStatusChart(data) {
     const total = data.total_donations || 1;
+    const deliveredRate = Math.round(((data.delivered || 0) / total) * 100);
+    const transitRate = Math.round(((data.picked || 0) / total) * 100);
+    const claimRate = Math.round((((data.accepted || 0) + (data.picked || 0) + (data.delivered || 0)) / total) * 100);
     
-    const deliveredRate = Math.round((data.delivered / total) * 100);
-    const transitRate = Math.round((data.picked / total) * 100);
-    const claimRate = Math.round(((data.accepted + data.picked + data.delivered) / total) * 100);
-    
-    const deliveryRateTxt = document.getElementById("deliverySuccessRateText");
-    const deliveryRateBar = document.getElementById("deliverySuccessRateBar");
-    if (deliveryRateTxt && deliveryRateBar) {
-        deliveryRateTxt.innerText = `${deliveredRate}%`;
-        deliveryRateBar.style.width = `${deliveredRate}%`;
-    }
-    
-    const transitRateTxt = document.getElementById("transitRateText");
-    const transitRateBar = document.getElementById("transitRateBar");
-    if (transitRateTxt && transitRateBar) {
-        transitRateTxt.innerText = `${transitRate}%`;
-        transitRateBar.style.width = `${transitRate}%`;
-    }
-    
-    const claimRateTxt = document.getElementById("claimRateText");
-    const claimRateBar = document.getElementById("claimRateBar");
-    if (claimRateTxt && claimRateBar) {
-        claimRateTxt.innerText = `${claimRate}%`;
-        claimRateBar.style.width = `${claimRate}%`;
-    }
+    setElementText("deliverySuccessRateText", `${deliveredRate}%`);
+    setElementWidth("deliverySuccessRateBar", `${deliveredRate}%`);
+
+    setElementText("transitRateText", `${transitRate}%`);
+    setElementWidth("transitRateBar", `${transitRate}%`);
+
+    setElementText("claimRateText", `${claimRate}%`);
+    setElementWidth("claimRateBar", `${claimRate}%`);
 }
 
-// =======================================
-// FOOD CATEGORY CHART
-// =======================================
-
-function loadCategoryChart(data){
-    const total = data.total_donations || 1;
-    
-    // Submitted (Waiting)
+function loadCategoryChart(data) {
     const waiting = data.waiting || 0;
-    // NGO Claimed (Accepted + Picked)
-    const claimed = (data.accepted + data.picked) || 0;
-    // Delivered (Completed)
+    const claimed = ((data.accepted || 0) + (data.picked || 0)) || 0;
     const delivered = data.delivered || 0;
 
-    // Calculate simulated Volunteer Performance average
-    // Can be: completed deliveries / (completed + picked || 1)
-    const volPerf = Math.round((data.delivered / (data.delivered + data.picked || 1)) * 100);
+    const volPerf = Math.round(((data.delivered || 0) / ((data.delivered || 0) + (data.picked || 0) || 1)) * 100);
     const volPerfClamped = Math.max(75, Math.min(volPerf, 98));
-    
-    const volPerfText = document.getElementById("volPerfAvgText");
-    if (volPerfText) {
-        volPerfText.innerText = `${volPerfClamped}%`;
-    }
+    setElementText("volPerfAvgText", `${volPerfClamped}%`);
+
+    const ctx = document.getElementById("categoryChart");
+    if (!ctx) return;
 
     if (categoryChart) {
         categoryChart.destroy();
     }
 
-    categoryChart = new Chart(document.getElementById("categoryChart"), {
+    categoryChart = new Chart(ctx, {
         type: "doughnut",
         data: {
-            labels: [
-                "Submitted (Waiting)",
-                "NGO Claimed",
-                "Delivered"
-            ],
+            labels: ["Submitted (Waiting)", "NGO Claimed", "Delivered"],
             datasets: [{
                 data: [waiting, claimed, delivered],
-                backgroundColor: [
-                    "#38bdf8", // Light Blue
-                    "#f43f5e", // Rose/Red
-                    "#10b981"  // Emerald Green
-                ],
+                backgroundColor: ["#38bdf8", "#f43f5e", "#10b981"],
                 borderWidth: 2,
                 borderColor: "#ffffff"
             }]
@@ -389,43 +880,42 @@ function loadCategoryChart(data){
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
+            plugins: { legend: { display: false } },
             cutout: "70%"
         }
     });
 }
 
+// Helper utilities
+function setElementText(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = text;
+}
+
+function setElementWidth(id, widthStr) {
+    const el = document.getElementById(id);
+    if (el) el.style.width = widthStr;
+}
+
 // =======================================
-// ADMIN TAB SWITCHING & INITIALIZATION
+// INITIALIZATION & EVENT LISTENERS
 // =======================================
 function initAdmin() {
-    // Load dashboard metrics and verification lists
     loadDashboard();
-    loadVerifications();
+    loadUsersData();
+    loadDonationManagement();
 
-    // Populate Admin Profile details & Sync Avatar
+    // Profile & Avatars
     const adminName = localStorage.getItem("name") || "Administrator";
-    const adminEmail = localStorage.getItem("email") || "admin@smartfood.org";
-    
-    const sidebarAdminName = document.getElementById("sidebarAdminName");
-    if (sidebarAdminName) sidebarAdminName.innerText = adminName;
-    
-    const topAdminName = document.getElementById("topAdminName");
-    if (topAdminName) topAdminName.innerText = adminName;
+    const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
 
-    const profileAdminName = document.getElementById("profileAdminName");
-    if (profileAdminName) profileAdminName.innerText = adminName;
+    setElementText("sidebarAdminName", adminName);
+    setElementText("topAdminName", adminName);
+    setElementText("profileAdminName", adminName);
+    setElementText("settingsAdminProfileName", adminName);
 
-    const settingsAdminProfileName = document.getElementById("settingsAdminProfileName");
-    if (settingsAdminProfileName) settingsAdminProfileName.innerText = adminName;
-    
     const adminSettingsName = document.getElementById("adminSettingsName");
     if (adminSettingsName) adminSettingsName.value = adminName;
-    
     const adminSettingsEmail = document.getElementById("adminSettingsEmail");
     if (adminSettingsEmail) adminSettingsEmail.value = adminEmail;
 
@@ -438,145 +928,490 @@ function initAdmin() {
     let adminAvatar = localStorage.getItem("profile_image") || "images/logo.png";
     updateAllAdminAvatars(adminAvatar);
 
-    async function syncAdminProfileFromServer() {
-        if (!adminEmail) return;
+    // Sidebar Mobile Controls
+    const adminMobileMenuBtn = document.getElementById("adminMobileMenuBtn");
+    const adminMobileSidebarClose = document.getElementById("adminMobileSidebarClose");
+    const adminSidebarOverlay = document.getElementById("adminSidebarOverlay");
+    const sidebar = document.querySelector(".sidebar");
+
+    function openAdminMobileMenu() {
+        if (sidebar) sidebar.classList.add("mobile-open");
+        if (adminSidebarOverlay) adminSidebarOverlay.classList.add("active");
+        document.body.style.overflow = "hidden";
+    }
+
+    window.closeAdminMobileMenu = function() {
+        if (sidebar) sidebar.classList.remove("mobile-open");
+        if (adminSidebarOverlay) adminSidebarOverlay.classList.remove("active");
+        document.body.style.overflow = "";
+    };
+
+    if (adminMobileMenuBtn) adminMobileMenuBtn.addEventListener("click", (e) => { e.stopPropagation(); openAdminMobileMenu(); });
+    if (adminMobileSidebarClose) adminMobileSidebarClose.addEventListener("click", (e) => { e.stopPropagation(); window.closeAdminMobileMenu(); });
+    if (adminSidebarOverlay) adminSidebarOverlay.addEventListener("click", window.closeAdminMobileMenu);
+
+    // Distinct 8 Sidebar Section Event Handlers & Event Delegation
+    const menuUl = document.querySelector(".sidebar .menu");
+    if (menuUl) {
+        menuUl.addEventListener("click", (e) => {
+            const li = e.target.closest("li");
+            if (!li) return;
+            if (li.classList.contains("logout") || li.id === "logoutBtn") return;
+
+            e.preventDefault();
+            const target = li.id || li.getAttribute("data-page");
+            if (target) {
+                window.navigateToSection(target);
+            }
+        });
+    }
+
+    const sidebarIds = [
+        "sidebarAdminHome", "sidebarAdminUsers", "sidebarAdminNGOs",
+        "sidebarAdminDonors", "sidebarAdminVolunteers", "sidebarAdminDonations",
+        "sidebarAdminReports", "sidebarAdminProfile", "sidebarAdminSettings"
+    ];
+
+    sidebarIds.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            btn.addEventListener("click", (e) => {
+                e.preventDefault();
+                window.navigateToSection(id);
+            });
+        }
+    });
+
+    // Profile Dropdown Menu Toggle & Actions
+    function positionAdminProfileMenu() {
+        const btn = document.getElementById("profileBtn");
+        const menu = document.getElementById("profileMenu");
+        if (!btn || !menu) return;
+
+        const rect = btn.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        
+        menu.style.position = "fixed";
+        menu.style.top = (rect.bottom + 8) + "px";
+        
+        const rightDist = viewportWidth - rect.right;
+        if (rightDist < 12) {
+            menu.style.right = "12px";
+        } else {
+            menu.style.right = rightDist + "px";
+        }
+        menu.style.left = "auto";
+        
+        if (viewportWidth <= 768) {
+            menu.style.width = "min(280px, calc(100vw - 24px))";
+        } else {
+            menu.style.width = "280px";
+        }
+    }
+
+    const profileBtn = document.getElementById("profileBtn");
+    const profileMenu = document.getElementById("profileMenu");
+    const profileOverlay = document.getElementById("profileOverlay");
+
+    const closeAdminProfileMenu = () => {
+        if (profileMenu) profileMenu.classList.remove("active", "show");
+        if (profileOverlay) profileOverlay.classList.remove("active", "show");
+    };
+
+    const openAdminProfileMenu = () => {
+        if (!profileMenu) return;
+        positionAdminProfileMenu();
+        profileMenu.classList.add("active", "show");
+        if (profileOverlay) profileOverlay.classList.add("active", "show");
+    };
+
+    if (profileBtn && profileMenu) {
+        profileMenu.addEventListener("click", (e) => {
+            e.stopPropagation();
+        });
+
+        const toggleProfileMenu = (e) => {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            const isOpen = profileMenu.classList.contains("active") || profileMenu.classList.contains("show");
+            if (isOpen) {
+                closeAdminProfileMenu();
+            } else {
+                openAdminProfileMenu();
+            }
+        };
+
+        let isAdminTouchHandled = false;
+        profileBtn.addEventListener("touchend", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            isAdminTouchHandled = true;
+            toggleProfileMenu(e);
+            setTimeout(() => { isAdminTouchHandled = false; }, 400);
+        });
+
+        profileBtn.addEventListener("click", (e) => {
+            if (isAdminTouchHandled) return;
+            toggleProfileMenu(e);
+        });
+
+        if (profileOverlay) {
+            profileOverlay.addEventListener("click", () => {
+                closeAdminProfileMenu();
+            });
+        }
+
+        document.addEventListener("click", (e) => {
+            if (!profileMenu.contains(e.target) && !profileBtn.contains(e.target)) {
+                closeAdminProfileMenu();
+            }
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                closeAdminProfileMenu();
+            }
+        });
+
+        window.addEventListener("resize", () => {
+            if (profileMenu.classList.contains("show") || profileMenu.classList.contains("active")) {
+                positionAdminProfileMenu();
+            }
+        });
+    }
+
+    const openAdminProfileSection = (e) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        window.navigateToSection("adminProfileSection");
+        closeAdminProfileMenu();
+    };
+
+    const openAdminSettingsSection = (e) => {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        window.navigateToSection("sidebarAdminSettings");
+        closeAdminProfileMenu();
+    };
+
+    const profileLinkBtn = document.getElementById("profileLinkBtn");
+    if (profileLinkBtn) {
+        profileLinkBtn.addEventListener("click", openAdminProfileSection);
+    }
+
+    const profileSettingsBtn = document.getElementById("profileSettingsBtn");
+    if (profileSettingsBtn) {
+        profileSettingsBtn.addEventListener("click", openAdminSettingsSection);
+    }
+
+    const sidebarUserCard = document.querySelector(".sidebar-user");
+    if (sidebarUserCard) {
+        sidebarUserCard.style.cursor = "pointer";
+        sidebarUserCard.addEventListener("click", openAdminProfileSection);
+    }
+
+    const profileChangePasswordBtn = document.getElementById("profileMenuChangePassword");
+    if (profileChangePasswordBtn) {
+        profileChangePasswordBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const modal = document.getElementById("changePasswordModal");
+            if (modal) modal.style.display = "flex";
+            closeAdminProfileMenu();
+        });
+    }
+
+    const profileHelpBtn = document.getElementById("profileMenuHelp");
+    if (profileHelpBtn) {
+        profileHelpBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            const modal = document.getElementById("helpCenterModal");
+            if (modal) modal.style.display = "flex";
+            closeAdminProfileMenu();
+        });
+    }
+
+    const closeChangePasswordModal = document.getElementById("closeChangePasswordModal");
+    if (closeChangePasswordModal) {
+        closeChangePasswordModal.onclick = () => {
+            const modal = document.getElementById("changePasswordModal");
+            if (modal) modal.style.display = "none";
+        };
+    }
+
+    const closeHelpCenterModal = document.getElementById("closeHelpCenterModal");
+    if (closeHelpCenterModal) {
+        closeHelpCenterModal.onclick = () => {
+            const modal = document.getElementById("helpCenterModal");
+            if (modal) modal.style.display = "none";
+        };
+    }
+
+    // Handle Change Password Form Submission
+    const changePasswordForm = document.getElementById("changePasswordForm");
+    if (changePasswordForm) {
+        changePasswordForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const currentPassword = document.getElementById("currentPasswordInput")?.value || "";
+            const newPassword = document.getElementById("newPasswordInput")?.value || "";
+            const confirmPassword = document.getElementById("confirmPasswordInput")?.value || "";
+            const msgEl = document.getElementById("changePasswordMsg");
+            const btn = document.getElementById("savePasswordBtn");
+
+            if (!msgEl) return;
+
+            if (newPassword !== confirmPassword) {
+                msgEl.style.display = "block";
+                msgEl.style.background = "#fee2e2";
+                msgEl.style.color = "#dc2626";
+                msgEl.innerText = "New passwords do not match!";
+                return;
+            }
+
+            const email = localStorage.getItem("email") || "admin.demo@foodbridge.test";
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Updating...`;
+            }
+
+            try {
+                const res = await fetch("http://127.0.0.1:5000/user/change-password", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, current_password: currentPassword, new_password: newPassword })
+                });
+
+                const result = await res.json();
+                if (res.ok && result.status === "success") {
+                    msgEl.style.display = "block";
+                    msgEl.style.background = "#dcfce7";
+                    msgEl.style.color = "#15803d";
+                    msgEl.innerText = "✓ Password changed successfully!";
+                    changePasswordForm.reset();
+                    setTimeout(() => {
+                        msgEl.style.display = "none";
+                        const modal = document.getElementById("changePasswordModal");
+                        if (modal) modal.style.display = "none";
+                    }, 2000);
+                } else {
+                    msgEl.style.display = "block";
+                    msgEl.style.background = "#fee2e2";
+                    msgEl.style.color = "#dc2626";
+                    msgEl.innerText = result.message || "Failed to update password";
+                }
+            } catch (err) {
+                console.error("Change password error:", err);
+                msgEl.style.display = "block";
+                msgEl.style.background = "#fee2e2";
+                msgEl.style.color = "#dc2626";
+                msgEl.innerText = "Network error updating password.";
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `<i class="fa-solid fa-lock"></i> Update Password`;
+                }
+            }
+        });
+    }
+
+    const profileLogoutBtn = document.getElementById("profileLogoutBtn");
+    if (profileLogoutBtn) {
+        profileLogoutBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            if (typeof logout === "function") {
+                logout();
+            } else {
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = "login.html";
+            }
+        });
+    }
+
+    // ==========================================
+    // ADMIN PROFILE LOGIC & API SYNC
+    // ==========================================
+    async function loadAdminProfile() {
+        const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
+        const adminEmailEl = document.getElementById("profileAdminEmail");
+        if (adminEmailEl) adminEmailEl.innerText = adminEmail;
+
         try {
-            const response = await fetch(`http://127.0.0.1:5000/user/profile?email=${encodeURIComponent(adminEmail)}`);
-            if (response.ok) {
-                const res = await response.json();
-                if (res.profile_image) {
-                    localStorage.setItem("profile_image", res.profile_image);
-                    updateAllAdminAvatars(res.profile_image);
+            const res = await fetch(`http://127.0.0.1:5000/user/profile?email=${encodeURIComponent(adminEmail)}`);
+            if (res.ok) {
+                const data = await res.json();
+                if (data.status === "success") {
+                    if (data.name) localStorage.setItem("name", data.name);
+                    const adminName = data.name || "System Admin";
+                    
+                    const adminNameEl = document.getElementById("profileAdminName");
+                    const adminHeaderNameEl = document.getElementById("settingsAdminProfileName");
+                    const adminInputName = document.getElementById("adminSettingsName");
+                    const adminInputEmail = document.getElementById("adminSettingsEmail");
+                    const adminInputPhone = document.getElementById("adminSettingsPhone");
+                    const adminInputAddress = document.getElementById("adminSettingsAddress");
+
+                    if (adminNameEl) adminNameEl.innerText = adminName;
+                    if (adminHeaderNameEl) adminHeaderNameEl.innerText = adminName;
+                    if (adminInputName) adminInputName.value = adminName;
+                    if (adminInputEmail) adminInputEmail.value = data.email || adminEmail;
+                    if (adminInputPhone) adminInputPhone.value = data.phone || "";
+                    if (adminInputAddress) adminInputAddress.value = data.address || "";
+
+                    // Admin Avatar
+                    let avatarSrc = data.profile_image || localStorage.getItem("profile_image") || "images/logo.png";
+                    document.querySelectorAll(".profile-button img, .profile-menu-header img, #settingsAdminAvatar, #topMenuAdminAvatar").forEach(img => {
+                        img.src = avatarSrc;
+                    });
                 }
             }
         } catch (err) {
-            console.error("Error syncing admin profile from server:", err);
+            console.error("Error loading admin profile:", err);
         }
     }
-    syncAdminProfileFromServer();
+    loadAdminProfile();
 
-    const changeBtn = document.getElementById("changeAdminAvatarBtn");
-    const fileInput = document.getElementById("adminProfileImageFileInput");
-    if (changeBtn && fileInput) {
-        changeBtn.addEventListener("click", () => {
-            fileInput.click();
+    // Admin Profile Edit & Save Handlers
+    const editAdminProfileBtn = document.getElementById("editAdminProfileBtn");
+    const saveAdminProfileBtn = document.getElementById("saveAdminProfileBtn");
+    const adminProfileSaveContainer = document.getElementById("adminProfileSaveContainer");
+    const adminProfileSaveMsg = document.getElementById("adminProfileSaveMsg");
+
+    let isAdminEditing = false;
+    if (editAdminProfileBtn) {
+        editAdminProfileBtn.addEventListener("click", () => {
+            isAdminEditing = !isAdminEditing;
+            const inputs = document.querySelectorAll("#adminProfileEditForm input:not(#adminSettingsEmail)");
+            inputs.forEach(inp => inp.disabled = !isAdminEditing);
+
+            if (isAdminEditing) {
+                editAdminProfileBtn.style.background = "#dc2626";
+                editAdminProfileBtn.innerHTML = `<i class="fa-solid fa-xmark"></i> Cancel`;
+                if (adminProfileSaveContainer) adminProfileSaveContainer.style.display = "block";
+            } else {
+                editAdminProfileBtn.style.background = "#2563eb";
+                editAdminProfileBtn.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Edit`;
+                if (adminProfileSaveContainer) adminProfileSaveContainer.style.display = "none";
+            }
         });
-        
-        fileInput.addEventListener("change", async (e) => {
+    }
+
+    if (saveAdminProfileBtn) {
+        saveAdminProfileBtn.addEventListener("click", async () => {
+            const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
+            saveAdminProfileBtn.disabled = true;
+            saveAdminProfileBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
+
+            const payload = {
+                email: adminEmail,
+                name: document.getElementById("adminSettingsName")?.value || "",
+                phone: document.getElementById("adminSettingsPhone")?.value || "",
+                address: document.getElementById("adminSettingsAddress")?.value || ""
+            };
+
+            try {
+                const res = await fetch("http://127.0.0.1:5000/user/profile/update", {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-User-Email": adminEmail
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await res.json();
+                if (res.ok && result.status === "success") {
+                    if (result.name) localStorage.setItem("name", result.name);
+                    if (adminProfileSaveMsg) {
+                        adminProfileSaveMsg.style.display = "block";
+                        adminProfileSaveMsg.style.background = "#dcfce7";
+                        adminProfileSaveMsg.style.color = "#15803d";
+                        adminProfileSaveMsg.innerText = "✓ Admin profile updated successfully!";
+                        setTimeout(() => { adminProfileSaveMsg.style.display = "none"; }, 4000);
+                    }
+                    await loadAdminProfile();
+                    if (editAdminProfileBtn) editAdminProfileBtn.click();
+                } else {
+                    if (adminProfileSaveMsg) {
+                        adminProfileSaveMsg.style.display = "block";
+                        adminProfileSaveMsg.style.background = "#fee2e2";
+                        adminProfileSaveMsg.style.color = "#dc2626";
+                        adminProfileSaveMsg.innerText = result.message || "Failed to update profile";
+                    }
+                }
+            } catch (err) {
+                console.error("Admin profile save error:", err);
+            } finally {
+                saveAdminProfileBtn.disabled = false;
+                saveAdminProfileBtn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> Save Admin Profile Changes`;
+            }
+        });
+    }
+
+    // Admin Avatar Upload Handler
+    const changeAdminAvatarBtn = document.getElementById("changeAdminAvatarBtn");
+    const adminProfileImageFileInput = document.getElementById("adminProfileImageFileInput");
+    if (changeAdminAvatarBtn && adminProfileImageFileInput) {
+        changeAdminAvatarBtn.addEventListener("click", () => adminProfileImageFileInput.click());
+        adminProfileImageFileInput.addEventListener("change", (e) => {
             const file = e.target.files[0];
             if (!file) return;
-            
-            if (file.size > 2 * 1024 * 1024) {
-                alert("File size exceeds 2MB limit. Please choose a smaller image.");
-                return;
-            }
-            
             const reader = new FileReader();
-            reader.onload = async (event) => {
-                const base64Image = event.target.result;
-                updateAllAdminAvatars(base64Image);
+            reader.onload = async (ev) => {
+                const base64Image = ev.target.result;
+                document.querySelectorAll(".profile-button img, .profile-menu-header img, #settingsAdminAvatar").forEach(img => img.src = base64Image);
                 localStorage.setItem("profile_image", base64Image);
-                
+                const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
                 try {
-                    const response = await fetch("http://127.0.0.1:5000/user/profile/image", {
+                    await fetch("http://127.0.0.1:5000/user/profile/image", {
                         method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({
-                            email: adminEmail,
-                            profile_image: base64Image
-                        })
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ email: adminEmail, profile_image: base64Image })
                     });
-                    if (response.ok) {
-                        console.log("Admin profile picture synced successfully");
-                    }
                 } catch (err) {
-                    console.error("Error updating admin profile image:", err);
+                    console.error("Error saving admin avatar:", err);
                 }
             };
             reader.readAsDataURL(file);
         });
     }
 
-    // Food Saving facts in admin topbar
-    const foodFacts = [
-        "Around 1/3 of all food produced globally is lost or wasted every year.",
-        "Donating surplus food reduces landfill methane emissions, fighting climate change.",
-        "Feeding people instead of landfills saves water, land, and energy resources.",
-        "Every donation helps! Even small contributions can feed a family in need today.",
-        "Over 800 million people suffer from hunger, while edible food is wasted.",
-        "AI-powered freshness tracking safeguards beneficiaries and improves efficiency.",
-        "Meal planning and proper storage can prevent up to 40% of household food waste."
-    ];
-    const factTextEl = document.getElementById("topbarFactText");
-    if (factTextEl) {
-        const randomFact = foodFacts[Math.floor(Math.random() * foodFacts.length)];
-        factTextEl.innerText = randomFact;
-    }
-
-    // Tab Switching logic
-    const menuItems = {
-        sidebarAdminHome: "adminHomeSection",
-        sidebarAdminDonors: "adminDonorsSection",
-        sidebarAdminNGOs: "adminNGOsSection",
-        sidebarAdminVolunteers: "adminVolunteersSection",
-        sidebarAdminReports: "adminReportsSection",
-        sidebarAdminSettings: "adminSettingsSection"
-    };
-
-    Object.keys(menuItems).forEach(clickedId => {
-        const button = document.getElementById(clickedId);
-        if (button) {
-            button.addEventListener("click", (e) => {
-                e.preventDefault();
-                
-                // Set active sidebar item
-                Object.keys(menuItems).forEach(id => {
-                    const btn = document.getElementById(id);
-                    if (btn) btn.classList.remove("active");
-                });
-                button.classList.add("active");
-                
-                // Show corresponding section, hide others
-                Object.values(menuItems).forEach(sectionId => {
-                    const section = document.getElementById(sectionId);
-                    if (section) section.style.display = "none";
-                });
-                
-                const targetSection = document.getElementById(menuItems[clickedId]);
-                if (targetSection) {
-                    targetSection.style.display = "block";
-                }
-            });
-        }
+    // Admin Logout Handler
+    const logoutBtns = document.querySelectorAll("#logoutBtn, #profileLogoutBtn, .logout");
+    logoutBtns.forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.preventDefault();
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = "login.html";
+        });
     });
 
-    // Toggle Profile Menu
-    const profileBtn = document.getElementById("profileBtn");
-    const profileMenu = document.getElementById("profileMenu");
-    
-    if (profileBtn && profileMenu) {
-        profileBtn.addEventListener("click", function (e) {
-            e.stopPropagation();
-            profileMenu.classList.toggle("active");
-        });
-        
-        document.addEventListener("click", () => {
-            if (profileMenu) profileMenu.classList.remove("active");
-        });
-    }
+    // Restore active tab from sessionStorage or default to Dashboard
+    let savedTab = "sidebarAdminHome";
+    try { savedTab = sessionStorage.getItem("activeAdminTab") || "sidebarAdminHome"; } catch(e){}
+    window.navigateToSection(savedTab);
 
-    // Connect profileSettingsBtn click to settings tab switch
-    const profileSettingsBtn = document.getElementById("profileSettingsBtn");
-    const sidebarAdminSettings = document.getElementById("sidebarAdminSettings");
-    if (profileSettingsBtn && sidebarAdminSettings) {
-        profileSettingsBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            sidebarAdminSettings.click();
-            profileMenu.classList.remove("active");
-        });
-    }
+    // Modal Close Listeners
+    const closeDocModal = document.getElementById("closeDocModal");
+    if (closeDocModal) closeDocModal.onclick = () => { document.getElementById("documentModal").style.display = "none"; };
+
+    const closeUserDetailsModal = document.getElementById("closeUserDetailsModal");
+    if (closeUserDetailsModal) closeUserDetailsModal.onclick = () => { document.getElementById("userDetailsModal").style.display = "none"; };
+
+    window.onclick = (e) => {
+        const docM = document.getElementById("documentModal");
+        const userM = document.getElementById("userDetailsModal");
+        const confM = document.getElementById("confirmationModal");
+        if (e.target === docM) docM.style.display = "none";
+        if (e.target === userM) userM.style.display = "none";
+        if (e.target === confM) confM.style.display = "none";
+    };
 }
 
 if (document.readyState === "loading") {

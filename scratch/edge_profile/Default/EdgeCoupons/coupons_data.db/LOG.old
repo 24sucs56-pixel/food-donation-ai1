@@ -1,0 +1,6 @@
+2026/09/15-11:32:48.469 1e7c Reusing MANIFEST C:\Users\ELCOT\Documents\food donation ai\scratch\edge_profile\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/09/15-11:32:48.469 1e7c Recovering log #26
+2026/09/15-11:32:48.470 1e7c Reusing old log C:\Users\ELCOT\Documents\food donation ai\scratch\edge_profile\Default\EdgeCoupons/coupons_data.db/000026.log 
+2026/09/15-11:32:48.551 ae0 Level-0 table #30: started
+2026/09/15-11:32:48.556 ae0 Level-0 table #30: 683399 bytes OK
+2026/09/15-11:32:48.560 ae0 Delete type=0 #26

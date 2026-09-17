@@ -19,6 +19,8 @@ content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="css/layout-fix.css">
 <link rel="stylesheet" href="css/premium-theme.css">
 <link rel="stylesheet" href="css/assistant.css">
+<link rel="stylesheet" href="css/mobile.css">
+<link rel="icon" href="images/logo.png" type="image/png">
 
 <link rel="preconnect"
 href="https://fonts.googleapis.com">
@@ -41,6 +43,11 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     <!-- SIDEBAR -->
 
     <aside class="sidebar">
+
+        <!-- Mobile Sidebar Close Button -->
+        <button id="mobileSidebarClose" class="mobile-sidebar-close" aria-label="Close Navigation Menu">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
 
         <div class="logo">
 
@@ -87,7 +94,19 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
             </li>
             <li id="sidebarAdminUsers" style="display: none;">
                 <i class="fa-solid fa-user-shield"></i>
-                <span>Manage Users</span>
+                <span>User Management</span>
+            </li>
+            <li id="sidebarAdminNGOs" style="display: none;">
+                <i class="fa-solid fa-building-circle-check"></i>
+                <span>NGO Verification</span>
+            </li>
+            <li id="sidebarAdminDonations" style="display: none;">
+                <i class="fa-solid fa-boxes-packing"></i>
+                <span>Donation Management</span>
+            </li>
+            <li id="sidebarAdminVolunteers" style="display: none;">
+                <i class="fa-solid fa-truck-ramp-box"></i>
+                <span>Volunteer Management</span>
             </li>
             <li id="sidebarSettings">
                 <i class="fa-solid fa-gear"></i>
@@ -113,15 +132,25 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 </div>
     </aside>
 
+    <!-- Mobile Sidebar Backdrop Overlay -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
     <!-- MAIN CONTENT -->
 
     <main class="main-content">
         <!-- TOP BAR -->
 <header class="topbar">
 
+    <div class="topbar-left">
+        <!-- Mobile Hamburger Menu Button -->
+        <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Open Navigation Menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+
     <!-- Food Saving & Donating Facts -->
-    <div class="topbar-fact" style="display: flex; align-items: center; gap: 10px; color: #15803d; font-weight: 550; font-size: 14.5px; max-width: 60%; line-height: 1.4; background: rgba(22, 163, 74, 0.06); padding: 10px 18px; border-radius: 12px; border: 1px solid rgba(22, 163, 74, 0.15);">
-        <i class="fa-solid fa-lightbulb" style="color: #eab308; font-size: 17px; animation: pulse 2s infinite;"></i>
+    <div class="topbar-fact">
+        <i class="fa-solid fa-lightbulb"></i>
         <span id="topbarFactText">Loading daily food saving tip...</span>
     </div>
 
@@ -273,54 +302,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
     </div>
 
-    <div id="profileMenu" class="profile-menu">
-
-    <div class="profile-menu-header">
-
-        <img src="images/user1.png" alt="User">
-
-        <div>
-
-            <h3 id="profileName">TestUser</h3>
-
-            <p id="profileRole">Donor</p>
-
-        </div>
-
-    </div>
-
-    <hr>
-
-    <a href="#" id="profileMenuMyProfile">
-        <i class="fa-solid fa-user"></i>
-        My Profile
-    </a>
-
-    <a href="#" id="profileMenuSettings">
-        <i class="fa-solid fa-gear"></i>
-        Settings
-    </a>
-
-    <a href="#" id="profileMenuNotifications">
-        <i class="fa-solid fa-bell"></i>
-        Notifications
-    </a>
-
-    <a href="#" id="profileMenuHelp">
-        <i class="fa-solid fa-circle-question"></i>
-        Help Center
-    </a>
-
-    <hr>
-
-    <a href="#" id="profileLogoutBtn" class="logout">
-        <i class="fa-solid fa-right-from-bracket"></i>
-        Logout
-    </a>
-
 </div>
-
-        </div>
 
     </div>
 
@@ -346,7 +328,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
 <section class="dashboard-cards">
 
-    <div class="card">
+    <div class="card" id="cardTotalDonations">
 
         <div class="card-icon">
 
@@ -364,7 +346,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
     </div>
 
-    <div class="card">
+    <div class="card" id="cardMealsSaved">
 
         <div class="card-icon">
 
@@ -382,7 +364,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
     </div>
 
-    <div class="card">
+    <div class="card" id="cardConnectedNgos">
 
         <div class="card-icon">
 
@@ -400,7 +382,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
     </div>
 
-    <div class="card">
+    <div class="card" id="cardAiFoodSafety">
 
         <div class="card-icon">
 
@@ -434,27 +416,27 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
             </div>
         </div>
         
-        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div style="display: flex; gap: 15px; flex-wrap: wrap; flex: 1 1 auto; min-width: 0;">
             <!-- Points Display -->
-            <div style="background: white; padding: 15px 25px; border-radius: 12px; min-width: 140px; text-align: center; border: 1px solid #bbf7d0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <div style="background: white; padding: 15px 20px; border-radius: 12px; flex: 1 1 120px; min-width: 0; text-align: center; border: 1px solid #bbf7d0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                 <span style="display: block; font-size: 12px; color: #166534; font-weight: 600; text-transform: uppercase;">Total Points</span>
                 <span id="userPointsVal" style="font-size: 28px; font-weight: 700; color: #16a34a;">0</span>
             </div>
             
             <!-- Certification Display -->
-            <div style="background: white; padding: 15px 25px; border-radius: 12px; min-width: 200px; text-align: center; border: 1px solid #bbf7d0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <div style="background: white; padding: 15px 20px; border-radius: 12px; flex: 1 1 140px; min-width: 0; text-align: center; border: 1px solid #bbf7d0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                 <span style="display: block; font-size: 12px; color: #166534; font-weight: 600; text-transform: uppercase;">Certification Level</span>
                 <span id="userCertLevel" style="font-size: 16px; font-weight: 700; color: #14532d; display: block; margin-top: 5px;">Contributor</span>
             </div>
 
             <!-- Reward Prize Display -->
-            <div style="background: white; padding: 15px 25px; border-radius: 12px; min-width: 220px; text-align: center; border: 1px solid #bbf7d0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <div style="background: white; padding: 15px 20px; border-radius: 12px; flex: 1 1 140px; min-width: 0; text-align: center; border: 1px solid #bbf7d0; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                 <span style="display: block; font-size: 12px; color: #166534; font-weight: 600; text-transform: uppercase;">Active Prize</span>
                 <span id="userPrizeVal" style="font-size: 15px; font-weight: 700; color: #b45309; display: block; margin-top: 5px;">None</span>
             </div>
 
             <!-- Volunteer Rating Display -->
-            <div id="volunteerRatingCard" style="background: white; padding: 15px 25px; border-radius: 12px; min-width: 180px; text-align: center; border: 1px solid #bbf7d0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: none;">
+            <div id="volunteerRatingCard" style="background: white; padding: 15px 20px; border-radius: 12px; flex: 1 1 120px; min-width: 0; text-align: center; border: 1px solid #bbf7d0; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: none;">
                 <span style="display: block; font-size: 12px; color: #166534; font-weight: 600; text-transform: uppercase;">Average Rating</span>
                 <span id="userRatingVal" style="font-size: 20px; font-weight: 700; color: #d97706; display: block; margin-top: 5px;">N/A</span>
             </div>
@@ -1005,8 +987,8 @@ Donate Food
 <section class="main-section" id="ngoSection" style="display: none;">
     <div class="container">
         <header style="margin-bottom: 25px;">
-            <h1>🏢 NGO Dashboard</h1>
-            <p>Manage and claim available food donations.</p>
+            <h1>🏢 Available Food Donations</h1>
+            <p>Explore surplus food donations available for your NGO to claim.</p>
         </header>
         
         <div class="ngo-tabs" style="display: flex; gap: 15px; border-bottom: 2px solid var(--border); padding-bottom: 15px; margin-bottom: 30px;">
@@ -1022,51 +1004,95 @@ Donate Food
     </div>
 </section>
 
-<section class="main-section" id="volunteerSection" style="display: none;">
+<!-- DEDICATED ACCEPTED DONATIONS SECTION FOR NGO -->
+<section class="main-section" id="ngoAcceptedSection" style="display: none;">
     <div class="container">
-        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; flex-wrap: wrap; gap: 20px;">
-            <div>
-                <h1 style="color: #15803d; font-size: 38px; font-weight: 700; margin: 0 0 10px 0;"><i class="fa-solid fa-truck-fast"></i> Volunteer Dashboard</h1>
-                <p style="color: #64748b; font-size: 16px; margin: 0;">Manage food pickup and delivery efficiently.</p>
-            </div>
-            
-            <div style="display: flex; gap: 16px; align-items: stretch; flex-wrap: wrap;">
-                <!-- Today's Tasks Card -->
-                <div class="status-box task-status-box" style="background: #ffffff; padding: 16px 24px; border-radius: 18px; box-shadow: 0 10px 25px rgba(22, 163, 74, 0.08); border: 1.5px solid #86efac; text-align: center; min-width: 140px;">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
-                        <i class="fa-solid fa-list-check" style="font-size: 13px; color: #16a34a;"></i>
-                        <h3 style="font-size: 12.5px; color: #334155; margin: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;">Today's Tasks</h3>
-                    </div>
-                    <span id="taskCount" style="font-size: 28px; font-weight: 800; color: #15803d; display: block; margin-top: 4px; line-height: 1.2;">0</span>
-                    <span style="font-size: 11.5px; font-weight: 600; color: #16a34a; display: block; margin-top: 2px;">Active Pickups</span>
-                </div>
-                
-                <!-- My Rating Card -->
-                <div class="status-box rating-status-box" id="ratingBox" onclick="openVolunteerReviewsModal()" style="background: #ffffff; padding: 16px 24px; border-radius: 18px; box-shadow: 0 10px 25px rgba(217, 119, 6, 0.09); border: 1.5px solid #fcd34d; text-align: center; min-width: 150px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative;" title="Click to view ratings and reviews from Donors and NGOs">
-                    <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
-                        <i class="fa-solid fa-star" style="font-size: 13px; color: #d97706;"></i>
-                        <h3 style="font-size: 12.5px; color: #334155; margin: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;">My Rating</h3>
-                        <i class="fa-solid fa-circle-info" style="font-size: 11px; color: #d97706;"></i>
-                    </div>
-                    <span id="volunteerRatingVal" style="font-size: 28px; font-weight: 800; color: #d97706; display: block; margin-top: 4px; line-height: 1.2;">0.0 ★</span>
-                    <span id="volunteerRatingCount" style="font-size: 11.5px; font-weight: 600; color: #15803d; display: block; margin-top: 2px; text-decoration: underline;">(0 reviews)</span>
-                </div>
-            </div>
+        <header style="margin-bottom: 25px;">
+            <h1 style="color: #15803d; font-size: 34px; font-weight: 700; margin: 0 0 8px 0;"><i class="fa-solid fa-box-archive"></i> Accepted Donations</h1>
+            <p style="color: #64748b; font-size: 15px; margin: 0;">Food donations accepted by your NGO and their pickup / delivery status.</p>
         </header>
+        <div id="ngoAcceptedContainer"></div>
+    </div>
+</section>
 
-        <div class="volunteer-tabs" style="display: flex; gap: 15px; border-bottom: 2px solid var(--border); padding-bottom: 15px; margin-bottom: 30px;">
-            <button id="volTabAvailable" style="background: #16a34a; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
-                <i class="fa-solid fa-truck-pickup"></i> Available Deliveries
-            </button>
-            <button id="volTabActive" style="background: transparent; color: var(--text-light); border: 1px solid var(--border); padding: 10px 20px; border-radius: 10px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">
-                <i class="fa-solid fa-route"></i> My Active Tasks
-            </button>
-            <button id="volTabCompleted" style="background: transparent; color: var(--text-light); border: 1px solid var(--border); padding: 10px 20px; border-radius: 10px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">
-                <i class="fa-solid fa-circle-check"></i> My Completed
-            </button>
+<!-- DEDICATED NEARBY DONORS SECTION FOR NGO -->
+<section class="main-section" id="nearbyDonorsSection" style="display: none;">
+    <div class="container">
+        <header style="margin-bottom: 25px;">
+            <h1 style="color: #15803d; font-size: 34px; font-weight: 700; margin: 0 0 8px 0;"><i class="fa-solid fa-location-dot"></i> Nearby Donors & Food Map</h1>
+            <p style="color: #64748b; font-size: 15px; margin: 0;">Discover verified food donors and available surplus food within your NGO's location.</p>
+        </header>
+        
+        <!-- Interactive Leaflet Map for Nearby Donors -->
+        <div class="premium-card" style="margin-bottom: 25px; padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                <h3 style="margin: 0; color: #15803d; font-size: 18px; font-weight: 600;"><i class="fa-solid fa-map-location-dot"></i> Active Donors Map</h3>
+                <span style="font-size: 13px; color: #64748b; font-weight: 500;">📍 Showing food donors near Madurai</span>
+            </div>
+            <div id="nearbyDonorsMap" style="height: 320px; width: 100%; border-radius: 14px; border: 1px solid var(--border); box-shadow: var(--shadow);"></div>
         </div>
 
-        <div id="volunteerContainer"></div>
+        <div id="nearbyDonorsContainer"></div>
+    </div>
+</section>
+
+<section class="main-section" id="volunteerSection" style="display: none;">
+    <div class="container">
+        <!-- VOLUNTEER ROLE VIEW -->
+        <div class="volunteer-dashboard-view">
+            <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; flex-wrap: wrap; gap: 20px;" class="volunteer-dashboard-header">
+                <div>
+                    <h1 style="color: #15803d; font-size: 38px; font-weight: 700; margin: 0 0 10px 0;"><i class="fa-solid fa-truck-fast"></i> Volunteer Dashboard</h1>
+                    <p style="color: #64748b; font-size: 16px; margin: 0;">Manage food pickup and delivery efficiently.</p>
+                </div>
+                
+                <div style="display: flex; gap: 16px; align-items: stretch; flex-wrap: wrap;">
+                    <!-- Today's Tasks Card -->
+                    <div class="status-box task-status-box" style="background: #ffffff; padding: 16px 24px; border-radius: 18px; box-shadow: 0 10px 25px rgba(22, 163, 74, 0.08); border: 1.5px solid #86efac; text-align: center; min-width: 140px;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <i class="fa-solid fa-list-check" style="font-size: 13px; color: #16a34a;"></i>
+                            <h3 style="font-size: 12.5px; color: #334155; margin: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;">Today's Tasks</h3>
+                        </div>
+                        <span id="taskCount" style="font-size: 28px; font-weight: 800; color: #15803d; display: block; margin-top: 4px; line-height: 1.2;">0</span>
+                        <span style="font-size: 11.5px; font-weight: 600; color: #16a34a; display: block; margin-top: 2px;">Active Pickups</span>
+                    </div>
+                    
+                    <!-- My Rating Card -->
+                    <div class="status-box rating-status-box" id="ratingBox" onclick="openVolunteerReviewsModal()" style="background: #ffffff; padding: 16px 24px; border-radius: 18px; box-shadow: 0 10px 25px rgba(217, 119, 6, 0.09); border: 1.5px solid #fcd34d; text-align: center; min-width: 150px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); position: relative;" title="Click to view ratings and reviews from Donors and NGOs">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <i class="fa-solid fa-star" style="font-size: 13px; color: #d97706;"></i>
+                            <h3 style="font-size: 12.5px; color: #334155; margin: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;">My Rating</h3>
+                            <i class="fa-solid fa-circle-info" style="font-size: 11px; color: #d97706;"></i>
+                        </div>
+                        <span id="volunteerRatingVal" style="font-size: 28px; font-weight: 800; color: #d97706; display: block; margin-top: 4px; line-height: 1.2;">0.0 ★</span>
+                        <span id="volunteerRatingCount" style="font-size: 11.5px; font-weight: 600; color: #15803d; display: block; margin-top: 2px; text-decoration: underline;">(0 reviews)</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="volunteer-tabs" style="display: flex; gap: 15px; border-bottom: 2px solid var(--border); padding-bottom: 15px; margin-bottom: 30px;">
+                <button id="volTabAvailable" style="background: #16a34a; color: white; border: none; padding: 10px 20px; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                    <i class="fa-solid fa-truck-pickup"></i> Available Deliveries
+                </button>
+                <button id="volTabActive" style="background: transparent; color: var(--text-light); border: 1px solid var(--border); padding: 10px 20px; border-radius: 10px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">
+                    <i class="fa-solid fa-route"></i> My Active Tasks
+                </button>
+                <button id="volTabCompleted" style="background: transparent; color: var(--text-light); border: 1px solid var(--border); padding: 10px 20px; border-radius: 10px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">
+                    <i class="fa-solid fa-circle-check"></i> My Completed
+                </button>
+            </div>
+
+            <div id="volunteerContainer"></div>
+        </div>
+
+        <!-- NGO ROLE VIEW: VOLUNTEERS DIRECTORY -->
+        <div class="ngo-volunteers-view" style="display: none;">
+            <header style="margin-bottom: 25px;">
+                <h1 style="color: #15803d; font-size: 34px; font-weight: 700; margin: 0 0 8px 0;"><i class="fa-solid fa-truck-ramp-box"></i> Volunteers Network</h1>
+                <p style="color: #64748b; font-size: 15px; margin: 0;">Verified logistics volunteers available to collect and transport food donations for your NGO.</p>
+            </header>
+            <div id="ngoVolunteersContainer"></div>
+        </div>
     </div>
 </section>
 
@@ -1225,11 +1251,50 @@ Donate Food
     </div>
 </section>
 
+<!-- Section: Settings -->
 <section class="main-section" id="settingsSection" style="display: none;">
     <div class="container">
         <header style="margin-bottom: 35px;">
-            <h1 style="color: #15803d; font-size: 38px;"><i class="fa-solid fa-sliders"></i> System Settings</h1>
-            <p style="color: #666; font-size: 17px; margin-top: 10px;">Manage your account credentials, preferences, and interface controls.</p>
+            <h1 style="color: #15803d; font-size: 38px;"><i class="fa-solid fa-sliders"></i> Settings</h1>
+            <p style="color: #666; font-size: 17px; margin-top: 10px;">Manage account preferences, email notifications, and interface controls.</p>
+        </header>
+
+        <div class="premium-card" style="max-width: 700px; margin: 0 auto;">
+            <h3 style="color: #15803d; font-size: 20px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-toggle-on"></i> Interface Options & Preferences
+            </h3>
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="switch-container" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="switch-label-group">
+                        <h4 style="margin: 0; font-size: 15px; font-weight: 600;">Email Notifications</h4>
+                        <p style="margin: 3px 0 0 0; font-size: 12px; color: #64748b;">Receive summary reports and donation updates</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                <div class="switch-container" style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="switch-label-group">
+                        <h4 style="margin: 0; font-size: 15px; font-weight: 600;">Location Sharing</h4>
+                        <p style="margin: 3px 0 0 0; font-size: 12px; color: #64748b;">Share live location for nearby donation matching</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" checked>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section: Dedicated My Profile -->
+<section class="main-section" id="profileSection" style="display: none;">
+    <div class="container">
+        <header style="margin-bottom: 35px;">
+            <h1 style="color: #15803d; font-size: 38px;"><i class="fa-solid fa-user-pen"></i> My Profile</h1>
+            <p style="color: #666; font-size: 17px; margin-top: 10px;">View and update your smart food donation profile parameters and account details.</p>
         </header>
 
         <!-- Premium Profile Header banner -->
@@ -1241,58 +1306,132 @@ Donate Food
             </div>
             <div class="settings-profile-info">
                 <h3 id="settingsProfileName">Active User</h3>
-                <p>Manage your smart food account and security parameters.</p>
+                <p>Manage your smart food account parameters and credentials.</p>
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
-            <!-- Profile Settings Card -->
-            <div class="premium-card">
-                <h3 style="color: #15803d; font-size: 20px; font-weight: 600; margin-bottom: 5px; display: flex; align-items: center; gap: 10px;">
+        <div class="premium-card" style="max-width: 750px; margin: 0 auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="color: #15803d; font-size: 20px; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 10px;">
                     <i class="fa-solid fa-user-gear"></i> Account Profile
                 </h3>
-                <div style="display: flex; flex-direction: column; gap: 15px;">
+                <button type="button" id="editProfileBtn" style="background: #2563eb; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                </button>
+            </div>
+
+            <form id="profileEditForm" onsubmit="return false;">
+                <div style="display: flex; flex-direction: column; gap: 14px;">
                     <div>
-                        <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 5px; font-weight: 500;">Full Name</label>
-                        <input type="text" id="settingsName" readonly style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 15px; color: var(--text); outline: none;">
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 5px; font-weight: 500;">Email Address</label>
-                        <input type="email" id="settingsEmail" readonly style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 15px; color: var(--text); outline: none;">
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 5px; font-weight: 500;">Registered Role</label>
-                        <input type="text" id="settingsRole" readonly style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 15px; text-transform: uppercase; color: var(--text); outline: none;">
+                        <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 4px; font-weight: 500;">Full Name</label>
+                        <input type="text" id="settingsName" disabled style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); outline: none;">
                     </div>
 
-                    <!-- Achievement & Stats Section -->
-                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed var(--border); display: flex; flex-direction: column; gap: 10px;">
-                        <h4 style="color: #15803d; font-size: 15px; font-weight: 600; margin-bottom: 5px;"><i class="fa-solid fa-trophy"></i> Activity & Achievements</h4>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                            <div style="background: var(--bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border); text-align: center;">
-                                <span style="display: block; font-size: 11px; color: var(--text-light); text-transform: uppercase;">Points</span>
-                                <strong id="settingsPoints" style="font-size: 18px; color: #15803d;">0</strong>
-                            </div>
-                            <div style="background: var(--bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border); text-align: center;">
-                                <span style="display: block; font-size: 11px; color: var(--text-light); text-transform: uppercase;">Rank</span>
-                                <strong id="settingsRank" style="font-size: 13px; color: #15803d; word-break: break-word; display: block; margin-top: 3px;">Contributor</strong>
-                            </div>
+                    <div>
+                        <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 4px; font-weight: 500;">Email Address (Primary Key)</label>
+                        <input type="email" id="settingsEmail" disabled style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: #f1f5f9; font-family: inherit; font-size: 14px; color: #64748b; outline: none;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 4px; font-weight: 500;">Registered Role</label>
+                        <input type="text" id="settingsRole" disabled style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: #f1f5f9; font-family: inherit; font-size: 14px; text-transform: uppercase; color: #16a34a; font-weight: 700; outline: none;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 4px; font-weight: 500;">Phone Number</label>
+                        <input type="text" id="settingsPhone" disabled placeholder="e.g. +91 98765 43210" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); outline: none;">
+                    </div>
+
+                    <div>
+                        <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 4px; font-weight: 500;">Complete Address</label>
+                        <input type="text" id="settingsAddress" disabled placeholder="Street, Landmark, City" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); outline: none;">
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div>
+                            <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 4px; font-weight: 500;">City</label>
+                            <input type="text" id="settingsCity" disabled placeholder="Madurai" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); outline: none;">
                         </div>
-                        <div style="background: var(--bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border); margin-top: 5px; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <span style="display: block; font-size: 11px; color: var(--text-light); text-transform: uppercase; margin-bottom: 2px;">Unlocked Rewards</span>
-                                <span id="settingsPrize" style="font-size: 13px; font-weight: 500; color: var(--text);">None</span>
-                            </div>
+                        <div>
+                            <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 4px; font-weight: 500;">Pincode</label>
+                            <input type="text" id="settingsPincode" disabled placeholder="625001" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); outline: none;">
                         </div>
-                        <div style="background: var(--bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border); margin-top: 5px; display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <span style="display: block; font-size: 11px; color: var(--text-light); text-transform: uppercase; margin-bottom: 2px;">Verification Status</span>
-                                <span id="settingsStatus" style="font-size: 13px; font-weight: bold; color: #16a34a;">Approved</span>
-                            </div>
+                    </div>
+
+                    <!-- Role Specific Dynamic Inputs -->
+                    <div id="settingsDonorFields" style="display: none;">
+                        <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 4px; font-weight: 500;">Donor Classification</label>
+                        <select id="settingsDonorType" disabled style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); outline: none;">
+                            <option value="Individual">Individual</option>
+                            <option value="Restaurant">Restaurant</option>
+                            <option value="Catering Service">Catering Service</option>
+                            <option value="Supermarket">Supermarket</option>
+                            <option value="Bakery">Bakery</option>
+                            <option value="Event Organizer">Event Organizer</option>
+                        </select>
+                    </div>
+
+                    <div id="settingsNgoFields" style="display: none; flex-direction: column; gap: 10px;">
+                        <div>
+                            <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 4px; font-weight: 500;">Registered NGO Name</label>
+                            <input type="text" id="settingsNgoName" disabled placeholder="NGO Organization Name" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); outline: none;">
                         </div>
+                        <div>
+                            <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 4px; font-weight: 500;">Govt Registration Number</label>
+                            <input type="text" id="settingsRegNumber" disabled placeholder="TN/2021/XXXXXX" style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); outline: none;">
+                        </div>
+                    </div>
+
+                    <div id="settingsVolunteerFields" style="display: none;">
+                        <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 4px; font-weight: 500;">Delivery Vehicle Type</label>
+                        <select id="settingsVehicle" disabled style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 14px; color: var(--text); outline: none;">
+                            <option value="Bike">Two Wheeler (Bike)</option>
+                            <option value="Scooter">Electric Scooter</option>
+                            <option value="Car">Four Wheeler (Car)</option>
+                            <option value="Van">Mini Van / Auto</option>
+                        </select>
+                    </div>
+
+                    <!-- Save Button Container -->
+                    <div id="profileSaveContainer" style="display: none; margin-top: 10px;">
+                        <button type="button" id="saveProfileBtn" style="width: 100%; padding: 12px; background: #16a34a; color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Profile Changes
+                        </button>
+                    </div>
+
+                    <div id="profileSaveMsg" style="display: none; padding: 10px; border-radius: 8px; font-size: 13px; text-align: center; font-weight: 600;"></div>
+                </div>
+            </form>
+
+            <!-- Achievement & Stats Section -->
+            <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed var(--border); display: flex; flex-direction: column; gap: 10px;">
+                <h4 style="color: #15803d; font-size: 15px; font-weight: 600; margin-bottom: 5px;"><i class="fa-solid fa-trophy"></i> Activity & Achievements</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div style="background: var(--bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border); text-align: center;">
+                        <span style="display: block; font-size: 11px; color: var(--text-light); text-transform: uppercase;">Points</span>
+                        <strong id="settingsPoints" style="font-size: 18px; color: #15803d;">0</strong>
+                    </div>
+                    <div style="background: var(--bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border); text-align: center;">
+                        <span style="display: block; font-size: 11px; color: var(--text-light); text-transform: uppercase;">Rank</span>
+                        <strong id="settingsRank" style="font-size: 13px; color: #15803d; word-break: break-word; display: block; margin-top: 3px;">Contributor</strong>
+                    </div>
+                </div>
+                <div style="background: var(--bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border); margin-top: 5px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span style="display: block; font-size: 11px; color: var(--text-light); text-transform: uppercase; margin-bottom: 2px;">Unlocked Rewards</span>
+                        <span id="settingsPrize" style="font-size: 13px; font-weight: 500; color: var(--text);">None</span>
+                    </div>
+                </div>
+                <div style="background: var(--bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border); margin-top: 5px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span style="display: block; font-size: 11px; color: var(--text-light); text-transform: uppercase; margin-bottom: 2px;">Verification Status</span>
+                        <span id="settingsStatus" style="font-size: 13px; font-weight: bold; color: #16a34a;">Approved</span>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</section>
 
             <!-- Preference settings Card -->
             <div class="premium-card">
@@ -1330,6 +1469,7 @@ Donate Food
                             <span class="toggle-slider"></span>
                         </label>
                     </div>
+                </div>
             </div>
 
             <!-- Security Settings Card -->
@@ -1401,7 +1541,7 @@ Donate Food
             AI ASSISTANT
 ========================================== -->
 
-<section class="ai-assistant" style="display: none;">
+<section class="ai-assistant" id="aiSection" style="display: none;">
     <div class="ai-header">
         <div>
             <h2>🤖 Smart Food Donation AI Assistant</h2>
@@ -1660,9 +1800,110 @@ Donate Food
     </div>
 </div>
 
+<!-- Change Password Modal -->
+<div id="changePasswordModal" class="modal" style="display:none; position:fixed; z-index:9999999; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div class="modal-content" style="background-color:#fff; margin:auto; padding:25px; border:1px solid #e2e8f0; width:90%; max-width:440px; border-radius:16px; position:relative; text-align:left; box-shadow: 0 20px 40px rgba(0,0,0,0.25); animation: zoomIn 0.3s;">
+        <span class="close-modal" id="closeChangePasswordModal" style="position:absolute; right:20px; top:15px; color:#94a3b8; font-size:24px; font-weight:bold; cursor:pointer;">&times;</span>
+        <h3 style="color:#15803d; margin-bottom:15px; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-key"></i> Change Password
+        </h3>
+        <form id="changePasswordForm" onsubmit="return false;">
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                    <label style="display: block; font-size: 13px; color: #475569; margin-bottom: 4px; font-weight: 500;">Current Password</label>
+                    <input type="password" id="currentPasswordInput" required style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #cbd5e1; outline: none; font-size: 14px;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; color: #475569; margin-bottom: 4px; font-weight: 500;">New Password</label>
+                    <input type="password" id="newPasswordInput" required style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #cbd5e1; outline: none; font-size: 14px;">
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; color: #475569; margin-bottom: 4px; font-weight: 500;">Confirm New Password</label>
+                    <input type="password" id="confirmPasswordInput" required style="width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid #cbd5e1; outline: none; font-size: 14px;">
+                </div>
+                <div id="changePasswordMsg" style="display: none; padding: 10px; border-radius: 8px; font-size: 13px; text-align: center; font-weight: 600;"></div>
+                <button type="submit" id="savePasswordBtn" style="width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 6px;">
+                    <i class="fa-solid fa-lock"></i> Update Password
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Help Center Modal -->
+<div id="helpCenterModal" class="modal" style="display:none; position:fixed; z-index:9999999; left:0; top:0; width:100%; height:100%; overflow:auto; background-color:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+    <div class="modal-content" style="background-color:#fff; margin:auto; padding:25px; border:1px solid #e2e8f0; width:90%; max-width:540px; border-radius:16px; position:relative; text-align:left; box-shadow: 0 20px 40px rgba(0,0,0,0.25); animation: zoomIn 0.3s;">
+        <span class="close-modal" id="closeHelpCenterModal" style="position:absolute; right:20px; top:15px; color:#94a3b8; font-size:24px; font-weight:bold; cursor:pointer;">&times;</span>
+        <h3 style="color:#15803d; margin-bottom:15px; font-size: 20px; font-weight: 700; display: flex; align-items: center; gap: 10px;">
+            <i class="fa-solid fa-circle-question"></i> Help Center & Support
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 14px; font-size: 14px; color: #334155;">
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 10px;">
+                <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #0f172a;"><i class="fa-solid fa-hand-holding-heart" style="color: #16a34a;"></i> How do food donations work?</h4>
+                <p style="margin: 0; font-size: 12.5px; color: #64748b;">Donors post available food items. AI assesses freshness and safety. Nearby verified NGOs or Volunteers claim and pick up food for delivery.</p>
+            </div>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 10px;">
+                <h4 style="margin: 0 0 4px 0; font-size: 14px; font-weight: 600; color: #0f172a;"><i class="fa-solid fa-user-shield" style="color: #2563eb;"></i> How to update profile or credentials?</h4>
+                <p style="margin: 0; font-size: 12.5px; color: #64748b;">Click your profile picture in the top right corner and select <strong>Edit Profile</strong> to change name, phone, address, or avatar. Select <strong>Change Password</strong> to update security credentials.</p>
+            </div>
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px 16px; border-radius: 10px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <h4 style="margin: 0; font-size: 13.5px; font-weight: 600; color: #15803d;">Need Direct Assistance?</h4>
+                    <p style="margin: 2px 0 0 0; font-size: 12px; color: #166534;">Support Email: support@smartfooddonation.org</p>
+                </div>
+                <i class="fa-solid fa-headset" style="font-size: 24px; color: #16a34a;"></i>
+            </div>
+        </div>
+        <div style="margin-top: 20px; text-align: right;">
+            <button class="btn-action" style="background-color: #cbd5e1; color: #334155; border: none; padding: 8px 18px; border-radius: 8px; font-weight: 600; cursor: pointer;" onclick="document.getElementById('helpCenterModal').style.display='none'">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Top-Level Global Profile Overlay & Menu -->
+<div id="profileOverlay" class="profile-overlay">
+    <div id="profileMenu" class="profile-menu">
+        <div class="profile-menu-header" style="padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f1f5f9; background: #f8fafc;">
+            <img id="topMenuAvatar" src="images/user1.png" alt="User" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #22c55e;">
+            <div style="flex: 1; min-width: 0;">
+                <h3 id="profileName" style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">User Name</h3>
+                <p id="profileEmail" style="margin: 2px 0 4px 0; font-size: 11.5px; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">user@email.com</p>
+                <span id="profileRoleBadge" style="display: inline-block; padding: 2px 8px; background: #dcfce7; color: #15803d; font-size: 10.5px; font-weight: 700; border-radius: 6px; text-transform: uppercase;">Donor</span>
+            </div>
+        </div>
+        <ul class="profile-menu-list" style="list-style: none; padding: 8px 0; margin: 0;">
+            <li>
+                <a href="#" id="profileMenuEditProfile" style="display: flex; align-items: center; gap: 10px; padding: 11px 16px; color: #334155; font-size: 13.5px; font-weight: 500; text-decoration: none;">
+                    <i class="fa-solid fa-user-pen" style="width: 18px; color: #16a34a; font-size: 14px;"></i>
+                    <span>Edit Profile</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="profileMenuChangePassword" style="display: flex; align-items: center; gap: 10px; padding: 11px 16px; color: #334155; font-size: 13.5px; font-weight: 500; text-decoration: none;">
+                    <i class="fa-solid fa-key" style="width: 18px; color: #2563eb; font-size: 14px;"></i>
+                    <span>Change Password</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" id="profileMenuHelp" style="display: flex; align-items: center; gap: 10px; padding: 11px 16px; color: #334155; font-size: 13.5px; font-weight: 500; text-decoration: none;">
+                    <i class="fa-solid fa-circle-question" style="width: 18px; color: #d97706; font-size: 14px;"></i>
+                    <span>Help Center</span>
+                </a>
+            </li>
+            <li style="border-top: 1px solid #f1f5f9; margin: 6px 0;"></li>
+            <li>
+                <a href="#" id="profileLogoutBtn" onclick="logout(); return false;" class="logout" style="display: flex; align-items: center; gap: 10px; padding: 11px 16px; color: #ef4444 !important; font-size: 13.5px; font-weight: 600; text-decoration: none;">
+                    <i class="fa-solid fa-right-from-bracket" style="width: 18px; color: #ef4444; font-size: 14px;"></i>
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="js/dashboard.js"></script>
 <script src="js/auth.js"></script>
+<script src="js/dashboard.js"></script>
 <script src="js/assistant.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/donate.js"></script>

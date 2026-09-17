@@ -1,0 +1,1283 @@
+/* ==========================================
+   FINAL PAGE ALIGNMENT FIX
+   Smart Food Donation AI - Donate Food Page
+========================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+/* ==========================================
+   DESKTOP DEFAULT PAGE & DASHBOARD STRUCTURE (>= 769px)
+========================================== */
+@media (min-width: 769px) {
+    html,
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+        background: #f8fffb;
+    }
+
+    .dashboard {
+        display: flex !important;
+        width: 100% !important;
+        height: 100% !important;
+        overflow: hidden !important;
+    }
+}
+
+
+@media (min-width: 769px) {
+    .sidebar {
+        position: relative !important;
+        top: 0 !important;
+        left: 0 !important;
+
+        width: 270px !important;
+        min-width: 270px !important;
+        height: 100% !important;
+
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+
+        z-index: 1000 !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+}
+
+/* Compact sidebar menu and logo */
+.menu li {
+    padding: 10px 16px !important;
+    margin-bottom: 6px !important;
+    border-radius: 10px !important;
+    font-size: 14px !important;
+}
+
+/* Style sidebar scrollbar */
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+.sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+}
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+
+/* ==========================================
+   MAIN CONTENT
+========================================== */
+
+.main-content {
+    margin-left: 0 !important;
+
+    width: auto !important;
+    flex-grow: 1 !important;
+
+    min-width: 0 !important;
+    height: 100% !important;
+
+    padding: 30px !important;
+
+    box-sizing: border-box !important;
+
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+}
+
+/* Style main content scrollbar */
+.main-content::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.main-content::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+.main-content::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+.main-content::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+
+/* ==========================================
+   ALL MAIN CHILDREN
+========================================== */
+
+.main-content > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+
+    margin-left: 0 !important;
+
+    box-sizing: border-box !important;
+}
+
+
+/* ==========================================
+   TOPBAR
+========================================== */
+
+.topbar {
+    width: 100% !important;
+    max-width: 100% !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    margin: 0 0 30px 0 !important;
+
+    box-sizing: border-box;
+}
+
+
+/* ==========================================
+   MAIN DONATION CONTAINER
+========================================== */
+
+.container {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    min-width: 0 !important;
+
+    margin: 0 !important;
+
+    padding: 30px !important;
+
+    box-sizing: border-box;
+
+    overflow: hidden;
+}
+
+
+/* ==========================================
+   FORM
+========================================== */
+
+#donateForm {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    min-width: 0 !important;
+
+    margin: 0 !important;
+
+    box-sizing: border-box;
+}
+
+
+.form-grid {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    display: grid !important;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 20px;
+
+    margin: 0 !important;
+
+    box-sizing: border-box;
+}
+
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+
+/* ==========================================
+   AI FOOD ANALYSIS
+========================================== */
+
+.ai-analysis {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    min-width: 0 !important;
+
+    margin: 30px 0 !important;
+
+    padding: 30px !important;
+
+    box-sizing: border-box;
+
+    overflow: hidden;
+}
+
+
+.analysis-grid {
+    width: 100% !important;
+
+    display: grid !important;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 20px;
+
+    margin: 0 !important;
+
+    box-sizing: border-box;
+}
+
+
+.analysis-card {
+    width: 100% !important;
+    min-width: 0 !important;
+
+    margin: 0 !important;
+
+    box-sizing: border-box;
+}
+
+
+/* ==========================================
+   PICKUP LOCATION SECTION
+========================================== */
+
+.map-section {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    min-width: 0 !important;
+
+    margin: 30px 0 !important;
+
+    padding: 30px !important;
+
+    box-sizing: border-box;
+
+    overflow: hidden;
+}
+
+
+/* ==========================================
+   LOCATION SEARCH
+========================================== */
+
+.location-search {
+    width: 100% !important;
+
+    display: flex !important;
+
+    align-items: stretch;
+
+    margin: 20px 0 !important;
+
+    box-sizing: border-box;
+}
+
+
+.location-search input {
+    flex: 1 !important;
+
+    min-width: 0 !important;
+
+    width: auto !important;
+}
+
+
+.location-search button {
+    flex-shrink: 0;
+}
+
+
+/* ==========================================
+   MAP
+========================================== */
+
+#map {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    height: 400px !important;
+    border-radius: 15px !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    box-sizing: border-box;
+
+    overflow: hidden;
+}
+
+
+/* ==========================================
+   LATITUDE + LONGITUDE
+========================================== */
+
+.location-fields {
+    width: 100% !important;
+
+    display: grid !important;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr) !important;
+
+    gap: 16px !important;
+
+    margin-top: 16px !important;
+
+    box-sizing: border-box;
+}
+
+
+.coordinate-box {
+    width: 100% !important;
+    min-width: 0 !important;
+
+    height: 54px;
+
+    display: flex !important;
+
+    align-items: center;
+
+    padding: 0 16px;
+
+    box-sizing: border-box;
+
+    overflow: hidden;
+}
+
+
+.coordinate-box input {
+    flex: 1 !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+
+    margin: 0 !important;
+
+    box-sizing: border-box;
+}
+
+
+/* ==========================================
+   CURRENT LOCATION BUTTON
+========================================== */
+
+#currentLocationBtn {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    height: 54px;
+
+    margin: 16px 0 0 0 !important;
+
+    box-sizing: border-box;
+}
+
+
+/* ==========================================
+   DONATE BUTTON
+========================================== */
+
+#donateBtn {
+    width: 100% !important;
+    max-width: 100% !important;
+
+    box-sizing: border-box;
+}
+
+
+/* ==========================================
+   GREEN LATITUDE & LONGITUDE BOX DESIGN
+========================================== */
+
+.coordinate-box {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: 56px !important;
+
+    display: flex !important;
+    align-items: center !important;
+
+    padding: 0 18px !important;
+
+    background: #ffffff !important;
+
+    border: 2px solid #bfe9d1 !important;
+
+    border-radius: 12px !important;
+
+    box-shadow: 0 4px 12px rgba(31, 154, 82, 0.08) !important;
+
+    transition: all 0.3s ease;
+
+    box-sizing: border-box !important;
+}
+
+/* LOCATION ICON */
+
+.coordinate-box i {
+    color: #1f9a52 !important;
+
+    font-size: 17px !important;
+
+    margin-right: 10px !important;
+
+    flex-shrink: 0;
+}
+
+/* LATITUDE & LONGITUDE TEXT */
+
+.coordinate-box input {
+    flex: 1 !important;
+
+    width: 100% !important;
+    min-width: 0 !important;
+
+    height: 100% !important;
+
+    border: none !important;
+
+    outline: none !important;
+
+    background: transparent !important;
+
+    color: #23402f !important;
+
+    font-family: "Poppins", sans-serif !important;
+
+    font-size: 15px !important;
+
+    padding: 0 !important;
+
+    box-shadow: none !important;
+}
+
+/* PLACEHOLDER */
+
+.coordinate-box input::placeholder {
+    color: #6d7f73 !important;
+
+    opacity: 1;
+}
+
+/* GREEN HOVER EFFECT */
+
+.coordinate-box:hover {
+    border-color: #1f9a52 !important;
+
+    box-shadow: 0 6px 18px rgba(31, 154, 82, 0.12) !important;
+}
+
+/* ==========================================
+   SIDEBAR LOGO LAYOUT FIX
+   ========================================== */
+.sidebar .logo {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    gap: 10px !important;
+    margin-bottom: 30px !important;
+    padding: 0 !important;
+}
+
+.sidebar .logo img {
+    width: 70px !important;
+    height: 70px !important;
+    object-fit: contain !important;
+    margin: 0 !important;
+}
+
+.sidebar .logo-text {
+    text-align: center !important;
+}
+
+.sidebar .logo-text h2 {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    color: white !important;
+    margin: 0 !important;
+}
+
+.sidebar .logo-text p {
+    font-size: 12px !important;
+    color: #dcfce7 !important;
+    margin-top: 4px !important;
+    opacity: 0.9 !important;
+}
+
+/* ==========================================
+   SUBMIT BUTTON LAYOUT FIX
+   ========================================== */
+.submit-btn {
+    height: auto !important;
+    min-height: 55px !important;
+    padding: 12px 25px !important;
+    line-height: 1.4 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+}
+
+/* ==========================================
+   UNAUTHORIZED ACCESS SCREEN BUTTONS WRAP FIX
+   ========================================== */
+#unauthorizedSection div {
+    flex-wrap: wrap !important;
+}
+
+/* ==========================================
+   AI ASSISTANT HEADER OVERFLOW FIX
+   ========================================== */
+.ai-header {
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+}
+
+/* ==========================================
+   UNIFIED DASHBOARD HEADER STYLING & CONTAINER ALIGNMENT
+   ========================================== */
+.main-content header {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    text-align: left !important;
+    gap: 8px !important;
+    margin: 0 0 30px 0 !important;
+    width: 100% !important;
+}
+
+.main-content header h1 {
+    font-size: 32px !important;
+    font-weight: 700 !important;
+    color: #15803d !important;
+    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+}
+
+.main-content header p {
+    font-size: 15px !important;
+    color: #64748b !important;
+    margin: 0 !important;
+}
+
+/* Specific override for Volunteer Dashboard header to keep its side-by-side status box layout */
+#volunteerSection header {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 20px !important;
+}
+
+#volunteerSection header > div {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+}
+
+/* Remove double padding from nested section containers */
+.main-content .container {
+    padding: 0 !important;
+}
+
+/* ==========================================
+   TOPBAR RESPONSIVENESS OVERRIDES
+   ========================================== */
+.topbar {
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+}
+
+.search-box {
+    max-width: 420px !important;
+    width: 100% !important;
+}
+
+/* ==========================================
+   DESKTOP DEFAULT GUARDS (>= 769px)
+========================================== */
+@media (min-width: 769px) {
+    .mobile-menu-btn,
+    .mobile-sidebar-close,
+    .sidebar-overlay {
+        display: none !important;
+    }
+
+    .sidebar {
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 270px !important;
+        height: 100vh !important;
+        transform: none !important;
+        z-index: 1000 !important;
+    }
+
+    .main-content {
+        margin-left: 270px !important;
+        width: calc(100% - 270px) !important;
+    }
+}
+
+/* ==========================================
+   MOBILE & TABLET RESPONSIVE SYSTEM (<= 768px)
+   Specifically tested for 360px, 390px, 430px
+========================================== */
+@media (max-width: 768px) {
+    /* Base Body & Layout Overflow Fix - Full Mobile Vertical Scroll */
+    html,
+    body {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow-x: hidden !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-y !important;
+        position: relative !important;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .dashboard {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
+        height: auto !important;
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+        position: relative !important;
+    }
+
+    /* Off-Canvas Sliding Navigation Drawer */
+    .sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 285px !important;
+        max-width: 82vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        z-index: 99999 !important;
+        transform: translateX(-100%) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease !important;
+        overflow-y: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        box-shadow: none !important;
+        background: linear-gradient(180deg, #15803d 0%, #16a34a 50%, #22c55e 100%) !important;
+        padding: 25px 20px !important;
+        display: flex !important;
+        flex-direction: column !important;
+    }
+
+    .sidebar.mobile-open,
+    .sidebar.open {
+        transform: translateX(0) !important;
+        box-shadow: 12px 0 45px rgba(0, 0, 0, 0.35) !important;
+    }
+
+    /* Mobile Backdrop Blur Overlay */
+    .sidebar-overlay {
+        display: block !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        background: rgba(15, 23, 42, 0.6) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+        z-index: 99998 !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+        transition: opacity 0.3s ease, visibility 0.3s ease !important;
+    }
+
+    .sidebar-overlay.active {
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+
+    /* Hamburger Menu Toggle Button */
+    .mobile-menu-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 42px !important;
+        height: 42px !important;
+        min-width: 42px !important;
+        border-radius: 12px !important;
+        background: #ffffff !important;
+        border: 1.5px solid #d1fae5 !important;
+        color: #16a34a !important;
+        font-size: 18px !important;
+        cursor: pointer !important;
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.1) !important;
+        transition: all 0.2s ease !important;
+        flex-shrink: 0 !important;
+    }
+
+    .mobile-menu-btn:active {
+        transform: scale(0.94) !important;
+        background: #f0fdf4 !important;
+    }
+
+    /* Close Button Inside Mobile Sidebar Drawer */
+    .mobile-sidebar-close {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        position: absolute !important;
+        top: 18px !important;
+        right: 18px !important;
+        width: 36px !important;
+        height: 36px !important;
+        border-radius: 50% !important;
+        background: rgba(255, 255, 255, 0.22) !important;
+        color: #ffffff !important;
+        border: none !important;
+        font-size: 18px !important;
+        cursor: pointer !important;
+        transition: background 0.2s ease !important;
+        z-index: 10 !important;
+    }
+
+    .mobile-sidebar-close:active {
+        background: rgba(255, 255, 255, 0.45) !important;
+    }
+
+    /* Full Phone Width Main Content */
+    .main-content {
+        display: block !important;
+        margin-left: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        height: auto !important;
+        min-height: 100% !important;
+        padding: 14px 12px 40px 12px !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+        overflow-y: visible !important;
+        touch-action: pan-y !important;
+    }
+
+    .container {
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Mobile Topbar & Header Optimization */
+    .topbar {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        flex-wrap: wrap !important;
+        gap: 10px !important;
+        margin-bottom: 20px !important;
+        padding: 0 !important;
+        width: 100% !important;
+    }
+
+    .topbar-left {
+        display: flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+    }
+
+    .topbar-fact {
+        width: 100% !important;
+        max-width: 100% !important;
+        order: 3 !important;
+        font-size: 12.5px !important;
+        padding: 8px 12px !important;
+        margin-top: 4px !important;
+        box-sizing: border-box !important;
+        line-height: 1.35 !important;
+        border-radius: 10px !important;
+    }
+
+    .topbar-right {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        margin-left: auto !important;
+    }
+
+    /* Profile Button & Menu on Mobile */
+    .profile-button {
+        padding: 4px 8px !important;
+        gap: 6px !important;
+    }
+
+    .profile-button .profile-text {
+        display: none !important;
+    }
+
+    .profile-button img {
+        width: 34px !important;
+        height: 34px !important;
+    }
+
+    .profile-menu {
+        width: 260px !important;
+        max-width: calc(100vw - 24px) !important;
+        right: 0 !important;
+        top: calc(100% + 8px) !important;
+        z-index: 999999 !important;
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        opacity: 1 !important;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.22) !important;
+        border: 1px solid #cbd5e1 !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+
+    .profile-menu.active,
+    .profile-menu.show {
+        display: block !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: auto !important;
+    }
+
+    .notification-menu {
+        width: 300px !important;
+        max-width: calc(100vw - 24px) !important;
+        right: 0 !important;
+        top: calc(100% + 8px) !important;
+    }
+
+    /* Headers on Mobile */
+    .main-content header {
+        margin: 0 0 20px 0 !important;
+    }
+
+    .main-content header h1 {
+        font-size: 24px !important;
+        line-height: 1.25 !important;
+        word-break: break-word !important;
+        gap: 8px !important;
+    }
+
+    .main-content header p {
+        font-size: 13px !important;
+        line-height: 1.4 !important;
+    }
+
+    .welcome-text h1 {
+        font-size: 22px !important;
+    }
+
+    .welcome-text p {
+        font-size: 13px !important;
+    }
+
+    /* Welcome Date and Clock on Mobile */
+    .welcome-meta,
+    .current-date,
+    .live-clock {
+        font-size: 12.5px !important;
+        display: inline-block !important;
+        margin-right: 8px !important;
+    }
+
+    /* Counter Cards (2 Columns on Mobile) */
+    .dashboard-cards {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+        width: 100% !important;
+        margin-bottom: 20px !important;
+    }
+
+    .dashboard-cards .card,
+    .cards .card {
+        padding: 14px 10px !important;
+        border-radius: 14px !important;
+        min-width: 0 !important;
+    }
+
+    .card h2,
+    .card h2.counter {
+        font-size: 22px !important;
+    }
+
+    .card p {
+        font-size: 11.5px !important;
+    }
+
+    /* Rewards Section on Mobile */
+    #rewardsSection {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 16px 14px !important;
+        gap: 12px !important;
+        border-radius: 14px !important;
+    }
+
+    #rewardsSection > div {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+
+    /* Analytics Grid on Mobile */
+    .analytics {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+        width: 100% !important;
+    }
+
+    .analytics .chart-container,
+    .analytics .activity-container {
+        width: 100% !important;
+        min-width: 0 !important;
+        padding: 14px !important;
+        border-radius: 16px !important;
+    }
+
+    #donationChart {
+        max-height: 230px !important;
+        width: 100% !important;
+    }
+
+    /* Donate Form Grid on Mobile */
+    .form-grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+        width: 100% !important;
+    }
+
+    .input-group {
+        width: 100% !important;
+        margin-bottom: 14px !important;
+    }
+
+    .input-group input,
+    .input-group select,
+    .input-group textarea {
+        font-size: 14px !important;
+        height: 48px !important;
+        padding: 0 12px !important;
+        border-radius: 10px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+    }
+
+    textarea.input-group,
+    textarea {
+        height: auto !important;
+        min-height: 80px !important;
+        padding: 10px 12px !important;
+    }
+
+    /* Dynamic Food Rows on Mobile */
+    .food-input-row {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        width: 100% !important;
+        margin-bottom: 10px !important;
+    }
+
+    .food-input-row .input-icon:first-child {
+        flex: 1 1 100% !important;
+    }
+
+    .food-input-row .input-icon:nth-child(2) {
+        flex: 1 1 calc(100% - 54px) !important;
+    }
+
+    .food-input-row .remove-food-btn {
+        width: 44px !important;
+        height: 48px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .input-icon {
+        position: relative !important;
+        width: 100% !important;
+    }
+
+    .input-icon i {
+        position: absolute !important;
+        left: 14px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        font-size: 15px !important;
+        color: #16a34a !important;
+        pointer-events: none !important;
+    }
+
+    .input-icon input,
+    .input-icon select {
+        padding-left: 42px !important;
+    }
+
+    /* Date & Time Picker on Mobile */
+    .datetime-box {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+
+    .date-box,
+    .time-box {
+        width: 100% !important;
+        height: 48px !important;
+        padding: 0 12px !important;
+        box-sizing: border-box !important;
+    }
+
+    .period-select {
+        width: 100% !important;
+        height: 44px !important;
+    }
+
+    /* Food Image Upload & Preview */
+    #foodImage {
+        width: 100% !important;
+        padding: 8px !important;
+        font-size: 13px !important;
+        box-sizing: border-box !important;
+    }
+
+    #previewImage {
+        width: 100% !important;
+        max-width: 100% !important;
+        height: 180px !important;
+        max-height: 220px !important;
+        object-fit: cover !important;
+        border-radius: 12px !important;
+        margin-top: 10px !important;
+    }
+
+    /* AI Safety Analysis Results */
+    .ai-analysis {
+        width: 100% !important;
+        margin-top: 20px !important;
+        padding: 0 !important;
+    }
+
+    .ai-analysis h2 {
+        font-size: 18px !important;
+        margin-bottom: 12px !important;
+    }
+
+    .analysis-grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+        width: 100% !important;
+    }
+
+    .analysis-card {
+        padding: 14px !important;
+        border-radius: 12px !important;
+        min-height: auto !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    .analysis-card h3 {
+        font-size: 13px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .analysis-card h1 {
+        font-size: 22px !important;
+    }
+
+    .analysis-card p {
+        font-size: 12.5px !important;
+        line-height: 1.4 !important;
+    }
+
+    /* Pickup Location & Leaflet Map */
+    .map-section {
+        padding: 16px 12px !important;
+        border-radius: 16px !important;
+        width: 100% !important;
+        margin-top: 20px !important;
+        box-sizing: border-box !important;
+    }
+
+    .map-section h2 {
+        font-size: 18px !important;
+    }
+
+    .map-section p {
+        font-size: 12.5px !important;
+    }
+
+    .location-search {
+        display: flex !important;
+        flex-direction: row !important;
+        gap: 8px !important;
+        width: 100% !important;
+        margin-bottom: 12px !important;
+    }
+
+    .location-search input {
+        flex: 1 !important;
+        min-width: 0 !important;
+        height: 46px !important;
+        font-size: 13px !important;
+        padding-left: 36px !important;
+    }
+
+    .location-search button,
+    #searchLocationBtn {
+        height: 46px !important;
+        padding: 0 14px !important;
+        font-size: 13px !important;
+        white-space: nowrap !important;
+        flex-shrink: 0 !important;
+    }
+
+    #map {
+        width: 100% !important;
+        height: 250px !important;
+        min-height: 220px !important;
+        border-radius: 12px !important;
+        z-index: 5 !important;
+        margin-bottom: 12px !important;
+    }
+
+    /* Coordinates (Lat / Lng) */
+    .location-fields {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        width: 100% !important;
+    }
+
+    .coordinate-box {
+        width: 100% !important;
+        height: 48px !important;
+        padding: 0 14px !important;
+        border-radius: 10px !important;
+        box-sizing: border-box !important;
+    }
+
+    .coordinate-box i {
+        font-size: 15px !important;
+        margin-right: 8px !important;
+    }
+
+    .coordinate-box input {
+        font-size: 13px !important;
+    }
+
+    #currentLocationBtn {
+        width: 100% !important;
+        height: 48px !important;
+        font-size: 13.5px !important;
+        margin-top: 8px !important;
+    }
+
+    .submit-btn {
+        width: 100% !important;
+        height: 50px !important;
+        font-size: 16px !important;
+        margin-top: 16px !important;
+        border-radius: 12px !important;
+    }
+
+    /* Table Horizontal Scroll */
+    .table-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        border-radius: 12px !important;
+        margin-top: 10px !important;
+    }
+
+    .premium-table {
+        width: 100% !important;
+        min-width: 520px !important;
+        font-size: 12.5px !important;
+    }
+
+    .premium-table th,
+    .premium-table td {
+        padding: 10px 10px !important;
+        white-space: nowrap !important;
+    }
+
+    /* Donor, NGO, and Volunteer Grids */
+    #donorContainer,
+    #donationContainer,
+    #volunteerContainer {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 14px !important;
+        width: 100% !important;
+    }
+
+    .donation-card,
+    .ngo-card,
+    .volunteer-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 16px 14px !important;
+        border-radius: 16px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Volunteer Header Status Boxes */
+    .task-status-box,
+    .rating-status-box {
+        min-width: 0 !important;
+        flex: 1 !important;
+        padding: 12px 14px !important;
+    }
+
+    /* Modals Responsive */
+    .modal {
+        padding: 10px !important;
+        box-sizing: border-box !important;
+    }
+
+    .modal-content {
+        width: 95% !important;
+        max-width: 95vw !important;
+        padding: 20px 14px !important;
+        border-radius: 18px !important;
+        margin: 15px auto !important;
+        max-height: 88vh !important;
+        overflow-y: auto !important;
+        box-sizing: border-box !important;
+    }
+}

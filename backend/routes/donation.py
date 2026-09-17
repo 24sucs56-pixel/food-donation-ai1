@@ -4,6 +4,10 @@ from bson.objectid import ObjectId
 from datetime import datetime
 from routes.ai import check_food_freshness, get_priority
 from routes.matching_ai import recommend_ngo
+import sys, os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from auth_middleware import authorize_role
+
 donation = Blueprint("donation", __name__)
 
 
@@ -34,6 +38,10 @@ def get_volunteer_rating_by_name(volunteer_name):
 # ==========================
 @donation.route("/accept/<id>", methods=["PUT"])
 def accept_donation(id):
+    is_auth, auth_err = authorize_role(["ngo", "admin"])
+    if not is_auth:
+        return auth_err
+
     data = request.get_json(silent=True) or {}
     ngo_name = data.get("ngo") or request.args.get("ngo") or "Helping Hands NGO"
 
@@ -54,6 +62,9 @@ def accept_donation(id):
     })
 @donation.route("/donate", methods=["POST"])
 def donate():
+    is_auth, auth_err = authorize_role(["donor", "admin"])
+    if not is_auth:
+        return auth_err
 
     data = request.get_json()
 
@@ -64,8 +75,8 @@ def donate():
     storage = data.get("storage")
     expiry = data.get("expiry")
     address = data.get("address")
-    latitude = data.get("latitude")
-    longitude = data.get("longitude")
+    latitude = data.get("latitude") or data.get("donor_latitude")
+    longitude = data.get("longitude") or data.get("donor_longitude")
     donor_email = data.get("donor_email")
     
     # AI Food Analysis
@@ -107,14 +118,15 @@ def donate():
 
 }
 
-    donations.insert_one(donation_data)
+    res = donations.insert_one(donation_data)
 
     if donor_email:
         users.update_one({"email": donor_email}, {"$inc": {"points": 10}})
 
     return jsonify({
         "status": "success",
-        "message": "Food Donation Submitted Successfully"
+        "message": "Food Donation Submitted Successfully",
+        "donation_id": str(res.inserted_id)
     })
 @donation.route("/accepted-donations", methods=["GET"])
 def accepted_donations():
@@ -143,6 +155,10 @@ def accepted_donations():
 
 @donation.route("/pickup/<id>", methods=["PUT"])
 def pickup(id):
+    is_auth, auth_err = authorize_role(["volunteer", "admin"])
+    if not is_auth:
+        return auth_err
+
     data = request.get_json(silent=True) or {}
     volunteer_name = data.get("volunteer") or request.args.get("volunteer") or "Arun Kumar"
 
@@ -167,6 +183,10 @@ def pickup(id):
 
 @donation.route("/deliver/<id>", methods=["PUT"])
 def deliver(id):
+    is_auth, auth_err = authorize_role(["volunteer", "admin"])
+    if not is_auth:
+        return auth_err
+
     d = donations.find_one({"_id": ObjectId(id)})
     volunteer_name = d.get("volunteer") if d else None
 
@@ -187,6 +207,7 @@ def deliver(id):
         "status":"success",
         "message":"Food Delivered Successfully"
     })
+
 
 # ==========================
 # RATE VOLUNTEER

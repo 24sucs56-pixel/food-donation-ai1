@@ -11,3 +11,4 @@ pymongo==4.17.0
 python-dotenv==1.2.2
 Werkzeug==3.1.8
 gunicorn
+flask-cors

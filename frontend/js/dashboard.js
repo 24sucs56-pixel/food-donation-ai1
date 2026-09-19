@@ -43,7 +43,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 const userEmail = localStorage.getItem("email");
                 if (userEmail) {
                     try {
-                        const response = await fetch("http://127.0.0.1:5000/user/profile/image", {
+                        const response = await fetch("https://food-donation-ai1.onrender.com/user/profile/image", {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json"
@@ -322,7 +322,7 @@ if(chatUserName){
         ];
 
         try {
-            const response = await fetch("http://127.0.0.1:5000/allusers");
+            const response = await fetch("https://food-donation-ai1.onrender.com/allusers");
             if (response.ok) {
                 const users = await response.json();
                 const realVols = users.filter(u => u.role === "volunteer");
@@ -521,7 +521,7 @@ if(chatUserName){
         if (!userEmail) return;
 
         try {
-            const res = await fetch(`http://127.0.0.1:5000/user/profile?email=${encodeURIComponent(userEmail)}`);
+            const res = await fetch(`https://food-donation-ai1.onrender.com/user/profile?email=${encodeURIComponent(userEmail)}`);
             if (res.ok) {
                 const data = await res.json();
                 if (data.status === "success") {
@@ -681,7 +681,7 @@ if(chatUserName){
             }
 
             try {
-                const res = await fetch("http://127.0.0.1:5000/user/profile/update", {
+                const res = await fetch("https://food-donation-ai1.onrender.com/user/profile/update", {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
@@ -935,7 +935,7 @@ if(chatUserName){
             }
 
             try {
-                const response = await fetch("http://127.0.0.1:5000/user/change-password", {
+                const response = await fetch("https://food-donation-ai1.onrender.com/user/change-password", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
@@ -993,7 +993,7 @@ if(chatUserName){
     // ==========================================
     async function updateDashboardStats() {
         try {
-            const response = await fetch("http://127.0.0.1:5000/donations");
+            const response = await fetch("https://food-donation-ai1.onrender.com/donations");
             if (!response.ok) return;
             const result = await response.json();
             const allDonations = result.data || [];
@@ -1460,7 +1460,7 @@ if (themeBtn) {
 
 async function loadDonationData() {
     try {
-        const response = await fetch("http://127.0.0.1:5000/donations");
+        const response = await fetch("https://food-donation-ai1.onrender.com/donations");
         const result = await response.json();
 
         console.log("🔥 Donation Data:", result);
@@ -1560,7 +1560,7 @@ async function loadFullUserProfile() {
     // Fetch live user data from server API
     if (email) {
         try {
-            const res = await fetch(`http://127.0.0.1:5000/user/profile?email=${encodeURIComponent(email)}`);
+            const res = await fetch(`https://food-donation-ai1.onrender.com/user/profile?email=${encodeURIComponent(email)}`);
             if (res.ok) {
                 const data = await res.json();
                 if (data.status === "success") {
@@ -1621,7 +1621,7 @@ async function loadUserProfileAndRewards() {
     if (!userEmail) return;
     
     try {
-        const response = await fetch(`http://127.0.0.1:5000/user/profile?email=${encodeURIComponent(userEmail)}`);
+        const response = await fetch(`https://food-donation-ai1.onrender.com/user/profile?email=${encodeURIComponent(userEmail)}`);
         if (!response.ok) return;
         const data = await response.json();
         
@@ -1744,7 +1744,7 @@ window.adminUserDocuments = {};
 
 async function loadAdminUsersVerification() {
     try {
-        const response = await fetch("http://127.0.0.1:5000/admin/users");
+        const response = await fetch("https://food-donation-ai1.onrender.com/admin/users");
         const res = await response.json();
         
         if (res.status !== "success") {
@@ -1864,7 +1864,7 @@ window.verifyUserAdmin = async function(email, status) {
         return;
     }
     try {
-        const response = await fetch("http://127.0.0.1:5000/admin/users/verify", {
+        const response = await fetch("https://food-donation-ai1.onrender.com/admin/users/verify", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -2448,7 +2448,7 @@ window.loadNotifications = function(allDonations) {
     if (viewId) {
         setTimeout(async () => {
             try {
-                const response = await fetch("http://127.0.0.1:5000/donations");
+                const response = await fetch("https://food-donation-ai1.onrender.com/donations");
                 const result = await response.json();
                 const donations = result.data || [];
                 const donation = donations.find(d => d._id === viewId);
@@ -2491,7 +2491,7 @@ async function loadNgoAcceptedDonations() {
     const loggedInNgo = localStorage.getItem("name") || "Demo NGO Trust";
 
     try {
-        const response = await fetch("http://127.0.0.1:5000/donations");
+        const response = await fetch("https://food-donation-ai1.onrender.com/donations");
         if (response.ok) {
             const result = await response.json();
             const allDonations = result.data || [];

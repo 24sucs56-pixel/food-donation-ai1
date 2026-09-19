@@ -12,7 +12,7 @@ window.activeDonationTab = "all";
 // =======================================
 async function loadDashboard() {
     try {
-        const response = await fetch("http://127.0.0.1:5000/admin/dashboard");
+        const response = await fetch("https://food-donation-ai1.onrender.com/admin/dashboard");
         const data = await response.json();
         
         if (data.status !== "success") {
@@ -160,7 +160,7 @@ function renderDashboardRecentActivity(activities) {
 // =======================================
 async function loadUsersData() {
     try {
-        const response = await fetch("http://127.0.0.1:5000/admin/users");
+        const response = await fetch("https://food-donation-ai1.onrender.com/admin/users");
         const res = await response.json();
         
         if (res.status !== "success") {
@@ -457,7 +457,7 @@ function renderRoleVerifications() {
 // =======================================
 async function loadDonationManagement() {
     try {
-        const response = await fetch("http://127.0.0.1:5000/admin/donations");
+        const response = await fetch("https://food-donation-ai1.onrender.com/admin/donations");
         const res = await response.json();
         
         if (res.status !== "success") return;
@@ -566,7 +566,7 @@ window.confirmVerifyAction = function(email, targetStatus, userName, role) {
 async function executeVerifyUser(email, status) {
     try {
         const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
-        const response = await fetch("http://127.0.0.1:5000/admin/users/verify", {
+        const response = await fetch("https://food-donation-ai1.onrender.com/admin/users/verify", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -1180,7 +1180,7 @@ function initAdmin() {
             }
 
             try {
-                const res = await fetch("http://127.0.0.1:5000/user/change-password", {
+                const res = await fetch("https://food-donation-ai1.onrender.com/user/change-password", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, current_password: currentPassword, new_password: newPassword })
@@ -1242,7 +1242,7 @@ function initAdmin() {
         if (adminEmailEl) adminEmailEl.innerText = adminEmail;
 
         try {
-            const res = await fetch(`http://127.0.0.1:5000/user/profile?email=${encodeURIComponent(adminEmail)}`);
+            const res = await fetch(`https://food-donation-ai1.onrender.com/user/profile?email=${encodeURIComponent(adminEmail)}`);
             if (res.ok) {
                 const data = await res.json();
                 if (data.status === "success") {
@@ -1315,7 +1315,7 @@ function initAdmin() {
             };
 
             try {
-                const res = await fetch("http://127.0.0.1:5000/user/profile/update", {
+                const res = await fetch("https://food-donation-ai1.onrender.com/user/profile/update", {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
@@ -1368,7 +1368,7 @@ function initAdmin() {
                 localStorage.setItem("profile_image", base64Image);
                 const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
                 try {
-                    await fetch("http://127.0.0.1:5000/user/profile/image", {
+                    await fetch("https://food-donation-ai1.onrender.com/user/profile/image", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ email: adminEmail, profile_image: base64Image })

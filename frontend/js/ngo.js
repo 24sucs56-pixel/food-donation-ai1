@@ -60,7 +60,7 @@ function updateNgoTabButtons() {
 
 async function loadDonations() {
     try {
-        const response = await fetch("http://127.0.0.1:5000/donations");
+        const response = await fetch("https://food-donation-ai1.onrender.com/donations");
         const result = await response.json();
         const container = document.getElementById("donationContainer");
         if (!container) return;
@@ -265,7 +265,7 @@ async function loadDonations() {
 
 async function acceptDonation(id) {
     try {
-        const response = await fetch(`http://127.0.0.1:5000/accept/${id}`, {
+        const response = await fetch(`https://food-donation-ai1.onrender.com/accept/${id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"
@@ -288,7 +288,7 @@ async function acceptDonation(id) {
 async function submitVolunteerRating(donationId, role, ratingValue) {
     if (!confirm(`Rate the volunteer ${ratingValue} stars?`)) return;
     try {
-        const response = await fetch(`http://127.0.0.1:5000/rate-volunteer/${donationId}`, {
+        const response = await fetch(`https://food-donation-ai1.onrender.com/rate-volunteer/${donationId}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"

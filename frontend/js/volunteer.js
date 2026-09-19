@@ -65,7 +65,7 @@ function updateVolTabButtons() {
 
 async function loadVolunteerTasks() {
     try {
-        const response = await fetch("http://127.0.0.1:5000/accepted-donations");
+        const response = await fetch("https://food-donation-ai1.onrender.com/accepted-donations");
         const result = await response.json();
         
         const container = document.getElementById("volunteerContainer");
@@ -238,7 +238,7 @@ async function loadVolunteerTasks() {
 
 async function pickupFood(id) {
     try {
-        const response = await fetch(`http://127.0.0.1:5000/pickup/${id}`, {
+        const response = await fetch(`https://food-donation-ai1.onrender.com/pickup/${id}`, {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json"
@@ -263,7 +263,7 @@ async function pickupFood(id) {
 
 async function deliverFood(id) {
     try {
-        const response = await fetch(`http://127.0.0.1:5000/deliver/${id}`, {
+        const response = await fetch(`https://food-donation-ai1.onrender.com/deliver/${id}`, {
             method: "PUT"
         });
 
@@ -292,7 +292,7 @@ async function loadVolunteerRating() {
     
     try {
         const query = email ? `email=${encodeURIComponent(email)}` : `name=${encodeURIComponent(volunteerName)}`;
-        const response = await fetch(`http://127.0.0.1:5000/volunteer/reviews?${query}`);
+        const response = await fetch(`https://food-donation-ai1.onrender.com/volunteer/reviews?${query}`);
         const data = await response.json();
         
         if (response.ok && data.status === "success") {
@@ -333,7 +333,7 @@ async function openVolunteerReviewsModal() {
     
     try {
         const query = email ? `email=${encodeURIComponent(email)}` : `name=${encodeURIComponent(volunteerName)}`;
-        const response = await fetch(`http://127.0.0.1:5000/volunteer/reviews?${query}`);
+        const response = await fetch(`https://food-donation-ai1.onrender.com/volunteer/reviews?${query}`);
         const data = await response.json();
         
         if (response.ok && data.status === "success") {

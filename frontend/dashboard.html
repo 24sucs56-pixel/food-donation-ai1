@@ -254,7 +254,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
                                 window.loadNotifications(window.globalDonations);
                             }
                         } else {
-                            fetch("http://127.0.0.1:5000/donations")
+                            fetch("https://food-donation-ai1.onrender.com/donations")
                                 .then(res => res.json())
                                 .then(result => {
                                     const donations = result.data || [];

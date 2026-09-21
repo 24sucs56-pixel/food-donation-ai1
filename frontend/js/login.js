@@ -54,55 +54,6 @@ if (loginForm) {
     });
 }
 
-// ==========================================
-// GOOGLE ACCOUNT SELECTOR FLOW
-// ==========================================
-const googleBtn = document.querySelector(".google-button");
-const googleModal = document.getElementById("googleModal");
-const closeGoogleModal = document.getElementById("closeGoogleModal");
-const googleAccountItems = document.querySelectorAll(".google-account-item");
-
-if (googleBtn && googleModal) {
-    googleBtn.addEventListener("click", () => {
-        googleModal.style.display = "flex";
-    });
-}
-
-if (closeGoogleModal && googleModal) {
-    closeGoogleModal.addEventListener("click", () => {
-        googleModal.style.display = "none";
-    });
-}
-
-// Close modal when clicking outside modal content
-window.addEventListener("click", (e) => {
-    if (e.target === googleModal) {
-        googleModal.style.display = "none";
-    }
-});
-
-// Bind login logic on account selection
-googleAccountItems.forEach(item => {
-    item.addEventListener("click", () => {
-        const email = item.getAttribute("data-email");
-        const name = item.getAttribute("data-name");
-        const role = item.getAttribute("data-role");
-
-        if (email && name && role) {
-            localStorage.setItem("name", name);
-            localStorage.setItem("role", role);
-            localStorage.setItem("email", email);
-
-            googleModal.style.display = "none";
-            alert("Welcome " + name + " (Logged in via Google)");
-            if (role === "admin") {
-                window.location.href = "admin.html";
-            } else {
-                window.location.href = "dashboard.html";
-            }
-        }
-    });
-});
 
 // ==========================================
 // TOGGLE PASSWORD VISIBILITY

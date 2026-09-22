@@ -1256,33 +1256,118 @@ Donate Food
     <div class="container">
         <header style="margin-bottom: 35px;">
             <h1 style="color: #15803d; font-size: 38px;"><i class="fa-solid fa-sliders"></i> Settings</h1>
-            <p style="color: #666; font-size: 17px; margin-top: 10px;">Manage account preferences, email notifications, and interface controls.</p>
+            <p style="color: #666; font-size: 17px; margin-top: 10px;">Manage account preferences, email notifications, sound alerts, security, and platform options.</p>
         </header>
 
-        <div class="premium-card" style="max-width: 700px; margin: 0 auto;">
-            <h3 style="color: #15803d; font-size: 20px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
-                <i class="fa-solid fa-toggle-on"></i> Interface Options & Preferences
-            </h3>
-            <div style="display: flex; flex-direction: column; gap: 20px;">
-                <div class="switch-container" style="display: flex; justify-content: space-between; align-items: center;">
-                    <div class="switch-label-group">
-                        <h4 style="margin: 0; font-size: 15px; font-weight: 600;">Email Notifications</h4>
-                        <p style="margin: 3px 0 0 0; font-size: 12px; color: #64748b;">Receive summary reports and donation updates</p>
+        <div style="max-width: 750px; margin: 0 auto; display: flex; flex-direction: column; gap: 25px;">
+            <!-- Interface Options & Preferences Card -->
+            <div class="premium-card">
+                <h3 style="color: #15803d; font-size: 20px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-toggle-on"></i> Interface Options & Preferences
+                </h3>
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="switch-container" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="switch-label-group">
+                            <h4 style="margin: 0; font-size: 15px; font-weight: 600;">Email Notifications</h4>
+                            <p style="margin: 3px 0 0 0; font-size: 12px; color: #64748b;">Receive summary reports and donation updates</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
                     </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
+                    <div class="switch-container" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="switch-label-group">
+                            <h4 style="margin: 0; font-size: 15px; font-weight: 600;">Location Sharing</h4>
+                            <p style="margin: 3px 0 0 0; font-size: 12px; color: #64748b;">Share live location for nearby donation matching</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="switch-container" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="switch-label-group">
+                            <h4 style="margin: 0; font-size: 15px; font-weight: 600;">Sound Alerts</h4>
+                            <p style="margin: 3px 0 0 0; font-size: 12px; color: #64748b;">Play notification chime for new activities</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="switch-container" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="switch-label-group">
+                            <h4 style="margin: 0; font-size: 15px; font-weight: 600;">System Sound Engine</h4>
+                            <p style="margin: 3px 0 0 0; font-size: 12px; color: #64748b;">Enable audio text-to-speech for AI Assistant</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
                 </div>
-                <div class="switch-container" style="display: flex; justify-content: space-between; align-items: center;">
-                    <div class="switch-label-group">
-                        <h4 style="margin: 0; font-size: 15px; font-weight: 600;">Location Sharing</h4>
-                        <p style="margin: 3px 0 0 0; font-size: 12px; color: #64748b;">Share live location for nearby donation matching</p>
+            </div>
+
+            <!-- Security & Access Card -->
+            <div class="premium-card">
+                <h3 style="color: #15803d; font-size: 20px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-shield-halved"></i> Security & Access
+                </h3>
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="switch-container" style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="switch-label-group">
+                            <h4 style="margin: 0; font-size: 15px; font-weight: 600;">Two-Factor Authentication</h4>
+                            <p style="margin: 3px 0 0 0; font-size: 12px; color: #64748b;">Secure your account with 2FA verification codes</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
                     </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" checked>
-                        <span class="toggle-slider"></span>
-                    </label>
+                    <div>
+                        <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 5px; font-weight: 500;">Profile Visibility</label>
+                        <select style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 15px; color: var(--text); outline: none;">
+                            <option value="Public">Public (Visible to NGOs & Volunteers)</option>
+                            <option value="Anonymous">Anonymous (Hide my name & details)</option>
+                            <option value="Restricted">Restricted (Only verified partners)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Platform Preferences Card -->
+            <div class="premium-card">
+                <h3 style="color: #15803d; font-size: 20px; font-weight: 600; margin-bottom: 20px; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-gears"></i> Platform Preferences
+                </h3>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <div>
+                        <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 5px; font-weight: 500;">Default Language</label>
+                        <select style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 15px; color: var(--text); outline: none;">
+                            <option value="en">English (US)</option>
+                            <option value="ta">Tamil (தமிழ்)</option>
+                            <option value="hi">Hindi (हिन्दी)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 5px; font-weight: 500;">Donation Matching Preference</label>
+                        <select style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 15px; color: var(--text); outline: none;">
+                            <option value="all">Match All Food Items</option>
+                            <option value="veg">Vegetarian Target Focus</option>
+                            <option value="nonveg">Non-Vegetarian Target Focus</option>
+                        </select>
+                    </div>
+                    <div class="switch-container" style="display: flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                        <div class="switch-label-group">
+                            <h4 style="margin: 0; font-size: 15px; font-weight: 600;">Auto-NGO Matching</h4>
+                            <p style="margin: 3px 0 0 0; font-size: 12px; color: #64748b;">Instantly claim matches using AI distance calculations</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1426,110 +1511,6 @@ Donate Food
                     <div>
                         <span style="display: block; font-size: 11px; color: var(--text-light); text-transform: uppercase; margin-bottom: 2px;">Verification Status</span>
                         <span id="settingsStatus" style="font-size: 13px; font-weight: bold; color: #16a34a;">Approved</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-            <!-- Preference settings Card -->
-            <div class="premium-card">
-                <h3 style="color: #15803d; font-size: 20px; font-weight: 600; margin-bottom: 5px; display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-toggle-on"></i> Interface Options
-                </h3>
-                <div style="display: flex; flex-direction: column; gap: 20px;">
-                    <div class="switch-container">
-                        <div class="switch-label-group">
-                            <h4>Email Notifications</h4>
-                            <p>Receive summary reports and donation updates</p>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" checked>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div class="switch-container">
-                        <div class="switch-label-group">
-                            <h4>Sound alerts</h4>
-                            <p>Play notification chime for new activities</p>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" checked>
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div class="switch-container">
-                        <div class="switch-label-group">
-                            <h4>System Sound Engine</h4>
-                            <p>Enable audio text-to-speech for AI Assistant</p>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Security Settings Card -->
-            <div class="premium-card">
-                <h3 style="color: #15803d; font-size: 20px; font-weight: 600; margin-bottom: 5px; display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-shield-halved"></i> Security & Access
-                </h3>
-                <div style="display: flex; flex-direction: column; gap: 20px;">
-                    <div class="switch-container">
-                        <div class="switch-label-group">
-                            <h4>Two-Factor Authentication</h4>
-                            <p>Secure your account with 2FA verification codes</p>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox">
-                            <span class="toggle-slider"></span>
-                        </label>
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 5px; font-weight: 500;">Profile Visibility</label>
-                        <select style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 15px; color: var(--text); outline: none;">
-                            <option value="Public">Public (Visible to NGOs & Volunteers)</option>
-                            <option value="Anonymous">Anonymous (Hide my name & details)</option>
-                            <option value="Restricted">Restricted (Only verified partners)</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Donation Preferences Card -->
-            <div class="premium-card">
-                <h3 style="color: #15803d; font-size: 20px; font-weight: 600; margin-bottom: 5px; display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid fa-gears"></i> Platform Preferences
-                </h3>
-                <div style="display: flex; flex-direction: column; gap: 15px;">
-                    <div>
-                        <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 5px; font-weight: 500;">Default Language</label>
-                        <select style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 15px; color: var(--text); outline: none;">
-                            <option value="en">English (US)</option>
-                            <option value="ta">Tamil (தமிழ்)</option>
-                            <option value="hi">Hindi (हिन्दी)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="display: block; font-size: 13px; color: var(--text-light); margin-bottom: 5px; font-weight: 500;">Donation Matching Preference</label>
-                        <select style="width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--bg); font-family: inherit; font-size: 15px; color: var(--text); outline: none;">
-                            <option value="all">Match All Food Items</option>
-                            <option value="veg">Vegetarian Target Focus</option>
-                            <option value="nonveg">Non-Vegetarian Target Focus</option>
-                        </select>
-                    </div>
-                    <div class="switch-container" style="margin-top: 5px;">
-                        <div class="switch-label-group">
-                            <h4>Auto-NGO Matching</h4>
-                            <p>Instantly claim matches using AI distance calculations</p>
-                        </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" checked>
-                            <span class="toggle-slider"></span>
-                        </label>
                     </div>
                 </div>
             </div>

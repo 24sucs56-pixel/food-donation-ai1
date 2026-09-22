@@ -110,6 +110,8 @@ def donate():
     "status": "Waiting",
     "ngo": "",
     "volunteer": "",
+    "requested_volunteer": "",
+    "volunteer_status": None,
 
     "created_at": datetime.now().strftime("%d-%m-%Y %I:%M %p"),
     "accepted_at": "",
@@ -153,6 +155,75 @@ def accepted_donations():
         "data": accepted
     })
 
+
+# ==========================
+# VOLUNTEER REQUEST PICKUP
+# ==========================
+@donation.route("/volunteer/request-pickup/<id>", methods=["PUT"])
+def request_pickup(id):
+    is_auth, auth_err = authorize_role(["volunteer", "admin"])
+    if not is_auth:
+        return auth_err
+
+    data = request.get_json(silent=True) or {}
+    volunteer_name = data.get("volunteer") or request.args.get("volunteer") or "Demo Volunteer"
+
+    d = donations.find_one({"_id": ObjectId(id)})
+    if not d:
+        return jsonify({"status": "error", "message": "Donation not found"}), 404
+
+    if d.get("status") != "Accepted":
+        return jsonify({"status": "error", "message": "Donation is not in Accepted status"}), 400
+
+    donations.update_one(
+        {"_id": ObjectId(id)},
+        {
+            "$set": {
+                "requested_volunteer": volunteer_name,
+                "volunteer_status": "Requested"
+            }
+        }
+    )
+
+    return jsonify({
+        "status": "success",
+        "message": "Pickup requested. Waiting for NGO approval."
+    })
+
+
+# ==========================
+# NGO APPROVE VOLUNTEER
+# ==========================
+@donation.route("/ngo/approve-volunteer/<id>", methods=["PUT"])
+def approve_volunteer(id):
+    is_auth, auth_err = authorize_role(["ngo", "admin"])
+    if not is_auth:
+        return auth_err
+
+    d = donations.find_one({"_id": ObjectId(id)})
+    if not d:
+        return jsonify({"status": "error", "message": "Donation not found"}), 404
+
+    requested_volunteer = d.get("requested_volunteer")
+    if not requested_volunteer or d.get("volunteer_status") != "Requested":
+        return jsonify({"status": "error", "message": "No pending volunteer request for this donation"}), 400
+
+    donations.update_one(
+        {"_id": ObjectId(id)},
+        {
+            "$set": {
+                "volunteer": requested_volunteer,
+                "volunteer_status": "Approved"
+            }
+        }
+    )
+
+    return jsonify({
+        "status": "success",
+        "message": f"Volunteer {requested_volunteer} approved for pickup"
+    })
+
+
 @donation.route("/pickup/<id>", methods=["PUT"])
 def pickup(id):
     is_auth, auth_err = authorize_role(["volunteer", "admin"])
@@ -160,23 +231,34 @@ def pickup(id):
         return auth_err
 
     data = request.get_json(silent=True) or {}
-    volunteer_name = data.get("volunteer") or request.args.get("volunteer") or "Arun Kumar"
+    volunteer_name = data.get("volunteer") or request.args.get("volunteer") or "Demo Volunteer"
+
+    d = donations.find_one({"_id": ObjectId(id)})
+    if not d:
+        return jsonify({"status": "error", "message": "Donation not found"}), 404
+
+    vol_status = d.get("volunteer_status")
+    if vol_status and vol_status != "Approved":
+        return jsonify({"status": "error", "message": "Pickup is not approved by NGO yet"}), 400
 
     donations.update_one(
         {"_id": ObjectId(id)},
         {
-            "$set":{
-                "status":"Picked",
-                "volunteer":volunteer_name,
-                "picked_at":datetime.now().strftime("%d-%m-%Y %I:%M %p")
+            "$set": {
+                "status": "Picked",
+                "volunteer": volunteer_name,
+                "volunteer_status": "Picked",
+                "picked_at": datetime.now().strftime("%d-%m-%Y %I:%M %p")
             }
         }
     )
 
     return jsonify({
-        "status":"success",
-        "message":"Food Picked Successfully"
+        "status": "success",
+        "message": "Food Picked Successfully"
     })
+
+
 # ==========================
 # DELIVER FOOD
 # ==========================
@@ -188,14 +270,18 @@ def deliver(id):
         return auth_err
 
     d = donations.find_one({"_id": ObjectId(id)})
-    volunteer_name = d.get("volunteer") if d else None
+    if not d:
+        return jsonify({"status": "error", "message": "Donation not found"}), 404
+
+    volunteer_name = d.get("volunteer")
 
     donations.update_one(
         {"_id": ObjectId(id)},
         {
-            "$set":{
-                "status":"Delivered",
-                "delivered_at":datetime.now().strftime("%d-%m-%Y %I:%M %p")
+            "$set": {
+                "status": "Delivered",
+                "volunteer_status": "Delivered",
+                "delivered_at": datetime.now().strftime("%d-%m-%Y %I:%M %p")
             }
         }
     )
@@ -204,8 +290,8 @@ def deliver(id):
         users.update_one({"name": volunteer_name}, {"$inc": {"points": 15}})
 
     return jsonify({
-        "status":"success",
-        "message":"Food Delivered Successfully"
+        "status": "success",
+        "message": "Food Delivered Successfully"
     })
 
 

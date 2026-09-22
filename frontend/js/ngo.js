@@ -135,11 +135,35 @@ async function loadDonations() {
                     }
                 }
 
+                let volunteerReqHtml = "";
+                if (donation.volunteer_status === "Requested" && donation.requested_volunteer) {
+                    volunteerReqHtml = `
+                        <div style="margin-top: 10px; padding: 12px; background: rgba(234, 179, 8, 0.08); border: 1px solid #eab308; border-radius: 8px;">
+                            <div style="font-size: 13px; font-weight: 600; color: #854d0e; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+                                <span><i class="fa-solid fa-hand-raising"></i> Volunteer Pickup Request</span>
+                                <span class="card-badge" style="background: #eab308; color: white;">Requested</span>
+                            </div>
+                            <p style="font-size: 13px; color: #713f12; margin-bottom: 8px;">
+                                <b>${donation.requested_volunteer}</b> requested to pick up this food donation.
+                            </p>
+                            <button onclick="approveVolunteer('${donation._id}')" class="accept-btn" style="width: 100%; font-size: 13px; padding: 8px; background: #16a34a; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                                <i class="fa-solid fa-user-check"></i> Accept Volunteer
+                            </button>
+                        </div>
+                    `;
+                } else if (donation.volunteer_status === "Approved") {
+                    volunteerReqHtml = `
+                        <div style="margin-top: 10px; padding: 10px; background: rgba(22, 163, 74, 0.08); border: 1px solid #16a34a; border-radius: 8px; color: #15803d; font-size: 13px; font-weight: 600;">
+                            <i class="fa-solid fa-circle-check"></i> Volunteer Approved: ${donation.volunteer}
+                        </div>
+                    `;
+                }
+
                 actionHtml = `
                     <div style="background: var(--bg); padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px solid var(--border);">
                         <h4 style="color: #15803d; font-size: 14px; margin-bottom: 8px;">Claim Details</h4>
                         <p style="font-size: 13px; color: var(--text-light); margin-bottom: 4px;">
-                            <b>Volunteer:</b> ${donation.volunteer ? `${donation.volunteer} ${donation.volunteer_rating ? `(${donation.volunteer_rating} ★)` : '(No ratings yet)'}` : "<i>Waiting for assignment</i>"}
+                            <b>Volunteer:</b> ${donation.volunteer ? `${donation.volunteer} ${donation.volunteer_rating ? `(${donation.volunteer_rating} ★)` : '(No ratings yet)'}` : (donation.requested_volunteer ? `${donation.requested_volunteer} (Pending Approval)` : "<i>Waiting for assignment</i>")}
                         </p>
                         <p style="font-size: 13px; color: var(--text-light); margin-bottom: 4px;">
                             <b>Accepted At:</b> ${donation.accepted_at || "-"}
@@ -150,6 +174,7 @@ async function loadDonations() {
                         <p style="font-size: 13px; color: var(--text-light); margin-bottom: 8px;">
                             <b>Delivered At:</b> ${donation.delivered_at || "-"}
                         </p>
+                        ${volunteerReqHtml}
                         ${ratingHtml}
                     </div>
                 `;
@@ -284,6 +309,28 @@ async function acceptDonation(id) {
         alert("Cannot connect to backend.");
     }
 }
+window.acceptDonation = acceptDonation;
+
+async function approveVolunteer(id) {
+    try {
+        const response = await fetch(`https://food-donation-ai1.onrender.com/ngo/approve-volunteer/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+
+        const data = await response.json();
+        alert(data.message);
+
+        loadDonations();
+        if (window.updateDashboardStats) window.updateDashboardStats();
+    } catch (error) {
+        console.log(error);
+        alert("Cannot connect to backend.");
+    }
+}
+window.approveVolunteer = approveVolunteer;
 
 async function submitVolunteerRating(donationId, role, ratingValue) {
     if (!confirm(`Rate the volunteer ${ratingValue} stars?`)) return;

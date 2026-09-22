@@ -110,11 +110,38 @@ async function loadVolunteerTasks() {
         filtered.forEach(donation => {
             let actionButtonHtml = "";
             if (donation.status === "Accepted") {
-                actionButtonHtml = `
-                    <button class="pick-btn" style="width: 100%; margin-top: 15px;" onclick="pickupFood('${donation._id}')">
-                        Pick Up Food
-                    </button>
-                `;
+                const vStatus = donation.volunteer_status;
+                const reqVol = donation.requested_volunteer;
+                const assignedVol = donation.volunteer;
+
+                if (vStatus === "Requested" && reqVol === loggedInVolunteerName) {
+                    actionButtonHtml = `
+                        <div style="background: rgba(234, 179, 8, 0.1); border: 1px solid #eab308; padding: 12px; border-radius: 12px; text-align: center; color: #ca8a04; font-weight: 600; margin-top: 15px;">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Waiting for NGO Approval
+                        </div>
+                    `;
+                } else if (vStatus === "Requested" && reqVol !== loggedInVolunteerName) {
+                    actionButtonHtml = `
+                        <div style="background: rgba(100, 116, 139, 0.1); border: 1px solid #64748b; padding: 12px; border-radius: 12px; text-align: center; color: #475569; font-weight: 500; margin-top: 15px;">
+                            <i class="fa-solid fa-user-clock"></i> Requested by ${reqVol || 'another volunteer'}
+                        </div>
+                    `;
+                } else if (vStatus === "Approved") {
+                    actionButtonHtml = `
+                        <div style="background: rgba(22, 163, 74, 0.1); border: 1px solid #16a34a; padding: 10px; border-radius: 10px; text-align: center; color: #15803d; font-weight: 600; margin-top: 15px; margin-bottom: 8px;">
+                            <i class="fa-solid fa-circle-check"></i> Pickup Approved
+                        </div>
+                        <button class="pick-btn" style="width: 100%;" onclick="pickupFood('${donation._id}')">
+                            Pick Up Food
+                        </button>
+                    `;
+                } else {
+                    actionButtonHtml = `
+                        <button class="pick-btn" style="width: 100%; margin-top: 15px;" onclick="requestPickup('${donation._id}')">
+                            Request Pickup
+                        </button>
+                    `;
+                }
             } else if (donation.status === "Picked") {
                 actionButtonHtml = `
                     <button class="deliver-btn" style="width: 100%; margin-top: 15px;" onclick="deliverFood('${donation._id}')">
@@ -233,8 +260,30 @@ async function loadVolunteerTasks() {
 })();
 
 // ======================================
-// Pickup
+// Volunteer Actions
 // ======================================
+
+async function requestPickup(id) {
+    try {
+        const response = await fetch(`https://food-donation-ai1.onrender.com/volunteer/request-pickup/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ volunteer: loggedInVolunteerName })
+        });
+
+        const data = await response.json();
+        alert(data.message);
+
+        loadVolunteerTasks();
+        if (window.updateDashboardStats) window.updateDashboardStats();
+    } catch (error) {
+        console.log(error);
+        alert("Cannot connect to backend.");
+    }
+}
+window.requestPickup = requestPickup;
 
 async function pickupFood(id) {
     try {
@@ -256,6 +305,7 @@ async function pickupFood(id) {
         alert("Cannot connect to backend.");
     }
 }
+window.pickupFood = pickupFood;
 
 // ======================================
 // Deliver
@@ -278,6 +328,7 @@ async function deliverFood(id) {
         alert("Cannot connect to backend.");
     }
 }
+window.deliverFood = deliverFood;
 
 // ======================================
 // Volunteer Reviews & Ratings Logic

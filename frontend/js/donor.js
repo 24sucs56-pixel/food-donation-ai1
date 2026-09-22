@@ -139,7 +139,7 @@ async function loadDonorDonations(){
                         </div>
                         <div class="detail-row">
                             <i class="fa-solid fa-user-nurse"></i>
-                            <span><b>Volunteer:</b> ${donation.volunteer ? `${donation.volunteer} ${donation.volunteer_rating ? `(${donation.volunteer_rating} ★)` : '(No ratings yet)'}` : "<i>Waiting for assignment</i>"}</span>
+                            <span><b>Volunteer:</b> ${donation.volunteer ? `${donation.volunteer} ${donation.volunteer_rating ? `(${donation.volunteer_rating} ★)` : '(No ratings yet)'}` : (donation.requested_volunteer ? `${donation.requested_volunteer} (Pending NGO Approval)` : "<i>Waiting for assignment</i>")}</span>
                         </div>
                         <div class="detail-row">
                             <i class="fa-solid fa-robot"></i>

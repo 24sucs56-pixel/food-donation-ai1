@@ -2,18 +2,34 @@ from flask import Blueprint, request, jsonify
 from database import users, donations
 import bcrypt
 from datetime import datetime
+import os
+import uuid
+from werkzeug.utils import secure_filename
 
 auth = Blueprint("auth", __name__)
 
+ALLOWED_EXTENSIONS = {'pdf', 'jpg', 'jpeg', 'png'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @auth.route("/register", methods=["POST"])
 def register():
-
-    data = request.get_json()
+    # Support multipart/form-data, application/x-www-form-urlencoded, and JSON payloads
+    if request.content_type and "multipart/form-data" in request.content_type:
+        data = request.form
+        uploaded_file = request.files.get("document") or request.files.get("document_file") or request.files.get("file")
+    elif request.is_json:
+        data = request.get_json(silent=True) or {}
+        uploaded_file = None
+    else:
+        data = request.form if request.form else (request.get_json(silent=True) or {})
+        uploaded_file = request.files.get("document") or request.files.get("document_file") or request.files.get("file") if request.files else None
 
     name = data.get("name")
     email = data.get("email")
     password = data.get("password")
-    role = data.get("role")
+    role = (data.get("role") or "").lower().strip()
     
     phone = data.get("phone")
     state = data.get("state")
@@ -26,7 +42,13 @@ def register():
     ngo_name = data.get("ngo_name")
     registration_number = data.get("registration_number")
     donor_type = data.get("donor_type")
-    document_image = data.get("document_image")
+    document_image = data.get("document_image") # base64 fallback if provided
+
+    if not email or not password or not role or not name:
+        return jsonify({
+            "status": "error",
+            "message": "Name, email, password, and role are required."
+        }), 400
 
     # Check existing user
     if users.find_one({"email": email}):
@@ -35,15 +57,68 @@ def register():
             "message": "Email already exists"
         }), 400
 
+    # Document upload validation for Donor, NGO, Volunteer
+    document_type = None
+    document_filename = None
+    document_path = None
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    if role in ["donor", "ngo", "volunteer"]:
+        if role == "donor":
+            document_type = "Food Certificate"
+        elif role == "ngo":
+            document_type = "NGO Certificate"
+        elif role == "volunteer":
+            document_type = "Aadhaar / Vehicle License"
+
+        if uploaded_file and uploaded_file.filename:
+            if not allowed_file(uploaded_file.filename):
+                return jsonify({
+                    "status": "error",
+                    "message": "Invalid file format. Allowed formats: PDF, JPG, JPEG, PNG."
+                }), 400
+
+            # Validate file size (10 MB limit)
+            uploaded_file.seek(0, os.SEEK_END)
+            file_length = uploaded_file.tell()
+            uploaded_file.seek(0)
+            if file_length > 10 * 1024 * 1024:
+                return jsonify({
+                    "status": "error",
+                    "message": "File size exceeds the 10 MB limit."
+                }), 400
+
+            original_name = secure_filename(uploaded_file.filename) or f"{role}_doc"
+            ext = original_name.rsplit('.', 1)[1].lower() if '.' in original_name else "pdf"
+            unique_filename = f"{role}_{uuid.uuid4().hex[:8]}_{original_name}"
+            
+            upload_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'uploads', 'documents'))
+            os.makedirs(upload_dir, exist_ok=True)
+            saved_path = os.path.join(upload_dir, unique_filename)
+            uploaded_file.save(saved_path)
+
+            document_filename = uploaded_file.filename
+            document_path = f"uploads/documents/{unique_filename}"
+        elif document_image:
+            # Fallback if base64 document image was uploaded
+            document_filename = f"{role}_document.png"
+            document_path = document_image
+        else:
+            return jsonify({
+                "status": "error",
+                "message": f"Verification document is required for {role.upper()} registration."
+            }), 400
+
     # Encrypt password
     hashed_password = bcrypt.hashpw(
         password.encode("utf-8"),
         bcrypt.gensalt()
     )
 
-    # Initial status
-    status = "Approved" if role == "admin" else "Pending Approval"
-    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # Initial verification status
+    is_admin = (role == "admin")
+    verification_status = "Approved" if is_admin else "Pending"
+    status = verification_status
 
     user = {
         "name": name,
@@ -57,48 +132,48 @@ def register():
         "pincode": pincode,
         "address": address,
         "status": status,
+        "verification_status": verification_status,
         "email_verified": True,
-        "admin_approved": status == "Approved",
-        "account_status": "active" if status == "Approved" else "pending",
+        "admin_approved": is_admin,
+        "account_status": "active" if is_admin else "pending",
         "created_at": now_str,
         "registration_date": now_str,
         "points": 0
     }
 
+    if document_type:
+        user["document_type"] = document_type
+        user["document_filename"] = document_filename
+        user["document_path"] = document_path
+        user["document_uploaded_at"] = now_str
+        user["document_image"] = document_path
+
     if role == "volunteer":
         user["vehicle"] = vehicle
-        user["document_image"] = document_image
     elif role == "ngo":
         user["ngo_name"] = ngo_name
         user["registration_number"] = registration_number
-        user["document_image"] = document_image
     elif role == "donor":
         user["donor_type"] = donor_type
-        user["document_image"] = document_image
 
     users.insert_one(user)
 
     return jsonify({
         "status": "success",
-        "message": "Registration Successful! Your account is pending admin verification." if status == "Pending Approval" else "Registration Successful!"
+        "message": "Registration submitted successfully. Your account is pending Admin verification." if not is_admin else "Registration Successful!"
     })
 
 @auth.route("/login", methods=["POST"])
 def login():
 
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
 
     email = data.get("email")
     password = data.get("password")
 
-    # ===== Debug Prints =====
-    print("Received Data:", data)
-    print("Email:", email)
-    print("Password:", password)
+    print("Login attempt for:", email)
 
     user = users.find_one({"email": email})
-
-    print("User:", user)
 
     if not user:
         return jsonify({
@@ -115,18 +190,20 @@ def login():
             "message": "Incorrect password"
         }), 401
 
-    # Check verification status for security
-    user_status = user.get("status", "Approved")
-    if user_status == "Pending Approval":
-        return jsonify({
-            "status": "error",
-            "message": "Your account is pending verification by admin."
-        }), 403
-    elif user_status == "Rejected":
-        return jsonify({
-            "status": "error",
-            "message": "you cant acces this anymore because of the admin choice"
-        }), 403
+    # Role & Verification status check
+    user_role = user.get("role", "donor")
+    if user_role != "admin":
+        ver_status = user.get("verification_status") or user.get("status", "Approved")
+        if ver_status in ["Pending", "Pending Approval"]:
+            return jsonify({
+                "status": "error",
+                "message": "Your account is waiting for Admin verification."
+            }), 403
+        elif ver_status == "Rejected":
+            return jsonify({
+                "status": "error",
+                "message": "Your registration document was rejected by Admin."
+            }), 403
 
     return jsonify({
         "status": "success",

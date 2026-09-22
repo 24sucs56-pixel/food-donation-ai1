@@ -1,17 +1,25 @@
 const loginForm = document.getElementById("loginForm");
 
+const getApiBase = () => {
+    if (window.location.protocol === "file:" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        return "http://127.0.0.1:5000";
+    }
+    return "https://food-donation-ai1.onrender.com";
+};
+
 if (loginForm) {
     loginForm.addEventListener("submit", async function (e) {
 
         e.preventDefault();
 
-        const email = document.getElementById("email").value;
+        const email = document.getElementById("email").value.trim();
         const password = document.getElementById("password").value;
         const role = document.querySelector('input[name="role"]:checked').value;
 
         try {
 
-            const response = await fetch("https://food-donation-ai1.onrender.com/login", {
+            const apiBase = getApiBase();
+            const response = await fetch(`${apiBase}/login`, {
 
                 method: "POST",
 
@@ -29,7 +37,7 @@ if (loginForm) {
 
             const data = await response.json();
 
-            if (data.status === "success") {
+            if (response.ok && data.status === "success") {
 
                 localStorage.setItem("name", data.name);
                 localStorage.setItem("role", data.role);
@@ -44,7 +52,7 @@ if (loginForm) {
                 }
 
             } else {
-                alert(data.message);
+                alert(data.message || "Login failed.");
             }
 
         } catch (error) {

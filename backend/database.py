@@ -13,7 +13,10 @@ donations = db["donations"]
 
 admin_activity = db["admin_activity"]
 
+from datetime import datetime
+
 def ensure_demo_users():
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     demo_accounts = [
         {
             "name": "Demo Donor",
@@ -27,10 +30,17 @@ def ensure_demo_users():
             "city": "Madurai",
             "pincode": "625001",
             "address": "123 Demo Street, Madurai",
-            "status": "Approved",
+            "status": "Pending",
+            "verification_status": "Pending",
             "email_verified": True,
-            "admin_approved": True,
-            "account_status": "active",
+            "admin_approved": False,
+            "account_status": "pending",
+            "document_type": "Food Certificate",
+            "document_filename": "demo_food_certificate.pdf",
+            "document_path": "uploads/documents/demo_food_certificate.pdf",
+            "document_uploaded_at": now_str,
+            "created_at": now_str,
+            "registration_date": now_str,
             "is_demo": True,
             "points": 100
         },
@@ -47,10 +57,17 @@ def ensure_demo_users():
             "city": "Madurai",
             "pincode": "625001",
             "address": "456 NGO Avenue, Madurai",
-            "status": "Approved",
+            "status": "Pending",
+            "verification_status": "Pending",
             "email_verified": True,
-            "admin_approved": True,
-            "account_status": "active",
+            "admin_approved": False,
+            "account_status": "pending",
+            "document_type": "NGO Certificate",
+            "document_filename": "demo_ngo_certificate.pdf",
+            "document_path": "uploads/documents/demo_ngo_certificate.pdf",
+            "document_uploaded_at": now_str,
+            "created_at": now_str,
+            "registration_date": now_str,
             "is_demo": True,
             "points": 100
         },
@@ -66,10 +83,17 @@ def ensure_demo_users():
             "city": "Madurai",
             "pincode": "625001",
             "address": "789 Volunteer Road, Madurai",
-            "status": "Approved",
+            "status": "Pending",
+            "verification_status": "Pending",
             "email_verified": True,
-            "admin_approved": True,
-            "account_status": "active",
+            "admin_approved": False,
+            "account_status": "pending",
+            "document_type": "Aadhaar / Vehicle License",
+            "document_filename": "demo_volunteer_license.pdf",
+            "document_path": "uploads/documents/demo_volunteer_license.pdf",
+            "document_uploaded_at": now_str,
+            "created_at": now_str,
+            "registration_date": now_str,
             "is_demo": True,
             "points": 100
         },
@@ -85,9 +109,12 @@ def ensure_demo_users():
             "pincode": "625001",
             "address": "1 Admin Plaza, Madurai",
             "status": "Approved",
+            "verification_status": "Approved",
             "email_verified": True,
             "admin_approved": True,
             "account_status": "active",
+            "created_at": now_str,
+            "registration_date": now_str,
             "is_demo": True,
             "points": 1000
         }
@@ -110,16 +137,23 @@ def ensure_demo_users():
                 "pincode": acc["pincode"],
                 "address": acc["address"],
                 "status": acc["status"],
+                "verification_status": acc["verification_status"],
                 "email_verified": acc["email_verified"],
                 "admin_approved": acc["admin_approved"],
                 "account_status": acc["account_status"],
                 "is_demo": True,
-                "points": acc["points"]
+                "points": acc["points"],
+                "created_at": acc.get("created_at", now_str),
+                "registration_date": acc.get("registration_date", now_str)
             }
             if "donor_type" in acc: user_doc["donor_type"] = acc["donor_type"]
             if "ngo_name" in acc: user_doc["ngo_name"] = acc["ngo_name"]
             if "registration_number" in acc: user_doc["registration_number"] = acc["registration_number"]
             if "vehicle" in acc: user_doc["vehicle"] = acc["vehicle"]
+            if "document_type" in acc: user_doc["document_type"] = acc["document_type"]
+            if "document_filename" in acc: user_doc["document_filename"] = acc["document_filename"]
+            if "document_path" in acc: user_doc["document_path"] = acc["document_path"]
+            if "document_uploaded_at" in acc: user_doc["document_uploaded_at"] = acc["document_uploaded_at"]
 
             if existing:
                 users.update_one({"email": acc["email"]}, {"$set": user_doc})

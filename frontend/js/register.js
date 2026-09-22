@@ -31,49 +31,46 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const form = document.getElementById("registerForm");
 
-function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = error => reject(error);
-    });
-}
+const getApiBase = () => {
+    if (window.location.protocol === "file:" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        return "http://127.0.0.1:5000";
+    }
+    return "https://food-donation-ai1.onrender.com";
+};
 
 form.addEventListener("submit", async function(e){
 
     e.preventDefault();
 
-    const name = document.getElementById("name").value;
-    const email = document.getElementById("email").value;
+    const name = document.getElementById("name").value.trim();
+    const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value;
     const confirmPassword = document.getElementById("confirmPassword").value;
     const role = document.querySelector('input[name="role"]:checked').value;
     
-    const phone = document.getElementById("phone").value;
-    const state = document.getElementById("state").value;
-    const district = document.getElementById("district").value;
-    const city = document.getElementById("city").value;
-    const pincode = document.getElementById("pincode").value;
-    const address = document.getElementById("address").value;
+    const phone = document.getElementById("phone").value.trim();
+    const state = document.getElementById("state").value.trim();
+    const district = document.getElementById("district").value.trim();
+    const city = document.getElementById("city").value.trim();
+    const pincode = document.getElementById("pincode").value.trim();
+    const address = document.getElementById("address").value.trim();
 
     if (password !== confirmPassword) {
         alert("Passwords do not match!");
         return;
     }
 
-    let payload = {
-        name: name,
-        email: email,
-        password: password,
-        role: role,
-        phone: phone,
-        state: state,
-        district: district,
-        city: city,
-        pincode: pincode,
-        address: address
-    };
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("email", email);
+    formData.append("password", password);
+    formData.append("role", role);
+    formData.append("phone", phone);
+    formData.append("state", state);
+    formData.append("district", district);
+    formData.append("city", city);
+    formData.append("pincode", pincode);
+    formData.append("address", address);
 
     let file = null;
 
@@ -81,54 +78,45 @@ form.addEventListener("submit", async function(e){
         const vehicle = document.getElementById("vehicle").value;
         const fileInput = document.getElementById("volunteerLicense");
         if (!fileInput.files || fileInput.files.length === 0) {
-            alert("Please upload your Driving License.");
+            alert("Please upload your Aadhaar / Vehicle License.");
             return;
         }
         file = fileInput.files[0];
-        payload.vehicle = vehicle;
+        formData.append("vehicle", vehicle);
+        formData.append("document", file);
     } else if (role === "ngo") {
         const ngoName = document.getElementById("ngoName").value;
         const ngoRegNo = document.getElementById("ngoRegNo").value;
         const fileInput = document.getElementById("ngoCertificate");
         if (!fileInput.files || fileInput.files.length === 0) {
-            alert("Please upload your NGO Registration Certificate.");
+            alert("Please upload your NGO Certificate.");
             return;
         }
         file = fileInput.files[0];
-        payload.ngo_name = ngoName;
-        payload.registration_number = ngoRegNo;
+        formData.append("ngo_name", ngoName);
+        formData.append("registration_number", ngoRegNo);
+        formData.append("document", file);
     } else if (role === "donor") {
         const donorType = document.getElementById("donorType").value;
         const fileInput = document.getElementById("donorLicense");
         if (!fileInput.files || fileInput.files.length === 0) {
-            alert("Please upload your Food Safety License / FSSAI certificate.");
+            alert("Please upload your Food Certificate.");
             return;
         }
         file = fileInput.files[0];
-        payload.donor_type = donorType;
-    }
-
-    if (file) {
-        try {
-            payload.document_image = await fileToBase64(file);
-        } catch (err) {
-            alert("Error processing document image. Please try another file.");
-            console.error(err);
-            return;
-        }
+        formData.append("donor_type", donorType);
+        formData.append("document", file);
     }
 
     try {
-        const response = await fetch("https://food-donation-ai1.onrender.com/register",{
-            method:"POST",
-            headers:{
-                "Content-Type":"application/json"
-            },
-            body:JSON.stringify(payload)
+        const apiBase = getApiBase();
+        const response = await fetch(`${apiBase}/register`, {
+            method: "POST",
+            body: formData
         });
 
         const data = await response.json();
-        alert(data.message);
+        alert(data.message || (response.ok ? "Registration submitted successfully. Your account is pending Admin verification." : "Registration failed."));
         
         if (response.ok) {
             window.location.href = "login.html";

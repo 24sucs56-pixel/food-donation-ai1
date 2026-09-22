@@ -1,6 +1,13 @@
 let statusChart = null;
 let categoryChart = null;
 
+const getApiBase = () => {
+    if (window.location.protocol === "file:" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
+        return "http://127.0.0.1:5000";
+    }
+    return "https://food-donation-ai1.onrender.com";
+};
+
 // Global Data Stores
 window.allAdminUsersList = [];
 window.adminUserDocuments = {};
@@ -12,7 +19,8 @@ window.activeDonationTab = "all";
 // =======================================
 async function loadDashboard() {
     try {
-        const response = await fetch("https://food-donation-ai1.onrender.com/admin/dashboard");
+        const apiBase = getApiBase();
+        const response = await fetch(`${apiBase}/admin/dashboard`);
         const data = await response.json();
         
         if (data.status !== "success") {
@@ -160,7 +168,8 @@ function renderDashboardRecentActivity(activities) {
 // =======================================
 async function loadUsersData() {
     try {
-        const response = await fetch("https://food-donation-ai1.onrender.com/admin/users");
+        const apiBase = getApiBase();
+        const response = await fetch(`${apiBase}/admin/users`);
         const res = await response.json();
         
         if (res.status !== "success") {
@@ -173,10 +182,10 @@ async function loadUsersData() {
 
         // Cache document images
         window.allAdminUsersList.forEach(u => {
-            if (u.document_image) {
+            if (u.document_image || u.document_path) {
                 window.adminUserDocuments[u.email] = {
                     name: u.name,
-                    document: u.document_image,
+                    document: u.document_path || u.document_image,
                     role: u.role
                 };
             }
@@ -363,13 +372,16 @@ function renderRoleVerifications() {
         let statusBadge = "";
         let actionButtons = "";
         
-        if (user.status === "Pending Approval") {
-            statusBadge = `<span class="badge-status badge-pending">Pending Approval</span>`;
+        let isPending = (user.status === "Pending" || user.status === "Pending Approval" || user.verification_status === "Pending");
+        let isApproved = (user.status === "Approved" || user.verification_status === "Approved");
+
+        if (isPending) {
+            statusBadge = `<span class="badge-status badge-pending">Pending</span>`;
             actionButtons = `
                 <button class="btn-action btn-approve" onclick="confirmVerifyAction('${user.email}', 'Approved', '${user.name}', '${user.role}')">Approve</button>
                 <button class="btn-action btn-reject" onclick="confirmVerifyAction('${user.email}', 'Rejected', '${user.name}', '${user.role}')">Reject</button>
             `;
-        } else if (user.status === "Approved") {
+        } else if (isApproved) {
             statusBadge = `<span class="badge-status badge-approved">Approved</span>`;
             actionButtons = `
                 <button class="btn-action btn-reject" onclick="confirmVerifyAction('${user.email}', 'Rejected', '${user.name}', '${user.role}')">Reject</button>
@@ -384,8 +396,15 @@ function renderRoleVerifications() {
         actionButtons += `<button class="btn-action btn-view" onclick="viewUserDetails('${user.email}')">Details</button>`;
 
         let documentCol = "<span style='color:#94a3b8;'>No document</span>";
-        if (user.document_image) {
-            documentCol = `<button class="btn-action btn-view" onclick="viewDocument('${user.email}')">View Document</button>`;
+        if (user.document_image || user.document_path || user.document_filename) {
+            const docType = user.document_type || (user.role === 'donor' ? 'Food Certificate' : (user.role === 'ngo' ? 'NGO Certificate' : 'Aadhaar / Vehicle License'));
+            const docFile = user.document_filename ? `<br><small style="color:#64748b;">${user.document_filename}</small>` : '';
+            documentCol = `
+                <div>
+                    <span style="font-size:12px; font-weight:600; color:#0f172a;">${docType}</span>${docFile}<br>
+                    <button class="btn-action btn-view" style="margin-top:4px; padding:3px 8px; font-size:11.5px;" onclick="viewDocument('${user.email}')"><i class="fa-solid fa-file-lines"></i> View Document</button>
+                </div>
+            `;
         }
 
         if (user.role === "donor") {
@@ -457,7 +476,8 @@ function renderRoleVerifications() {
 // =======================================
 async function loadDonationManagement() {
     try {
-        const response = await fetch("https://food-donation-ai1.onrender.com/admin/donations");
+        const apiBase = getApiBase();
+        const response = await fetch(`${apiBase}/admin/donations`);
         const res = await response.json();
         
         if (res.status !== "success") return;
@@ -566,7 +586,8 @@ window.confirmVerifyAction = function(email, targetStatus, userName, role) {
 async function executeVerifyUser(email, status) {
     try {
         const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
-        const response = await fetch("https://food-donation-ai1.onrender.com/admin/users/verify", {
+        const apiBase = getApiBase();
+        const response = await fetch(`${apiBase}/admin/users/verify`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -581,6 +602,7 @@ async function executeVerifyUser(email, status) {
 
         const res = await response.json();
         if (response.ok) {
+            alert(res.message || (status === "Approved" ? "User verified successfully." : "User registration rejected."));
             // Dynamically refresh data across dashboard and verifications without manual browser reload
             await loadDashboard();
             await loadUsersData();
@@ -604,7 +626,7 @@ window.viewUserDetails = function(email) {
 
     if (!modal || !body || !title) return;
 
-    title.innerHTML = `<i class="fa-solid fa-address-card"></i> Profile Details: ${user.name}`;
+    title.innerHTML = `<i class="fa-solid fa-address-card"></i> User Profile Details: ${user.name}`;
 
     let roleSpecifics = "";
     if (user.role === "donor") {
@@ -618,44 +640,85 @@ window.viewUserDetails = function(email) {
         roleSpecifics = `<div><strong>Vehicle:</strong> ${user.vehicle || 'None'}</div>`;
     }
 
+    const docType = user.document_type || (user.role === 'donor' ? 'Food Certificate' : (user.role === 'ngo' ? 'NGO Certificate' : 'Aadhaar / Vehicle License'));
+    const docFile = user.document_filename || (user.document_path ? user.document_path.split('/').pop() : 'document.pdf');
+    const userVerStatus = user.verification_status || user.status || 'Pending';
+    const isPending = (userVerStatus === 'Pending' || userVerStatus === 'Pending Approval');
+    
+    let statusBadgeClass = "badge-pending";
+    if (userVerStatus === "Approved") statusBadgeClass = "badge-approved";
+    else if (userVerStatus === "Rejected") statusBadgeClass = "badge-rejected";
+
+    const hasDocument = !!(user.document_path || user.document_filename || user.document_image);
+
     body.innerHTML = `
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: #ffffff; padding: 12px; border-radius: 10px; border: 1px solid #f1f5f9;">
             <div><strong>Name:</strong> ${user.name}</div>
             <div><strong>Email:</strong> ${user.email}</div>
             <div><strong>Phone:</strong> ${user.phone || '-'}</div>
             <div><strong>Role:</strong> <span style="text-transform:uppercase; font-weight:700; color:#16a34a;">${user.role}</span></div>
             <div><strong>Email Verified:</strong> ${user.email_verified ? 'Yes' : 'No'}</div>
-            <div><strong>Approval Status:</strong> ${user.status}</div>
+            <div><strong>Approval Status:</strong> <span class="badge-status ${statusBadgeClass}">${userVerStatus}</span></div>
             <div><strong>Account Status:</strong> ${user.account_status || 'active'}</div>
             <div><strong>Registered Date:</strong> ${user.created_at || user.registration_date || '-'}</div>
         </div>
-        <hr style="border: 0; border-top: 1px solid #f1f5f9; margin: 10px 0;">
-        ${roleSpecifics}
-        <div><strong>Full Address:</strong> ${user.address || '-'}, ${user.city || ''}, ${user.district || ''}, ${user.state || ''} ${user.pincode || ''}</div>
-        ${user.approved_at ? `<div style="color:#15803d; font-size:12px; margin-top:6px;">Approved on ${user.approved_at} by ${user.approved_by || 'Admin'}</div>` : ''}
-        ${user.rejected_at ? `<div style="color:#b91c1c; font-size:12px; margin-top:6px;">Rejected on ${user.rejected_at} by ${user.rejected_by || 'Admin'}</div>` : ''}
+        
+        <div style="margin-top: 8px;">
+            ${roleSpecifics}
+            <div style="margin-top: 4px;"><strong>Full Address:</strong> ${user.address || '-'}, ${user.city || ''}, ${user.district || ''}, ${user.state || ''} ${user.pincode || ''}</div>
+        </div>
+
+        <!-- Verification Document Section -->
+        <div style="margin-top: 15px; padding: 16px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px;">
+            <h3 style="margin: 0 0 10px 0; font-size: 15px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+                <i class="fa-solid fa-file-shield" style="color: #16a34a;"></i> Verification Document
+            </h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 13px; color: #334155; margin-bottom: 12px;">
+                <div><strong>Document Type:</strong> ${docType}</div>
+                <div><strong>Document Name:</strong> ${docFile}</div>
+                <div><strong>Status:</strong> <span class="badge-status ${statusBadgeClass}">${userVerStatus}</span></div>
+                ${user.document_uploaded_at ? `<div><strong>Uploaded At:</strong> ${user.document_uploaded_at}</div>` : ''}
+            </div>
+
+            ${hasDocument ? `
+                <button class="btn-action btn-view" style="width: 100%; padding: 10px; font-weight: 600; font-size: 13.5px; display: flex; align-items: center; justify-content: center; gap: 8px; background: #0284c7; color: white; border: none; border-radius: 8px; cursor: pointer;" onclick="viewDocument('${user.email}')">
+                    <i class="fa-solid fa-eye"></i> View Uploaded Document
+                </button>
+            ` : `
+                <div style="color: #64748b; font-size: 12.5px; font-style: italic;">No document uploaded for this user.</div>
+            `}
+        </div>
+
+        ${isPending ? `
+            <div style="display: flex; gap: 10px; margin-top: 12px;">
+                <button class="btn-action btn-approve" style="flex: 1; padding: 10px; font-size: 13.5px; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="document.getElementById('userDetailsModal').style.display='none'; confirmVerifyAction('${user.email}', 'Approved', '${user.name}', '${user.role}');">
+                    <i class="fa-solid fa-circle-check"></i> Approve
+                </button>
+                <button class="btn-action btn-reject" style="flex: 1; padding: 10px; font-size: 13.5px; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="document.getElementById('userDetailsModal').style.display='none'; confirmVerifyAction('${user.email}', 'Rejected', '${user.name}', '${user.role}');">
+                    <i class="fa-solid fa-circle-xmark"></i> Reject
+                </button>
+            </div>
+        ` : ''}
+
+        ${user.approved_at ? `<div style="color:#15803d; font-size:12px; margin-top:8px;">Approved on ${user.approved_at} by ${user.approved_by || 'Admin'}</div>` : ''}
+        ${user.rejected_at ? `<div style="color:#b91c1c; font-size:12px; margin-top:8px;">Rejected on ${user.rejected_at} by ${user.rejected_by || 'Admin'}</div>` : ''}
     `;
 
     modal.style.display = "flex";
 };
 
-// Document modal viewer
+// Document modal viewer & inline browser tab opener
 window.viewDocument = function(email) {
-    const docData = window.adminUserDocuments[email];
-    if (!docData) return;
-    
-    const modal = document.getElementById("documentModal");
-    const img = document.getElementById("modalDocImg");
-    const title = document.getElementById("modalDocTitle");
-    
-    let docLabel = "Verification Document";
-    if (docData.role === "volunteer") docLabel = "License / Aadhar Card";
-    else if (docData.role === "ngo") docLabel = "NGO Certificate / Aadhar Card";
-    else if (docData.role === "donor") docLabel = "FSSAI License / Aadhar Card";
-    
-    title.innerText = `${docData.name}'s ${docLabel}`;
-    img.src = docData.document;
-    modal.style.display = "flex";
+    const user = (window.allAdminUsersList || []).find(u => u.email === email);
+    const apiBase = getApiBase();
+    const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
+
+    // Build secure document stream URL with Admin credentials
+    const targetIdentifier = user ? (user.id || user.email) : email;
+    const docUrl = `${apiBase}/admin/user/${encodeURIComponent(targetIdentifier)}/document?user_email=${encodeURIComponent(adminEmail)}&user_role=admin`;
+
+    // Open actual uploaded document in a new browser tab
+    window.open(docUrl, "_blank");
 };
 
 // =======================================
@@ -1180,7 +1243,8 @@ function initAdmin() {
             }
 
             try {
-                const res = await fetch("https://food-donation-ai1.onrender.com/user/change-password", {
+                const apiBase = getApiBase();
+                const res = await fetch(`${apiBase}/user/change-password`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ email, current_password: currentPassword, new_password: newPassword })
@@ -1242,7 +1306,8 @@ function initAdmin() {
         if (adminEmailEl) adminEmailEl.innerText = adminEmail;
 
         try {
-            const res = await fetch(`https://food-donation-ai1.onrender.com/user/profile?email=${encodeURIComponent(adminEmail)}`);
+            const apiBase = getApiBase();
+            const res = await fetch(`${apiBase}/user/profile?email=${encodeURIComponent(adminEmail)}`);
             if (res.ok) {
                 const data = await res.json();
                 if (data.status === "success") {
@@ -1315,7 +1380,8 @@ function initAdmin() {
             };
 
             try {
-                const res = await fetch("https://food-donation-ai1.onrender.com/user/profile/update", {
+                const apiBase = getApiBase();
+                const res = await fetch(`${apiBase}/user/profile/update`, {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",

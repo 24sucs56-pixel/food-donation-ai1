@@ -402,7 +402,7 @@ function renderRoleVerifications() {
             documentCol = `
                 <div>
                     <span style="font-size:12px; font-weight:600; color:#0f172a;">${docType}</span>${docFile}<br>
-                    <button class="btn-action btn-view" style="margin-top:4px; padding:3px 8px; font-size:11.5px;" onclick="viewDocument('${user.email}')"><i class="fa-solid fa-file-lines"></i> View Document</button>
+                    <button class="btn-action btn-view" style="margin-top:4px; padding:3px 8px; font-size:11.5px;" onclick="viewDocument('${user.email}', event)"><i class="fa-solid fa-file-lines"></i> View Document</button>
                 </div>
             `;
         }
@@ -681,12 +681,27 @@ window.viewUserDetails = function(email) {
             </div>
 
             ${hasDocument ? `
-                <button class="btn-action btn-view" style="width: 100%; padding: 10px; font-weight: 600; font-size: 13.5px; display: flex; align-items: center; justify-content: center; gap: 8px; background: #0284c7; color: white; border: none; border-radius: 8px; cursor: pointer;" onclick="viewDocument('${user.email}')">
+                <button class="btn-action btn-view" style="width: 100%; padding: 10px; font-weight: 600; font-size: 13.5px; display: flex; align-items: center; justify-content: center; gap: 8px; background: #0284c7; color: white; border: none; border-radius: 8px; cursor: pointer;" onclick="viewDocument('${user.email}', event)">
                     <i class="fa-solid fa-eye"></i> View Uploaded Document
                 </button>
             ` : `
                 <div style="color: #64748b; font-size: 12.5px; font-style: italic;">No document uploaded for this user.</div>
             `}
+
+            <!-- Embedded Document Viewer Container -->
+            <div id="embeddedDocViewer" style="display: none; margin-top: 15px; padding-top: 15px; border-top: 1px dashed #cbd5e1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span style="font-size: 13px; font-weight: 700; color: #0f172a;" id="embeddedDocLabel">
+                        <i class="fa-solid fa-file-pdf" style="color: #ea580c;"></i> Document Preview
+                    </span>
+                    <button type="button" class="btn-action" style="background: #cbd5e1; color: #334155; padding: 5px 12px; font-size: 12.5px; font-weight: 600; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 6px;" onclick="closeEmbeddedDocument()">
+                        <i class="fa-solid fa-xmark"></i> Close Document
+                    </button>
+                </div>
+                <div id="embeddedDocContent" style="width: 100%; text-align: center; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; padding: 4px;">
+                    <!-- Dynamically populated with <iframe> for PDF or <img> for images -->
+                </div>
+            </div>
         </div>
 
         ${isPending ? `
@@ -707,9 +722,40 @@ window.viewUserDetails = function(email) {
     modal.style.display = "flex";
 };
 
-// Document modal viewer & inline browser tab opener
-window.viewDocument = function(email) {
+// Document inline viewer inside User Details modal (same page display via Blob URL)
+window.viewDocument = async function(email, event) {
+    if (event && typeof event.preventDefault === "function") {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
     const user = (window.allAdminUsersList || []).find(u => u.email === email);
+    const modal = document.getElementById("userDetailsModal");
+    
+    // Open user details modal first if not currently displayed
+    if (!modal || modal.style.display !== "flex") {
+        viewUserDetails(email);
+    }
+
+    const viewer = document.getElementById("embeddedDocViewer");
+    const content = document.getElementById("embeddedDocContent");
+    const label = document.getElementById("embeddedDocLabel");
+
+    if (!viewer || !content) return;
+
+    // Show inline loading state
+    if (label) {
+        label.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color: #0284c7;"></i> Loading Document Preview...`;
+    }
+    content.innerHTML = `
+        <div style="padding: 30px; text-align: center; color: #64748b;">
+            <i class="fa-solid fa-spinner fa-spin" style="font-size: 28px; color: #0284c7;"></i>
+            <div style="margin-top: 10px; font-size: 13.5px; font-weight: 600;">Fetching secure document stream...</div>
+        </div>
+    `;
+    viewer.style.display = "block";
+    viewer.scrollIntoView({ behavior: "smooth", block: "nearest" });
+
     const apiBase = getApiBase();
     const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
 
@@ -717,8 +763,70 @@ window.viewDocument = function(email) {
     const targetIdentifier = user ? (user.id || user.email) : email;
     const docUrl = `${apiBase}/admin/user/${encodeURIComponent(targetIdentifier)}/document?user_email=${encodeURIComponent(adminEmail)}&user_role=admin`;
 
-    // Open actual uploaded document in a new browser tab
-    window.open(docUrl, "_blank");
+    try {
+        const response = await fetch(docUrl, {
+            method: "GET",
+            headers: {
+                "X-User-Email": adminEmail,
+                "X-User-Role": "admin"
+            }
+        });
+
+        if (!response.ok) {
+            if (label) label.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color: #dc2626;"></i> Preview Error`;
+            content.innerHTML = `<div style="padding: 20px; color: #dc2626; font-size: 13.5px; font-weight: 600;">Unable to load document preview (HTTP ${response.status}).</div>`;
+            return;
+        }
+
+        const blob = await response.blob();
+
+        // Revoke previous Blob URL if active
+        if (window.activeDocumentBlobUrl) {
+            URL.revokeObjectURL(window.activeDocumentBlobUrl);
+            window.activeDocumentBlobUrl = null;
+        }
+
+        const blobUrl = URL.createObjectURL(blob);
+        window.activeDocumentBlobUrl = blobUrl;
+
+        const docFilename = (user && (user.document_filename || user.document_path)) ? (user.document_filename || user.document_path).toLowerCase() : "";
+        const blobType = (blob.type || "").toLowerCase();
+        const isImage = blobType.startsWith("image/") || docFilename.endsWith(".jpg") || docFilename.endsWith(".jpeg") || docFilename.endsWith(".png") || docFilename.endsWith(".webp");
+
+        if (isImage) {
+            if (label) {
+                label.innerHTML = `<i class="fa-solid fa-file-image" style="color: #0284c7;"></i> Image Document Preview`;
+            }
+            content.innerHTML = `
+                <div style="padding: 10px; background: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 250px;">
+                    <img src="${blobUrl}" alt="Uploaded Document Preview" style="max-width: 100%; max-height: 480px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); object-fit: contain;">
+                </div>
+            `;
+        } else {
+            // Default to PDF iframe viewer using local Blob URL
+            if (label) {
+                label.innerHTML = `<i class="fa-solid fa-file-pdf" style="color: #ea580c;"></i> PDF Document Preview`;
+            }
+            content.innerHTML = `
+                <iframe src="${blobUrl}" style="width: 100%; height: 460px; border: none; border-radius: 6px;" title="Uploaded Verification Document"></iframe>
+            `;
+        }
+    } catch (error) {
+        console.error("Error fetching document blob:", error);
+        if (label) label.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color: #dc2626;"></i> Preview Error`;
+        content.innerHTML = `<div style="padding: 20px; color: #dc2626; font-size: 13.5px; font-weight: 600;">Failed to fetch document preview. Please check network connection.</div>`;
+    }
+};
+
+window.closeEmbeddedDocument = function() {
+    const viewer = document.getElementById("embeddedDocViewer");
+    const content = document.getElementById("embeddedDocContent");
+    if (content) content.innerHTML = "";
+    if (viewer) viewer.style.display = "none";
+    if (window.activeDocumentBlobUrl) {
+        URL.revokeObjectURL(window.activeDocumentBlobUrl);
+        window.activeDocumentBlobUrl = null;
+    }
 };
 
 // =======================================

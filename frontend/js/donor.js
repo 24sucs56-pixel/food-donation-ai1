@@ -44,9 +44,19 @@ async function loadDonorDonations(){
         myDonations.forEach(donation =>{
 
             let statusClass = "waiting";
-            if (donation.status === "Delivered") statusClass = "delivered";
-            else if (donation.status === "Picked") statusClass = "picked";
-            else if (donation.status === "Accepted") statusClass = "accepted";
+            let statusLabel = donation.status;
+            if (donation.status === "Delivered") {
+                statusClass = "delivered";
+                if (donation.ngo_delivery_confirmation === "Confirmed") {
+                    statusLabel = "Successfully Delivered";
+                } else {
+                    statusLabel = "Delivered by Volunteer";
+                }
+            } else if (donation.status === "Picked") {
+                statusClass = "picked";
+            } else if (donation.status === "Accepted") {
+                statusClass = "accepted";
+            }
 
             let freshnessColorClass = "fresh-high";
             if (donation.freshness < 50) freshnessColorClass = "fresh-low";
@@ -60,6 +70,34 @@ async function loadDonorDonations(){
                     return `<span class="food-tag" style="display: inline-flex; align-items: center; gap: 6px;"><i class="fa-solid fa-bowl-food" style="font-size: 11px;"></i>${name} <span class="card-badge category-${catClass}" style="font-size: 9px !important; padding: 2px 6px !important; margin: 0 !important; border-radius: 4px !important; display: inline-block !important; height: auto !important; line-height: 1 !important; pointer-events: none;">${cat}</span></span>`;
                 }).join("") 
                 : `<span class="food-tag" style="display: inline-flex; align-items: center; gap: 6px;"><i class="fa-solid fa-bowl-food" style="font-size: 11px;"></i>${donation.food_name || ""} <span class="card-badge category-${donation.category ? donation.category.toLowerCase().replace(' ', '-') : 'veg'}" style="font-size: 9px !important; padding: 2px 6px !important; margin: 0 !important; border-radius: 4px !important; display: inline-block !important; height: auto !important; line-height: 1 !important; pointer-events: none;">${donation.category || 'Veg'}</span></span>`;
+
+            // Calculate NGO Confirmation Banner HTML
+            let confirmationBannerHtml = "";
+            if (donation.status === "Delivered") {
+                if (donation.ngo_delivery_confirmation === "Confirmed") {
+                    confirmationBannerHtml = `
+                        <div style="margin-top: 15px; padding: 12px 16px; background: rgba(22, 163, 74, 0.1); border: 1px solid #16a34a; border-radius: 12px;">
+                            <div style="font-size: 14px; font-weight: 700; color: #15803d; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-circle-check" style="font-size: 16px;"></i> ✅ Food Donation Successfully Delivered
+                            </div>
+                            <p style="font-size: 13px; color: #166534; margin-top: 6px; margin-bottom: 0; line-height: 1.5;">
+                                Your food donation has been successfully delivered to <b>${donation.ngo || donation.recommended_ngo || 'Partner NGO'}</b> by <b>${donation.volunteer || 'Volunteer'}</b>.
+                            </p>
+                        </div>
+                    `;
+                } else {
+                    confirmationBannerHtml = `
+                        <div style="margin-top: 15px; padding: 12px 16px; background: rgba(234, 179, 8, 0.08); border: 1px solid #eab308; border-radius: 12px;">
+                            <div style="font-size: 13.5px; font-weight: 600; color: #854d0e; display: flex; align-items: center; gap: 8px;">
+                                <i class="fa-solid fa-clock-rotate-left"></i> Delivered by Volunteer — Awaiting NGO Confirmation
+                            </div>
+                            <p style="font-size: 12.5px; color: #713f12; margin-top: 4px; margin-bottom: 0;">
+                                Volunteer <b>${donation.volunteer || 'assigned'}</b> has dropped off the food. The NGO will confirm receipt shortly.
+                            </p>
+                        </div>
+                    `;
+                }
+            }
 
             // Calculate Volunteer Rating HTML
             let ratingHtml = "";
@@ -98,7 +136,7 @@ async function loadDonorDonations(){
                             <span class="card-badge category-${donation.category.toLowerCase().replace(' ', '-')}">${donation.category}</span>
                             <h2 class="card-title" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 5px !important; line-height: 1.6 !important;">${foodItemsHtml}</h2>
                         </div>
-                        <span class="status-badge ${statusClass}">${donation.status}</span>
+                        <span class="status-badge ${statusClass}">${statusLabel}</span>
                     </div>
                     
                     <div class="card-stats-grid">
@@ -150,6 +188,9 @@ async function loadDonorDonations(){
                             <span>${donation.recommendation || "Maintain storage temperature."}</span>
                         </div>
                     </div>
+
+                    <!-- NGO Confirmation Banner -->
+                    ${confirmationBannerHtml}
 
                     <!-- Courier logistics timeline -->
                     <div class="logistics-timeline">

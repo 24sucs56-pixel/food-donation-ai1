@@ -151,7 +151,7 @@ async function loadVolunteerTasks() {
             } else {
                 actionButtonHtml = `
                     <div style="background: rgba(22, 163, 74, 0.05); border: 1px solid #16a34a; padding: 12px; border-radius: 12px; text-align: center; color: #16a34a; font-weight: 600; margin-top: 15px;">
-                        <i class="fa-solid fa-circle-check"></i> Delivered Successfully
+                        <i class="fa-solid fa-circle-check"></i> Delivery Completed (Delivered by Volunteer)
                     </div>
                 `;
             }

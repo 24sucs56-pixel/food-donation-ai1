@@ -2534,16 +2534,12 @@ async function loadNgoAcceptedDonations() {
                                     </span>
                                 </div>
 
-                                <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px; margin-bottom: 15px; font-size: 13px;">
+                                <div style="background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 12px; padding: 12px; margin-bottom: 0px; font-size: 13px;">
                                     <div style="margin-bottom: 6px; color: #334155;"><i class="fa-solid fa-users" style="color: #64748b; width: 20px;"></i> <b>Quantity:</b> ${d.quantity || 50} servings</div>
                                     <div style="margin-bottom: 6px; color: #334155;"><i class="fa-solid fa-user-heart" style="color: #64748b; width: 20px;"></i> <b>Donor:</b> ${d.donor_email ? d.donor_email.split('@')[0] : 'Murugan Idli Shop'}</div>
                                     <div style="margin-bottom: 6px; color: #334155;"><i class="fa-solid fa-location-dot" style="color: #16a34a; width: 20px;"></i> <b>Pickup Address:</b> ${d.address || 'Madurai Central'}</div>
                                     <div style="color: #334155;"><i class="fa-solid fa-truck" style="color: #0284c7; width: 20px;"></i> <b>Logistics:</b> ${d.volunteer ? `${d.volunteer} (Assigned)` : 'Waiting for Volunteer Assignment'}</div>
                                 </div>
-
-                                <a href="tel:+919842145671" class="submit-btn" style="width: 100%; padding: 10px; margin: 0; background: #16a34a; text-align: center; text-decoration: none; display: block; font-size: 13px; font-weight: 600;">
-                                    <i class="fa-solid fa-phone" style="margin-right: 6px;"></i> Contact Donor for Pickup
-                                </a>
                             </div>
                         `;
                     }).join("")}

@@ -112,11 +112,14 @@ def donate():
     "volunteer": "",
     "requested_volunteer": "",
     "volunteer_status": None,
+    "ngo_delivery_confirmation": None,
 
     "created_at": datetime.now().strftime("%d-%m-%Y %I:%M %p"),
     "accepted_at": "",
     "picked_at": "",
-    "delivered_at": ""
+    "delivered_at": "",
+    "ngo_confirmed_at": "",
+    "ngo_confirmed_by": ""
 
 }
 
@@ -292,6 +295,45 @@ def deliver(id):
     return jsonify({
         "status": "success",
         "message": "Food Delivered Successfully"
+    })
+
+
+# ==========================
+# NGO CONFIRM DELIVERY
+# ==========================
+@donation.route("/ngo/confirm-delivery/<id>", methods=["PUT"])
+def confirm_delivery(id):
+    is_auth, auth_err = authorize_role(["ngo", "admin"])
+    if not is_auth:
+        return auth_err
+
+    data = request.get_json(silent=True) or {}
+    ngo_name = data.get("ngo") or request.args.get("ngo") or "Helping Hands NGO"
+
+    d = donations.find_one({"_id": ObjectId(id)})
+    if not d:
+        return jsonify({"status": "error", "message": "Donation not found"}), 404
+
+    if d.get("status") != "Delivered":
+        return jsonify({"status": "error", "message": "Donation must be in Delivered status before NGO confirmation"}), 400
+
+    if d.get("ngo_delivery_confirmation") == "Confirmed":
+        return jsonify({"status": "error", "message": "Delivery has already been confirmed"}), 400
+
+    donations.update_one(
+        {"_id": ObjectId(id)},
+        {
+            "$set": {
+                "ngo_delivery_confirmation": "Confirmed",
+                "ngo_confirmed_at": datetime.now().strftime("%d-%m-%Y %I:%M %p"),
+                "ngo_confirmed_by": ngo_name
+            }
+        }
+    )
+
+    return jsonify({
+        "status": "success",
+        "message": "Delivery Confirmed Successfully"
     })
 
 

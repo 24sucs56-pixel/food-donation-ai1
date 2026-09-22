@@ -136,7 +136,30 @@ async function loadDonations() {
                 }
 
                 let volunteerReqHtml = "";
-                if (donation.volunteer_status === "Requested" && donation.requested_volunteer) {
+                if (donation.status === "Delivered") {
+                    if (donation.ngo_delivery_confirmation === "Confirmed") {
+                        volunteerReqHtml = `
+                            <div style="margin-top: 10px; padding: 10px; background: rgba(22, 163, 74, 0.08); border: 1px solid #16a34a; border-radius: 8px; color: #15803d; font-size: 13px; font-weight: 600;">
+                                <i class="fa-solid fa-circle-check"></i> Delivery Confirmed (${donation.ngo_confirmed_at || 'Confirmed'})
+                            </div>
+                        `;
+                    } else {
+                        volunteerReqHtml = `
+                            <div style="margin-top: 10px; padding: 12px; background: rgba(59, 130, 246, 0.08); border: 1px solid #3b82f6; border-radius: 8px;">
+                                <div style="font-size: 13px; font-weight: 600; color: #1d4ed8; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
+                                    <span><i class="fa-solid fa-truck-ramp-box"></i> Delivery Confirmation</span>
+                                    <span class="card-badge" style="background: #3b82f6; color: white;">Delivered by Volunteer</span>
+                                </div>
+                                <p style="font-size: 12.5px; color: #1e40af; margin-bottom: 8px;">
+                                    Volunteer <b>${donation.volunteer || 'Assigned Volunteer'}</b> delivered this food on <b>${donation.delivered_at || 'recently'}</b>.
+                                </p>
+                                <button onclick="confirmDelivery('${donation._id}')" class="accept-btn" style="width: 100%; font-size: 13px; padding: 8px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">
+                                    <i class="fa-solid fa-check-double"></i> Confirm Delivery
+                                </button>
+                            </div>
+                        `;
+                    }
+                } else if (donation.volunteer_status === "Requested" && donation.requested_volunteer) {
                     volunteerReqHtml = `
                         <div style="margin-top: 10px; padding: 12px; background: rgba(234, 179, 8, 0.08); border: 1px solid #eab308; border-radius: 8px;">
                             <div style="font-size: 13px; font-weight: 600; color: #854d0e; margin-bottom: 6px; display: flex; align-items: center; justify-content: space-between;">
@@ -331,6 +354,28 @@ async function approveVolunteer(id) {
     }
 }
 window.approveVolunteer = approveVolunteer;
+
+async function confirmDelivery(id) {
+    try {
+        const response = await fetch(`https://food-donation-ai1.onrender.com/ngo/confirm-delivery/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ ngo: loggedInNgoName })
+        });
+
+        const data = await response.json();
+        alert(data.message);
+
+        loadDonations();
+        if (window.updateDashboardStats) window.updateDashboardStats();
+    } catch (error) {
+        console.log(error);
+        alert("Cannot connect to backend.");
+    }
+}
+window.confirmDelivery = confirmDelivery;
 
 async function submitVolunteerRating(donationId, role, ratingValue) {
     if (!confirm(`Rate the volunteer ${ratingValue} stars?`)) return;

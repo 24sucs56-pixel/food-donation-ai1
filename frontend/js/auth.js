@@ -175,7 +175,14 @@ function checkRole(allowedRoles) {
 }
 
 // Logout & State Purge
-function logout() {
+async function logout() {
+    if (typeof window.deleteFCMTokenFromBackend === 'function') {
+        try {
+            await window.deleteFCMTokenFromBackend();
+        } catch (e) {
+            console.warn("FCM Token cleanup on logout:", e);
+        }
+    }
     localStorage.clear();
     sessionStorage.clear();
     window.location.href = "index.html";

@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 venv/
 .env
+*service-account*.json
+firebase-service-account.json
+scratch/

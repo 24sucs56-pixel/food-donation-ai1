@@ -31,6 +31,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 <link rel="stylesheet" href="css/assistant.css">
 <link rel="stylesheet" href="css/mobile.css">
 <link rel="icon" href="images/logo.png" type="image/png">
+<link rel="manifest" href="/manifest.json">
 </head>
 <body>
 
@@ -694,6 +695,22 @@ accept="image/*">
 </div>
 
 
+<!-- Expiry Warning & Agreement Container -->
+<div id="expiryWarningContainer" style="display: none; margin-top: 20px; margin-bottom: 20px; padding: 18px 20px; border-radius: 14px; transition: all 0.3s ease;">
+    <div id="expiryWarningContent" style="font-size: 14px; line-height: 1.6;"></div>
+    
+    <!-- Required Agreement Checkbox for Near-Expiry Food -->
+    <div id="nearExpiryAgreementBox" style="display: none; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(0, 0, 0, 0.1);">
+        <label style="display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 14px; font-weight: 500; line-height: 1.5;">
+            <input type="checkbox" id="nearExpiryAgreeCheckbox" style="width: 18px; height: 18px; margin-top: 2px; accent-color: #16a34a; cursor: pointer;">
+            <span>I understand the above warning and agree to donate this near-expiry food.</span>
+        </label>
+        <div id="nearExpiryValidationError" style="display: none; color: #dc2626; font-size: 13px; font-weight: 600; margin-top: 8px;">
+            ⚠️ Please confirm that you understand the warning before donating this food.
+        </div>
+    </div>
+</div>
+
  <!-- Submit -->
 
 <button
@@ -721,5 +738,9 @@ Donate Food
     checkRole(["donor", "admin"]);
 </script>
 
+<!-- Firebase SDKs for FCM Push Notifications -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+<script src="js/fcm-init.js"></script>
 </body>
 </html>

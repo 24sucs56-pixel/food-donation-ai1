@@ -56,6 +56,25 @@ def accept_donation(id):
         }
     )
 
+    try:
+        from fcm_service import send_push_to_user, send_push_to_role
+        d = donations.find_one({"_id": ObjectId(id)})
+        if d and d.get("donor_email"):
+            send_push_to_user(
+                d.get("donor_email"),
+                "Donation Accepted",
+                "Your food donation has been accepted by the NGO.",
+                data={"donation_id": str(id), "type": "donation_accepted"}
+            )
+        send_push_to_role(
+            "volunteer",
+            "New Pickup Available",
+            "A food donation is available for pickup.",
+            data={"donation_id": str(id), "type": "new_pickup"}
+        )
+    except Exception as e:
+        print("Error sending push for accept_donation:", e)
+
     return jsonify({
         "status": "success",
         "message": "Donation Accepted"
@@ -66,67 +85,110 @@ def donate():
     if not is_auth:
         return auth_err
 
-    data = request.get_json()
+    data = request.get_json(silent=True) or {}
 
     food_name = data.get("food_name")
     quantity = data.get("quantity")
     category = data.get("category")
     prepared_time = data.get("prepared_time")
+    prepared_date = data.get("prepared_date") or data.get("preparedDate")
     storage = data.get("storage")
-    expiry = data.get("expiry")
+    expiry = data.get("expiry") or data.get("expiry_time")
+    expiry_date = data.get("expiry_date") or data.get("expiryDate")
     address = data.get("address")
     latitude = data.get("latitude") or data.get("donor_latitude")
     longitude = data.get("longitude") or data.get("donor_longitude")
     donor_email = data.get("donor_email")
-    
+    near_expiry_acknowledged = bool(data.get("near_expiry_acknowledged", False))
+
     # AI Food Analysis
-    ai_result = check_food_freshness(expiry)
+    ai_result = check_food_freshness(expiry, expiry_date)
+
+    # STRICT BACKEND SECURITY EXPIRY VERIFICATION
+    # 1. EXPIRED FOOD: ALWAYS REJECT
+    if ai_result["result"] in ["Expired", "Invalid"] or ai_result.get("hours_left", 0) <= 0:
+        return jsonify({
+            "status": "error",
+            "message": "❌ Expired Food: This food has already passed its expiry time and cannot be donated."
+        }), 400
+
+    # 2. NEAR-EXPIRY FOOD: REQUIRE ACKNOWLEDGEMENT
+    if ai_result["result"] == "Near Expiry" or (0 < ai_result.get("hours_left", 999) <= 1):
+        if not near_expiry_acknowledged:
+            return jsonify({
+                "status": "error",
+                "message": "⚠️ This food is near expiry. You must acknowledge the near-expiry warning before donating."
+            }), 400
+
     priority = get_priority(ai_result["freshness"])
     ngo = recommend_ngo(category, latitude, longitude)
+
     donation_data = {
+        "food_name": food_name,
+        "quantity": quantity,
+        "category": category,
+        "prepared_date": prepared_date,
+        "prepared_time": prepared_time,
+        "expiry_date": expiry_date,
+        "expiry": expiry,
+        "storage": storage,
+        "address": address,
+        "latitude": latitude,
+        "longitude": longitude,
+        "donor_email": donor_email,
+        "near_expiry_acknowledged": near_expiry_acknowledged,
+        "near_expiry_acknowledged_at": datetime.now().strftime("%d-%m-%Y %I:%M %p") if near_expiry_acknowledged else None,
 
-    "food_name": food_name,
-    "quantity": quantity,
-    "category": category,
-    "prepared_time": prepared_time,
-    "storage": storage,
-    "expiry": expiry,
-    "address": address,
-    "latitude": latitude,
-    "longitude": longitude,
-    "donor_email": donor_email,
+        # AI Analysis
+        "freshness": ai_result["freshness"],
+        "ai_result": ai_result["result"],
+        "recommendation": ai_result["recommendation"],
+        "priority": priority,
 
-    # AI Analysis
-    "freshness": ai_result["freshness"],
-    "ai_result": ai_result["result"],
-    "recommendation": ai_result["recommendation"],
-    "priority": priority,
+        # NGO Recommendation
+        "recommended_ngo": ngo["name"],
+        "distance": ngo["distance"],
 
-    # NGO Recommendation
-    "recommended_ngo": ngo["name"],
-    "distance": ngo["distance"],
+        # Donation Status
+        "status": "Waiting",
+        "ngo": "",
+        "volunteer": "",
+        "requested_volunteer": "",
+        "volunteer_status": None,
+        "ngo_delivery_confirmation": None,
 
-    # Donation Status
-    "status": "Waiting",
-    "ngo": "",
-    "volunteer": "",
-    "requested_volunteer": "",
-    "volunteer_status": None,
-    "ngo_delivery_confirmation": None,
-
-    "created_at": datetime.now().strftime("%d-%m-%Y %I:%M %p"),
-    "accepted_at": "",
-    "picked_at": "",
-    "delivered_at": "",
-    "ngo_confirmed_at": "",
-    "ngo_confirmed_by": ""
-
-}
+        "created_at": datetime.now().strftime("%d-%m-%Y %I:%M %p"),
+        "accepted_at": "",
+        "picked_at": "",
+        "delivered_at": "",
+        "ngo_confirmed_at": "",
+        "ngo_confirmed_by": ""
+    }
 
     res = donations.insert_one(donation_data)
 
     if donor_email:
         users.update_one({"email": donor_email}, {"$inc": {"points": 10}})
+
+    try:
+        from fcm_service import send_push_to_role, send_push_to_ngo
+        rec_ngo = ngo.get("name") if isinstance(ngo, dict) else None
+        if rec_ngo:
+            send_push_to_ngo(
+                rec_ngo,
+                "New Food Donation",
+                "A new food donation is available for your NGO.",
+                data={"donation_id": str(res.inserted_id), "type": "new_donation"}
+            )
+        else:
+            send_push_to_role(
+                "ngo",
+                "New Food Donation",
+                "A new food donation is available for your NGO.",
+                data={"donation_id": str(res.inserted_id), "type": "new_donation"}
+            )
+    except Exception as e:
+        print("Error sending push for donate:", e)
 
     return jsonify({
         "status": "success",
@@ -188,6 +250,19 @@ def request_pickup(id):
         }
     )
 
+    try:
+        from fcm_service import send_push_to_ngo
+        ngo_name = d.get("ngo") or d.get("recommended_ngo")
+        if ngo_name:
+            send_push_to_ngo(
+                ngo_name,
+                "Volunteer Pickup Request",
+                "A volunteer has requested pickup for a donation.",
+                data={"donation_id": str(id), "type": "pickup_request"}
+            )
+    except Exception as e:
+        print("Error sending push for request_pickup:", e)
+
     return jsonify({
         "status": "success",
         "message": "Pickup requested. Waiting for NGO approval."
@@ -220,6 +295,24 @@ def approve_volunteer(id):
             }
         }
     )
+
+    try:
+        from fcm_service import send_push_to_user
+        send_push_to_user(
+            requested_volunteer,
+            "Pickup Approved",
+            "Your pickup request has been approved by the NGO.",
+            data={"donation_id": str(id), "type": "pickup_approved"}
+        )
+        if d.get("donor_email"):
+            send_push_to_user(
+                d.get("donor_email"),
+                "Pickup Approved",
+                "Your food donation pickup has been approved by the volunteer.",
+                data={"donation_id": str(id), "type": "pickup_approved"}
+            )
+    except Exception as e:
+        print("Error sending push for approve_volunteer:", e)
 
     return jsonify({
         "status": "success",
@@ -292,6 +385,25 @@ def deliver(id):
     if volunteer_name:
         users.update_one({"name": volunteer_name}, {"$inc": {"points": 15}})
 
+    try:
+        from fcm_service import send_push_to_user, send_push_to_ngo
+        if d.get("donor_email"):
+            send_push_to_user(
+                d.get("donor_email"),
+                "Food Delivered",
+                "Your food donation has been delivered by the volunteer.",
+                data={"donation_id": str(id), "type": "food_delivered"}
+            )
+        if d.get("ngo"):
+            send_push_to_ngo(
+                d.get("ngo"),
+                "Food Delivered",
+                "A volunteer has delivered the donation. Please confirm delivery.",
+                data={"donation_id": str(id), "type": "food_delivered"}
+            )
+    except Exception as e:
+        print("Error sending push for deliver:", e)
+
     return jsonify({
         "status": "success",
         "message": "Food Delivered Successfully"
@@ -330,6 +442,18 @@ def confirm_delivery(id):
             }
         }
     )
+
+    try:
+        from fcm_service import send_push_to_user
+        if d.get("donor_email"):
+            send_push_to_user(
+                d.get("donor_email"),
+                "Donation Successfully Delivered",
+                "Your food donation has been successfully confirmed by the NGO.",
+                data={"donation_id": str(id), "type": "delivery_confirmed"}
+            )
+    except Exception as e:
+        print("Error sending push for confirm_delivery:", e)
 
     return jsonify({
         "status": "success",

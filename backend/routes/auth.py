@@ -158,6 +158,18 @@ def register():
 
     users.insert_one(user)
 
+    try:
+        from fcm_service import send_push_to_role
+        if not is_admin:
+            send_push_to_role(
+                "admin",
+                "New Registration",
+                "A new user registration is waiting for Admin verification.",
+                data={"type": "registration", "email": email, "role": role}
+            )
+    except Exception as e:
+        print("Error triggering FCM notification for registration:", e)
+
     return jsonify({
         "status": "success",
         "message": "Registration submitted successfully. Your account is pending Admin verification." if not is_admin else "Registration Successful!"
@@ -392,3 +404,85 @@ def change_password():
     users.update_one({"email": email}, {"$set": {"password": hashed_new}})
     
     return jsonify({"status": "success", "message": "Password updated successfully!"})
+
+# ==========================================
+# FCM TOKEN REGISTRATION & REMOVAL ENDPOINTS
+# ==========================================
+@auth.route("/api/save-fcm-token", methods=["POST"])
+@auth.route("/save-fcm-token", methods=["POST"])
+def save_fcm_token():
+    data = request.get_json(silent=True) or {}
+    token = data.get("fcm_token") or data.get("token")
+    email = data.get("email") or request.headers.get("X-User-Email")
+    device_info = data.get("device_info", "Browser/Mobile Device")
+
+    if not token:
+        return jsonify({"status": "error", "message": "FCM token is required"}), 400
+
+    if not email:
+        return jsonify({"status": "error", "message": "User email is required to associate token"}), 400
+
+    user = users.find_one({"email": email})
+    if not user:
+        return jsonify({"status": "error", "message": "User account not found"}), 404
+
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    fcm_tokens = user.get("fcm_tokens", [])
+    
+    existing_idx = -1
+    for idx, item in enumerate(fcm_tokens):
+        if item.get("token") == token:
+            existing_idx = idx
+            break
+
+    if existing_idx >= 0:
+        users.update_one(
+            {"email": email, "fcm_tokens.token": token},
+            {"$set": {
+                "fcm_tokens.$.updated_at": now_str,
+                "fcm_tokens.$.device_info": device_info
+            }}
+        )
+    else:
+        token_obj = {
+            "token": token,
+            "created_at": now_str,
+            "updated_at": now_str,
+            "device_info": device_info
+        }
+        users.update_one(
+            {"email": email},
+            {"$push": {"fcm_tokens": token_obj}}
+        )
+
+    return jsonify({
+        "status": "success",
+        "message": "FCM token registered successfully",
+        "email": email
+    })
+
+@auth.route("/api/delete-fcm-token", methods=["POST"])
+@auth.route("/delete-fcm-token", methods=["POST"])
+def delete_fcm_token():
+    data = request.get_json(silent=True) or {}
+    token = data.get("fcm_token") or data.get("token")
+    email = data.get("email") or request.headers.get("X-User-Email")
+
+    if not token:
+        return jsonify({"status": "error", "message": "FCM token is required"}), 400
+
+    if email:
+        users.update_one(
+            {"email": email},
+            {"$pull": {"fcm_tokens": {"token": token}}}
+        )
+    else:
+        users.update_many(
+            {"fcm_tokens.token": token},
+            {"$pull": {"fcm_tokens": {"token": token}}}
+        )
+
+    return jsonify({
+        "status": "success",
+        "message": "FCM token removed successfully"
+    })

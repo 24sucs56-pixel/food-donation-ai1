@@ -262,73 +262,7 @@ body{
 
 }
 
-/*==========================================================
-                ROLE SELECTION
-==========================================================*/
 
-.role-selection{
-
-    display:grid;
-
-    grid-template-columns:repeat(2,1fr);
-
-    gap:15px;
-
-    margin-bottom:30px;
-
-}
-
-.role-selection input{
-
-    display:none;
-
-}
-
-.role-selection label{
-
-    cursor:pointer;
-
-}
-
-.role-selection span{
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    gap:10px;
-
-    height:55px;
-
-    border:2px solid #e2e8f0;
-
-    border-radius:12px;
-
-    font-weight:600;
-
-    transition:.3s;
-
-}
-
-.role-selection span:hover{
-
-    border-color:var(--primary);
-
-    background:#f0fdf4;
-
-}
-
-.role-selection input:checked + span{
-
-    background:var(--primary);
-
-    color:white;
-
-    border-color:var(--primary);
-
-}
 
 /*==========================================================
                 INPUT BOX
@@ -568,12 +502,6 @@ body{
 
 }
 
-.role-selection{
-
-    grid-template-columns:1fr;
-
-}
-
 }
 
 @media(max-width:600px){
@@ -593,13 +521,6 @@ body{
     }
     .login-right h2{
         font-size:24px !important;
-    }
-    .role-selection{
-        grid-template-columns:repeat(2, 1fr) !important;
-        gap:8px !important;
-    }
-    .role-card{
-        padding:10px 8px !important;
     }
 }
 .login-container{

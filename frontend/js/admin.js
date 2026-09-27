@@ -1661,7 +1661,15 @@ function initAdmin() {
     const btnCheckFCMTokenStatus = document.getElementById("btnCheckFCMTokenStatus");
     if (btnCheckFCMTokenStatus) {
         btnCheckFCMTokenStatus.addEventListener("click", async () => {
-            const sdkLoaded = (typeof firebase !== 'undefined' && typeof firebase.messaging === 'function') ? "YES" : "NO";
+            let messaging = null;
+            if (typeof window.initFCM === 'function') {
+                messaging = window.initFCM();
+            } else if (typeof initFCM === 'function') {
+                messaging = initFCM();
+            }
+
+            const appInitialized = (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) ? "YES" : "NO";
+            const sdkLoaded = (typeof firebase !== 'undefined' && typeof firebase.messaging === 'function' && firebase.messaging.isSupported()) ? "YES" : "NO";
             const notificationPerm = ('Notification' in window) ? Notification.permission : "N/A";
 
             if (!('serviceWorker' in navigator)) {
@@ -1690,9 +1698,8 @@ function initAdmin() {
             let tokenLen = "N/A";
             let errOutput = "";
 
-            if (sdkLoaded === "YES" && registration) {
+            if (messaging && registration) {
                 try {
-                    const messaging = firebase.messaging();
                     const tokenOptions = { serviceWorkerRegistration: registration };
                     if (window.FIREBASE_VAPID_KEY) {
                         tokenOptions.vapidKey = window.FIREBASE_VAPID_KEY;
@@ -1711,10 +1718,11 @@ function initAdmin() {
                     errOutput = "\nError Name: " + errName + "\nError Code: " + errCode + "\nError Message: " + errMsg;
                 }
             } else {
-                errOutput = "\nError: Firebase Messaging SDK or Service Worker Registration not available.";
+                errOutput = "\nError: Firebase Messaging instance or Service Worker Registration not available (appInitialized: " + appInitialized + ", sdkLoaded: " + sdkLoaded + ")";
             }
 
             let resultMsg = 
+                "Firebase app initialized: " + appInitialized + "\n" +
                 "Firebase Messaging SDK loaded: " + sdkLoaded + "\n" +
                 "Service worker ready: " + swReady + "\n" +
                 "Notification permission: " + notificationPerm + "\n" +

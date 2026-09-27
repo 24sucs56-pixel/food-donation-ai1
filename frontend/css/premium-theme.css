@@ -29,7 +29,7 @@
     box-shadow: 0 10px 30px rgba(31, 154, 82, 0.04) !important;
     transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1) !important;
     position: relative !important;
-    overflow: hidden !important;
+    overflow: visible !important;
     display: flex !important;
     flex-direction: column !important;
     gap: 15px !important;

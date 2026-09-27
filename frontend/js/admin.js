@@ -1657,81 +1657,132 @@ function initAdmin() {
         });
     }
 
-    // Temporary Admin Check FCM Token Status Button
+    // Temporary Admin Check FCM Token Status Button (Direct Fetch Network Diagnostic)
     const btnCheckFCMTokenStatus = document.getElementById("btnCheckFCMTokenStatus");
     if (btnCheckFCMTokenStatus) {
         btnCheckFCMTokenStatus.addEventListener("click", async () => {
-            let messaging = null;
-            if (typeof window.initFCM === 'function') {
-                messaging = window.initFCM();
-            } else if (typeof initFCM === 'function') {
-                messaging = initFCM();
-            }
+            const arrayBufferToBase64Url = (buffer) => {
+                if (!buffer) return "";
+                const bytes = new Uint8Array(buffer);
+                let binary = '';
+                for (let i = 0; i < bytes.byteLength; i++) {
+                    binary += String.fromCharCode(bytes[i]);
+                }
+                return window.btoa(binary).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+            };
 
-            const appInitialized = (typeof firebase !== 'undefined' && firebase.apps && firebase.apps.length > 0) ? "YES" : "NO";
-            const sdkLoaded = (typeof firebase !== 'undefined' && typeof firebase.messaging === 'function' && firebase.messaging.isSupported()) ? "YES" : "NO";
-            const notificationPerm = ('Notification' in window) ? Notification.permission : "N/A";
+            const apiKey = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.apiKey) ? window.FIREBASE_CONFIG.apiKey : "";
+            const appId = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.appId) ? window.FIREBASE_CONFIG.appId : "";
+            const projectId = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.projectId) ? window.FIREBASE_CONFIG.projectId : "smart-food-donation-ai";
+            const senderId = (window.FIREBASE_CONFIG && window.FIREBASE_CONFIG.messagingSenderId) ? window.FIREBASE_CONFIG.messagingSenderId : "336262620600";
 
-            if (!('serviceWorker' in navigator)) {
-                alert("ERROR: Service Worker is not supported in this browser.");
-                return;
-            }
-
-            let swReady = "NO";
-            let pushSubExists = "NO";
-            let registration = null;
+            let instSuccess = "FAILED";
+            let instStatus = "N/A";
+            let instErrName = "N/A";
+            let instErrMsg = "N/A";
+            let instAuthToken = null;
 
             try {
-                registration = await navigator.serviceWorker.ready;
-                if (registration) {
-                    swReady = "YES";
-                    const sub = await registration.pushManager.getSubscription();
-                    if (sub) {
-                        pushSubExists = "YES";
+                const instUrl = `https://firebaseinstallations.googleapis.com/v1/projects/${projectId}/installations`;
+                const instRes = await fetch(instUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-goog-api-key": apiKey
+                    },
+                    body: JSON.stringify({
+                        appId: appId,
+                        sdkVersion: "w:9.23.0",
+                        authVersion: "FIS_v2"
+                    })
+                });
+
+                instStatus = instRes.status;
+                if (instRes.ok) {
+                    instSuccess = "SUCCESS";
+                    const instData = await instRes.json();
+                    if (instData && instData.authToken && instData.authToken.token) {
+                        instAuthToken = instData.authToken.token;
                     }
+                } else {
+                    instSuccess = "FAILED";
+                    instErrName = "HTTPError";
+                    instErrMsg = "HTTP " + instRes.status + " " + instRes.statusText;
                 }
             } catch (err) {
-                swReady = "NO";
-            }
-
-            let tokenSuccess = false;
-            let tokenLen = "N/A";
-            let errOutput = "";
-
-            if (messaging && registration) {
-                try {
-                    const tokenOptions = { serviceWorkerRegistration: registration };
-                    if (window.FIREBASE_VAPID_KEY) {
-                        tokenOptions.vapidKey = window.FIREBASE_VAPID_KEY;
-                    }
-                    const token = await messaging.getToken(tokenOptions);
-                    if (token) {
-                        tokenSuccess = true;
-                        tokenLen = token.length;
-                    } else {
-                        errOutput = "\nError: getToken returned empty string";
-                    }
-                } catch (err) {
-                    const errName = err && err.name ? err.name : "UnknownError";
-                    const errCode = err && err.code ? err.code : "N/A";
-                    const errMsg = err && err.message ? err.message : String(err);
-                    errOutput = "\nError Name: " + errName + "\nError Code: " + errCode + "\nError Message: " + errMsg;
-                }
-            } else {
-                errOutput = "\nError: Firebase Messaging instance or Service Worker Registration not available (appInitialized: " + appInitialized + ", sdkLoaded: " + sdkLoaded + ")";
+                instSuccess = "FAILED";
+                instErrName = err && err.name ? err.name : "FetchError";
+                instErrMsg = err && err.message ? err.message : String(err);
             }
 
             let resultMsg = 
-                "Firebase app initialized: " + appInitialized + "\n" +
-                "Firebase Messaging SDK loaded: " + sdkLoaded + "\n" +
-                "Service worker ready: " + swReady + "\n" +
-                "Notification permission: " + notificationPerm + "\n" +
-                "Push subscription exists: " + pushSubExists + "\n";
+                "Firebase Installations Network Test\n" +
+                "HTTP request: " + instSuccess + "\n" +
+                "HTTP status: " + instStatus + "\n" +
+                "Error name: " + instErrName + "\n" +
+                "Error message: " + instErrMsg + "\n";
 
-            if (tokenSuccess) {
-                resultMsg += "FCM TOKEN GENERATED: YES\nFCM token length: " + tokenLen + " bytes";
-            } else {
-                resultMsg += "FCM TOKEN GENERATED: NO" + errOutput;
+            if (instSuccess === "SUCCESS") {
+                let regSuccess = "FAILED";
+                let regStatus = "N/A";
+                let regErrName = "N/A";
+                let regErrMsg = "N/A";
+
+                try {
+                    if (!('serviceWorker' in navigator)) {
+                        regErrMsg = "Service Worker not supported";
+                    } else {
+                        const swReg = await navigator.serviceWorker.ready;
+                        const sub = swReg ? await swReg.pushManager.getSubscription() : null;
+                        if (!sub) {
+                            regErrMsg = "No PushSubscription found";
+                        } else if (!instAuthToken) {
+                            regErrMsg = "No Installation AuthToken received";
+                        } else {
+                            const authBuffer = sub.getKey ? sub.getKey('auth') : null;
+                            const p256dhBuffer = sub.getKey ? sub.getKey('p256dh') : null;
+                            const authStr = arrayBufferToBase64Url(authBuffer);
+                            const p256dhStr = arrayBufferToBase64Url(p256dhBuffer);
+
+                            const regUrl = `https://fcmregistrations.googleapis.com/v1/projects/${senderId}/registrations`;
+                            const regRes = await fetch(regUrl, {
+                                method: "POST",
+                                headers: {
+                                    "Content-Type": "application/json",
+                                    "x-goog-api-key": apiKey,
+                                    "x-goog-firebase-installations-auth": instAuthToken
+                                },
+                                body: JSON.stringify({
+                                    web: {
+                                        endpoint: sub.endpoint,
+                                        auth: authStr,
+                                        p256dh: p256dhStr
+                                    }
+                                })
+                            });
+
+                            regStatus = regRes.status;
+                            if (regRes.ok) {
+                                regSuccess = "SUCCESS";
+                            } else {
+                                regSuccess = "FAILED";
+                                regErrName = "HTTPError";
+                                regErrMsg = "HTTP " + regRes.status + " " + regRes.statusText;
+                            }
+                        }
+                    }
+                } catch (err) {
+                    regSuccess = "FAILED";
+                    regErrName = err && err.name ? err.name : "FetchError";
+                    regErrMsg = err && err.message ? err.message : String(err);
+                }
+
+                resultMsg += 
+                    "\nFCM Registration Network Test\n" +
+                    "HTTP request: " + regSuccess + "\n" +
+                    "HTTP status: " + regStatus + "\n" +
+                    "Error name: " + regErrName + "\n" +
+                    "Error message: " + regErrMsg;
             }
 
             alert(resultMsg);

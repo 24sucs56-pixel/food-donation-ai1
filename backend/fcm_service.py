@@ -99,27 +99,18 @@ def send_multicast_push(tokens, title, body, data=None):
     if not unique_tokens:
         return False
 
-    payload_data = {}
+    payload_data = {
+        "title": str(title),
+        "body": str(body)
+    }
     if data:
         for k, v in data.items():
             payload_data[str(k)] = str(v)
 
-    notification = messaging.Notification(
-        title=title,
-        body=body
-    )
-
     message = messaging.MulticastMessage(
         tokens=unique_tokens,
-        notification=notification,
         data=payload_data,
         webpush=messaging.WebpushConfig(
-            notification=messaging.WebpushNotification(
-                title=title,
-                body=body,
-                icon="/icons/icon-192x192.png",
-                badge="/icons/icon-72x72.png"
-            ),
             fcm_options=messaging.WebpushFCMOptions(
                 link="https://food-donation-ai1.vercel.app/"
             )

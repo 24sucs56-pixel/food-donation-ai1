@@ -26,12 +26,12 @@ try {
   messaging.onBackgroundMessage((payload) => {
     console.log('[firebase-messaging-sw.js] Received background message:', payload);
 
-    const title = (payload.notification && payload.notification.title) || (payload.data && payload.data.title) || 'Smart Food Donation Alert';
-    const body = (payload.notification && payload.notification.body) || (payload.data && payload.data.body) || 'You have a new update regarding food donation.';
+    const title = (payload.data && payload.data.title) || (payload.notification && payload.notification.title) || 'Smart Food Donation Alert';
+    const body = (payload.data && payload.data.body) || (payload.notification && payload.notification.body) || 'You have a new update regarding food donation.';
     
     const options = {
       body: body,
-      icon: (payload.notification && payload.notification.icon) || '/icons/icon-192x192.png',
+      icon: (payload.data && payload.data.icon) || (payload.notification && payload.notification.icon) || '/icons/icon-192x192.png',
       badge: '/icons/icon-72x72.png',
       tag: 'food-donation-notification',
       data: payload.data || {}

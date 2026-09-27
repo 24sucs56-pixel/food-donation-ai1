@@ -1657,6 +1657,79 @@ function initAdmin() {
         });
     }
 
+    // Temporary Admin Check FCM Token Status Button
+    const btnCheckFCMTokenStatus = document.getElementById("btnCheckFCMTokenStatus");
+    if (btnCheckFCMTokenStatus) {
+        btnCheckFCMTokenStatus.addEventListener("click", async () => {
+            const sdkLoaded = (typeof firebase !== 'undefined' && typeof firebase.messaging === 'function') ? "YES" : "NO";
+            const notificationPerm = ('Notification' in window) ? Notification.permission : "N/A";
+
+            if (!('serviceWorker' in navigator)) {
+                alert("ERROR: Service Worker is not supported in this browser.");
+                return;
+            }
+
+            let swReady = "NO";
+            let pushSubExists = "NO";
+            let registration = null;
+
+            try {
+                registration = await navigator.serviceWorker.ready;
+                if (registration) {
+                    swReady = "YES";
+                    const sub = await registration.pushManager.getSubscription();
+                    if (sub) {
+                        pushSubExists = "YES";
+                    }
+                }
+            } catch (err) {
+                swReady = "NO";
+            }
+
+            let tokenSuccess = false;
+            let tokenLen = "N/A";
+            let errOutput = "";
+
+            if (sdkLoaded === "YES" && registration) {
+                try {
+                    const messaging = firebase.messaging();
+                    const tokenOptions = { serviceWorkerRegistration: registration };
+                    if (window.FIREBASE_VAPID_KEY) {
+                        tokenOptions.vapidKey = window.FIREBASE_VAPID_KEY;
+                    }
+                    const token = await messaging.getToken(tokenOptions);
+                    if (token) {
+                        tokenSuccess = true;
+                        tokenLen = token.length;
+                    } else {
+                        errOutput = "\nError: getToken returned empty string";
+                    }
+                } catch (err) {
+                    const errName = err && err.name ? err.name : "UnknownError";
+                    const errCode = err && err.code ? err.code : "N/A";
+                    const errMsg = err && err.message ? err.message : String(err);
+                    errOutput = "\nError Name: " + errName + "\nError Code: " + errCode + "\nError Message: " + errMsg;
+                }
+            } else {
+                errOutput = "\nError: Firebase Messaging SDK or Service Worker Registration not available.";
+            }
+
+            let resultMsg = 
+                "Firebase Messaging SDK loaded: " + sdkLoaded + "\n" +
+                "Service worker ready: " + swReady + "\n" +
+                "Notification permission: " + notificationPerm + "\n" +
+                "Push subscription exists: " + pushSubExists + "\n";
+
+            if (tokenSuccess) {
+                resultMsg += "FCM TOKEN GENERATED: YES\nFCM token length: " + tokenLen + " bytes";
+            } else {
+                resultMsg += "FCM TOKEN GENERATED: NO" + errOutput;
+            }
+
+            alert(resultMsg);
+        });
+    }
+
     // Restore active tab from sessionStorage or default to Dashboard
     let savedTab = "sidebarAdminHome";
     try { savedTab = sessionStorage.getItem("activeAdminTab") || "sidebarAdminHome"; } catch(e){}

@@ -22,6 +22,15 @@ try {
   
   const messaging = firebase.messaging();
 
+  // Temporary Diagnostic Push Event Listener
+  self.addEventListener('push', (event) => {
+    console.log("FCM PUSH EVENT RECEIVED");
+    console.log(
+      "FCM PUSH DATA EXISTS:",
+      (event && event.data) ? "YES" : "NO"
+    );
+  });
+
   // Background Push Notification Handler
   messaging.onBackgroundMessage((payload) => {
     console.log('[firebase-messaging-sw.js] Received background message:', payload);

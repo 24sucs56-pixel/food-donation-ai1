@@ -121,7 +121,7 @@ def send_multicast_push(tokens, title, body, data=None):
                 badge="/icons/icon-72x72.png"
             ),
             fcm_options=messaging.WebpushFCMOptions(
-                link="/"
+                link="https://food-donation-ai1.vercel.app/"
             )
         )
     )

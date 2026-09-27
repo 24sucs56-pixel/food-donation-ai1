@@ -1614,6 +1614,36 @@ function initAdmin() {
         });
     }
 
+    // Temporary Admin Test Browser Push Button
+    const btnTestBrowserPush = document.getElementById("btnTestBrowserPush");
+    if (btnTestBrowserPush) {
+        btnTestBrowserPush.addEventListener("click", () => {
+            if (!('serviceWorker' in navigator)) {
+                alert("ERROR: Service Worker is not supported in this browser.");
+                return;
+            }
+            navigator.serviceWorker.ready
+                .then(registration => {
+                    return registration.pushManager.getSubscription().then(subscription => {
+                        if (!subscription) {
+                            alert("NO PUSH SUBSCRIPTION");
+                            return;
+                        }
+                        return registration.showNotification("Browser Push Test", {
+                            body: "Direct browser Push API test",
+                            icon: "/icons/icon-192x192.png",
+                            badge: "/icons/icon-72x72.png"
+                        }).then(() => {
+                            alert("LOCAL PUSH TEST SENT");
+                        });
+                    });
+                })
+                .catch(error => {
+                    alert("ERROR: " + error.message);
+                });
+        });
+    }
+
     // Restore active tab from sessionStorage or default to Dashboard
     let savedTab = "sidebarAdminHome";
     try { savedTab = sessionStorage.getItem("activeAdminTab") || "sidebarAdminHome"; } catch(e){}

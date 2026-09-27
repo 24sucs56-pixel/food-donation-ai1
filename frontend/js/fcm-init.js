@@ -120,18 +120,50 @@ async function requestFCMPermission() {
       
       // Register Service Worker & Fetch Token
       if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-        const messaging = initFCM();
-        if (messaging) {
-          const tokenOptions = { serviceWorkerRegistration: registration };
-          if (window.FIREBASE_VAPID_KEY) {
-            tokenOptions.vapidKey = window.FIREBASE_VAPID_KEY;
-          }
-          const token = await messaging.getToken(tokenOptions);
+        try {
+          // Initialize Firebase App & Messaging
+          const messaging = initFCM();
 
-          if (token) {
-            await saveFCMTokenToBackend(token);
+          // Register Service Worker if not already registered
+          await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+
+          // Explicitly wait for the Service Worker to become active and ready
+          const readyRegistration = await navigator.serviceWorker.ready;
+          console.log("FCM Service Worker is ready and active:", readyRegistration);
+
+          if (messaging && readyRegistration) {
+            const tokenOptions = { serviceWorkerRegistration: readyRegistration };
+            if (window.FIREBASE_VAPID_KEY) {
+              tokenOptions.vapidKey = window.FIREBASE_VAPID_KEY;
+            }
+
+            let token = null;
+            try {
+              token = await messaging.getToken(tokenOptions);
+            } catch (tokenErr) {
+              console.warn("FCM getToken initial attempt failed:", tokenErr);
+              if (tokenErr && tokenErr.code === 'messaging/vapid-key-mismatch' && readyRegistration.pushManager) {
+                console.log("Unsubscribing stale push subscription due to VAPID mismatch...");
+                const existingSub = await readyRegistration.pushManager.getSubscription();
+                if (existingSub) {
+                  await existingSub.unsubscribe();
+                  console.log("Stale subscription removed. Retrying getToken...");
+                  token = await messaging.getToken(tokenOptions);
+                }
+              } else {
+                throw tokenErr;
+              }
+            }
+
+            if (token) {
+              console.log("FCM Token successfully retrieved.");
+              await saveFCMTokenToBackend(token);
+            } else {
+              console.warn("FCM getToken returned empty token.");
+            }
           }
+        } catch (swErr) {
+          console.error("FCM Service Worker / Token Generation Error:", swErr);
         }
       }
       return true;

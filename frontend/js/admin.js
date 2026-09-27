@@ -1566,6 +1566,29 @@ function initAdmin() {
         });
     });
 
+    // Temporary Admin Push Subscription Diagnostic Button
+    const btnCheckPushSub = document.getElementById("btnCheckPushSubscription");
+    if (btnCheckPushSub) {
+        btnCheckPushSub.addEventListener("click", () => {
+            if (!('serviceWorker' in navigator)) {
+                alert("ERROR: Service Worker is not supported in this browser.");
+                return;
+            }
+            navigator.serviceWorker.ready
+                .then(registration => registration.pushManager.getSubscription())
+                .then(subscription => {
+                    if (subscription) {
+                        alert("PUSH SUBSCRIPTION EXISTS");
+                    } else {
+                        alert("NO PUSH SUBSCRIPTION");
+                    }
+                })
+                .catch(error => {
+                    alert("ERROR: " + error.message);
+                });
+        });
+    }
+
     // Restore active tab from sessionStorage or default to Dashboard
     let savedTab = "sidebarAdminHome";
     try { savedTab = sessionStorage.getItem("activeAdminTab") || "sidebarAdminHome"; } catch(e){}

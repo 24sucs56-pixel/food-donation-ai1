@@ -1578,31 +1578,44 @@ function initAdmin() {
                 .then(registration => registration.pushManager.getSubscription())
                 .then(subscription => {
                     if (subscription) {
-                        let endpointHost = "Unknown";
-                        try {
-                            endpointHost = new URL(subscription.endpoint).hostname;
-                        } catch(e){}
+                        const appKeyBuffer = subscription.options && subscription.options.applicationServerKey;
+                        const appKeyLen = appKeyBuffer ? appKeyBuffer.byteLength : "N/A";
 
-                        const p256dhKey = subscription.getKey ? subscription.getKey("p256dh") : null;
-                        const authKey = subscription.getKey ? subscription.getKey("auth") : null;
-                        const p256dhLen = p256dhKey ? p256dhKey.byteLength : "N/A";
-                        const authLen = authKey ? authKey.byteLength : "N/A";
-
+                        let vapidArray = null;
                         let vapidLen = "N/A";
                         if (window.FIREBASE_VAPID_KEY) {
                             try {
                                 const padding = '='.repeat((4 - window.FIREBASE_VAPID_KEY.length % 4) % 4);
                                 const base64 = (window.FIREBASE_VAPID_KEY + padding).replace(/\-/g, '+').replace(/_/g, '/');
-                                vapidLen = window.atob(base64).length;
+                                const rawData = window.atob(base64);
+                                vapidArray = new Uint8Array(rawData.length);
+                                for (let i = 0; i < rawData.length; ++i) {
+                                    vapidArray[i] = rawData.charCodeAt(i);
+                                }
+                                vapidLen = vapidArray.length;
                             } catch(e){}
+                        }
+
+                        let keysMatch = "NO";
+                        if (appKeyBuffer && vapidArray) {
+                            const appKeyArray = new Uint8Array(appKeyBuffer.buffer || appKeyBuffer, appKeyBuffer.byteOffset || 0, appKeyBuffer.byteLength);
+                            if (appKeyArray.length === vapidArray.length) {
+                                let match = true;
+                                for (let i = 0; i < appKeyArray.length; i++) {
+                                    if (appKeyArray[i] !== vapidArray[i]) {
+                                        match = false;
+                                        break;
+                                    }
+                                }
+                                if (match) keysMatch = "YES";
+                            }
                         }
 
                         alert(
                             "Subscription exists: YES\n" +
-                            "Endpoint host: " + endpointHost + "\n" +
-                            "P256DH key length: " + p256dhLen + " bytes\n" +
-                            "Auth key length: " + authLen + " bytes\n" +
-                            "VAPID applicationServerKey length: " + vapidLen + " bytes"
+                            "Browser applicationServerKey length: " + appKeyLen + " bytes\n" +
+                            "Configured VAPID key length: " + vapidLen + " bytes\n" +
+                            "VAPID keys match: " + keysMatch
                         );
                     } else {
                         alert("NO PUSH SUBSCRIPTION");

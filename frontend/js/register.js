@@ -27,6 +27,80 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+
+    // Custom Searchable Dropdown Logic
+    const locationData = {
+        "Andhra Pradesh": ["Anantapur", "Chittoor", "East Godavari", "Guntur", "Krishna", "Kurnool", "Prakasam", "Srikakulam", "Visakhapatnam", "Vizianagaram", "West Godavari", "YSR Kadapa"],
+        "Karnataka": ["Bagalkot", "Bangalore Rural", "Bangalore Urban", "Belgaum", "Bellary", "Bidar", "Chamarajanagar", "Chikballapur", "Chikmagalur", "Chitradurga", "Dakshina Kannada", "Davanagere", "Dharwad", "Gadag", "Gulbarga", "Hassan", "Haveri", "Kodagu", "Kolar", "Koppal", "Mandya", "Mysore", "Raichur", "Ramanagara", "Shimoga", "Tumkur", "Udupi", "Uttara Kannada", "Yadgir"],
+        "Kerala": ["Alappuzha", "Ernakulam", "Idukki", "Kannur", "Kasaragod", "Kollam", "Kottayam", "Kozhikode", "Malappuram", "Palakkad", "Pathanamthitta", "Thiruvananthapuram", "Thrissur", "Wayanad"],
+        "Maharashtra": ["Ahmednagar", "Akola", "Amravati", "Aurangabad", "Beed", "Bhandara", "Buldhana", "Chandrapur", "Dhule", "Gadchiroli", "Gondia", "Hingoli", "Jalgaon", "Jalna", "Kolhapur", "Latur", "Mumbai City", "Mumbai Suburban", "Nagpur", "Nanded", "Nandurbar", "Nashik", "Osmanabad", "Palghar", "Parbhani", "Pune", "Raigad", "Ratnagiri", "Sangli", "Satara", "Sindhudurg", "Solapur", "Thane", "Wardha", "Washim", "Yavatmal"],
+        "Tamil Nadu": ["Ariyalur", "Chengalpattu", "Chennai", "Coimbatore", "Cuddalore", "Dharmapuri", "Dindigul", "Erode", "Kallakurichi", "Kanchipuram", "Kanyakumari", "Karur", "Krishnagiri", "Madurai", "Nagapattinam", "Namakkal", "Nilgiris", "Perambalur", "Pudukkottai", "Ramanathapuram", "Ranipet", "Salem", "Sivaganga", "Tenkasi", "Thanjavur", "Theni", "Thoothukudi", "Tiruchirappalli", "Tirunelveli", "Tirupathur", "Tiruppur", "Tiruvallur", "Tiruvannamalai", "Tiruvarur", "Vellore", "Viluppuram", "Virudhunagar"],
+        "Telangana": ["Adilabad", "Bhadradri Kothagudem", "Hyderabad", "Jagtial", "Jangaon", "Jayashankar Bhupalpally", "Jogulamba Gadwal", "Kamareddy", "Karimnagar", "Khammam", "Komaram Bheem Asifabad", "Mahabubabad", "Mahabubnagar", "Mancherial", "Medak", "Medchal-Malkajgiri", "Mulugu", "Nagarkurnool", "Nalgonda", "Narayanpet", "Nirmal", "Nizamabad", "Peddapalli", "Rajanna Sircilla", "Rangareddy", "Sangareddy", "Siddipet", "Suryapet", "Vikarabad", "Wanaparthy", "Warangal Rural", "Warangal Urban", "Yadadri Bhuvanagiri"],
+        "Tripura": ["Dhalai", "Gomati", "Khowai", "North Tripura", "Sepahijala", "South Tripura", "Unakoti", "West Tripura"]
+    };
+
+    function setupDropdown(inputId, listId, getDataFn, onSelectFn) {
+        const input = document.getElementById(inputId);
+        const list = document.getElementById(listId);
+        if(!input || !list) return;
+
+        function renderOptions(filter = "") {
+            const data = getDataFn();
+            list.innerHTML = "";
+            const filtered = data.filter(item => item.toLowerCase().includes(filter.toLowerCase()));
+            
+            if (filtered.length === 0) {
+                const div = document.createElement("div");
+                div.className = "dropdown-option";
+                div.textContent = "No matches found";
+                div.style.color = "#999";
+                list.appendChild(div);
+                return;
+            }
+
+            filtered.forEach(item => {
+                const div = document.createElement("div");
+                div.className = "dropdown-option";
+                div.textContent = item;
+                div.addEventListener("click", () => {
+                    input.value = item;
+                    list.classList.remove("show");
+                    if (onSelectFn) onSelectFn(item);
+                });
+                list.appendChild(div);
+            });
+        }
+
+        input.addEventListener("focus", () => {
+            renderOptions(input.value);
+            list.classList.add("show");
+        });
+
+        input.addEventListener("input", (e) => {
+            renderOptions(e.target.value);
+            list.classList.add("show");
+        });
+
+        document.addEventListener("click", (e) => {
+            if (!input.contains(e.target) && !list.contains(e.target)) {
+                list.classList.remove("show");
+                const data = getDataFn();
+                if (input.value && !data.includes(input.value)) {
+                    input.value = "";
+                    if (onSelectFn) onSelectFn("");
+                }
+            }
+        });
+    }
+
+    setupDropdown("state", "stateList", () => Object.keys(locationData), (selectedState) => {
+        document.getElementById("district").value = "";
+    });
+
+    setupDropdown("district", "districtList", () => {
+        const selectedState = document.getElementById("state").value;
+        return locationData[selectedState] || [];
+    });
 });
 
 const form = document.getElementById("registerForm");
@@ -51,7 +125,6 @@ form.addEventListener("submit", async function(e){
     const phone = document.getElementById("phone").value.trim();
     const state = document.getElementById("state").value.trim();
     const district = document.getElementById("district").value.trim();
-    const city = document.getElementById("city").value.trim();
     const pincode = document.getElementById("pincode").value.trim();
     const address = document.getElementById("address").value.trim();
 
@@ -68,7 +141,7 @@ form.addEventListener("submit", async function(e){
     formData.append("phone", phone);
     formData.append("state", state);
     formData.append("district", district);
-    formData.append("city", city);
+    formData.append("city", "");
     formData.append("pincode", pincode);
     formData.append("address", address);
 

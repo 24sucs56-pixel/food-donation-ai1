@@ -266,39 +266,33 @@ checked>
 
 </h3>
 
-<div class="input-box">
+<div class="input-box custom-dropdown" id="stateWrapper">
 
     <i class="fa-solid fa-location-dot"></i>
 
     <input
         type="text"
         id="state"
-        placeholder="State"
+        placeholder="Select State"
+        autocomplete="off"
         required>
+        
+    <div class="dropdown-list" id="stateList"></div>
 
 </div>
 
-<div class="input-box">
+<div class="input-box custom-dropdown" id="districtWrapper">
 
     <i class="fa-solid fa-map"></i>
 
     <input
         type="text"
         id="district"
-        placeholder="District"
+        placeholder="Select District"
+        autocomplete="off"
         required>
 
-</div>
-
-<div class="input-box">
-
-    <i class="fa-solid fa-city"></i>
-
-    <input
-        type="text"
-        id="city"
-        placeholder="City"
-        required>
+    <div class="dropdown-list" id="districtList"></div>
 
 </div>
 

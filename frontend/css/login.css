@@ -306,7 +306,7 @@ body{
 
 }
 
-.input-box i{
+.input-box > i{
 
     position:absolute;
 

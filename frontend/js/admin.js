@@ -1096,7 +1096,7 @@ function initAdmin() {
         });
     }
 
-    let adminAvatar = localStorage.getItem("profile_image") || "images/logo.png";
+    let adminAvatar = localStorage.getItem("profile_image") || "assets/brand/logo-mark.svg";
     updateAllAdminAvatars(adminAvatar);
 
     // Sidebar Mobile Controls
@@ -1437,7 +1437,7 @@ function initAdmin() {
                     if (adminInputAddress) adminInputAddress.value = data.address || "";
 
                     // Admin Avatar
-                    let avatarSrc = data.profile_image || localStorage.getItem("profile_image") || "images/logo.png";
+                    let avatarSrc = data.profile_image || localStorage.getItem("profile_image") || "assets/brand/logo-mark.svg";
                     document.querySelectorAll(".profile-button img, .profile-menu-header img, #settingsAdminAvatar, #topMenuAdminAvatar").forEach(img => {
                         img.src = avatarSrc;
                     });

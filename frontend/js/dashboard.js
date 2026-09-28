@@ -131,7 +131,7 @@ if(chatUserName){
         } else if (role.toLowerCase() === "volunteer") {
             avatarSrc = "images/user3.png";
         } else if (role.toLowerCase() === "admin") {
-            avatarSrc = "images/logo.png";
+            avatarSrc = "assets/brand/logo-mark.svg";
         }
     }
     updateAllAvatars(avatarSrc);
@@ -612,7 +612,7 @@ if(chatUserName){
                         avatarImage = "images/user1.png";
                         if (activeRole === "ngo") avatarImage = "images/user2.png";
                         else if (activeRole === "volunteer") avatarImage = "images/user3.png";
-                        else if (activeRole === "admin") avatarImage = "images/logo.png";
+                        else if (activeRole === "admin") avatarImage = "assets/brand/logo-mark.svg";
                     }
                     updateAllAvatars(avatarImage);
                 }
@@ -1637,7 +1637,7 @@ async function loadUserProfileAndRewards() {
             } else if (userRole === "volunteer") {
                 avatarSrc = "images/user3.png";
             } else if (userRole === "admin") {
-                avatarSrc = "images/logo.png";
+                avatarSrc = "assets/brand/logo-mark.svg";
             }
             updateAllAvatars(avatarSrc);
         }

@@ -137,9 +137,31 @@ def send_multicast_push(tokens, title, body, data=None):
         return False
 
 
+def record_notification_in_db(recipient, title, body, data=None):
+    """
+    Saves a persistent in-app notification document in MongoDB Atlas notifications collection.
+    """
+    try:
+        from database import notifications
+        payload_data = data or {}
+        notif_doc = {
+            "recipient": str(recipient).lower() if "@" in str(recipient) or str(recipient) in ["donor", "ngo", "volunteer", "admin"] else str(recipient),
+            "title": str(title),
+            "message": str(body),
+            "type": str(payload_data.get("type", "general")),
+            "donation_id": str(payload_data.get("donation_id", "")),
+            "is_read": False,
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        notifications.insert_one(notif_doc)
+    except Exception as e:
+        logger.error(f"Error saving notification record to DB: {e}")
+
+
 def send_push_to_user(user_identifier, title, body, data=None):
     """
     Sends FCM push notification to a specific user identified by email, name, or ObjectId string.
+    Also records persistent in-app notification in MongoDB Atlas.
     """
     try:
         user = users.find_one({"$or": [{"email": user_identifier}, {"name": user_identifier}]})
@@ -147,6 +169,9 @@ def send_push_to_user(user_identifier, title, body, data=None):
             from bson.objectid import ObjectId
             if ObjectId.is_valid(str(user_identifier)):
                 user = users.find_one({"_id": ObjectId(str(user_identifier))})
+
+        recipient_target = user.get("email") if user else user_identifier
+        record_notification_in_db(recipient_target, title, body, data)
 
         if not user or "fcm_tokens" not in user or not user["fcm_tokens"]:
             return False
@@ -160,11 +185,14 @@ def send_push_to_user(user_identifier, title, body, data=None):
 
 def send_push_to_users(user_identifiers, title, body, data=None):
     """
-    Sends FCM push notification to multiple users.
+    Sends FCM push notification to multiple users and records in-app notifications in MongoDB Atlas.
     """
     try:
         if not user_identifiers:
             return False
+
+        for u_id in user_identifiers:
+            record_notification_in_db(u_id, title, body, data)
 
         query = {"$or": [{"email": {"$in": user_identifiers}}, {"name": {"$in": user_identifiers}}]}
         matched_users = users.find(query)
@@ -185,6 +213,8 @@ def send_push_to_role(role, title, body, data=None):
     Sends FCM push notification to all users with a specific role ('donor', 'ngo', 'volunteer', 'admin').
     """
     try:
+        record_notification_in_db(role.lower(), title, body, data)
+
         role_users = users.find({"role": role.lower()})
         all_tokens = []
         for u in role_users:
@@ -204,6 +234,9 @@ def send_push_to_ngo(ngo_identifier, title, body, data=None):
     """
     try:
         ngo_user = users.find_one({"role": "ngo", "$or": [{"ngo_name": ngo_identifier}, {"email": ngo_identifier}, {"name": ngo_identifier}]})
+        recipient_target = ngo_user.get("email") if ngo_user else ngo_identifier
+        record_notification_in_db(recipient_target, title, body, data)
+
         if ngo_user:
             tokens = [t.get("token") for t in ngo_user.get("fcm_tokens", []) if t.get("token")]
             if tokens:

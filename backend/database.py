@@ -26,6 +26,8 @@ donations = db["donations"]
 
 admin_activity = db["admin_activity"]
 
+notifications = db["notifications"]
+
 
 
 from datetime import datetime

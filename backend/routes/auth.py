@@ -993,3 +993,67 @@ def delete_fcm_token():
         "message": "FCM token removed successfully"
 
     })
+
+
+@auth.route("/api/notifications", methods=["GET"])
+@auth.route("/notifications", methods=["GET"])
+def get_user_notifications():
+    email = request.headers.get("X-User-Email") or request.args.get("email")
+    role = (request.headers.get("X-User-Role") or request.args.get("role") or "").lower()
+
+    if not email:
+        return jsonify({"status": "error", "message": "User email is required"}), 400
+
+    try:
+        from database import notifications
+        query = {"$or": [{"recipient": email.lower()}, {"recipient": role}, {"recipient": "all"}]}
+        notif_list = list(notifications.find(query).sort("created_at", -1).limit(50))
+
+        results = []
+        for n in notif_list:
+            results.append({
+                "id": str(n["_id"]),
+                "recipient": n.get("recipient"),
+                "title": n.get("title"),
+                "message": n.get("message"),
+                "type": n.get("type"),
+                "donation_id": n.get("donation_id", ""),
+                "is_read": n.get("is_read", False),
+                "created_at": n.get("created_at")
+            })
+
+        return jsonify({
+            "status": "success",
+            "notifications": results,
+            "unread_count": len([x for x in results if not x["is_read"]])
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+
+@auth.route("/api/notifications/mark-read", methods=["POST"])
+@auth.route("/notifications/mark-read", methods=["POST"])
+def mark_notifications_read():
+    email = request.headers.get("X-User-Email") or request.args.get("email")
+    data = request.get_json(silent=True) or {}
+    notif_id = data.get("notification_id")
+    mark_all = data.get("mark_all", False)
+
+    try:
+        from database import notifications
+        from bson.objectid import ObjectId
+
+        if mark_all and email:
+            notifications.update_many(
+                {"$or": [{"recipient": email.lower()}, {"recipient": "all"}]},
+                {"$set": {"is_read": True}}
+            )
+        elif notif_id and ObjectId.is_valid(notif_id):
+            notifications.update_one(
+                {"_id": ObjectId(notif_id)},
+                {"$set": {"is_read": True}}
+            )
+
+        return jsonify({"status": "success", "message": "Notification(s) marked as read"})
+    except Exception as e:
+        return jsonify({"status": "error", "message": str(e)}), 500

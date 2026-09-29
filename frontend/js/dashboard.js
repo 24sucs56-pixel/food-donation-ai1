@@ -2106,7 +2106,7 @@ window.viewDonationDetails = function(donationOrId, donationsList) {
     }
 };
 
-window.loadNotifications = function(allDonations) {
+window.loadNotifications = async function(allDonations) {
     const userEmail = localStorage.getItem("email") || "";
     const userName = localStorage.getItem("name") || "";
     const userRole = (localStorage.getItem("role") || "donor").toLowerCase();
@@ -2115,6 +2115,42 @@ window.loadNotifications = function(allDonations) {
     if (!notificationBody) return;
     
     let notifications = [];
+    allDonations = allDonations || window.allDonationsList || [];
+
+    // Fetch persistent notifications from MongoDB Atlas API
+    if (userEmail) {
+        try {
+            const apiBase = getApiBase();
+            const res = await fetch(`${apiBase}/api/notifications`, {
+                headers: {
+                    "X-User-Email": userEmail,
+                    "X-User-Role": userRole
+                }
+            });
+            const data = await res.json();
+            if (data.status === "success" && Array.isArray(data.notifications)) {
+                data.notifications.forEach(n => {
+                    let notifIcon = "🔔";
+                    if (n.type === "donation_accepted" || n.type === "pickup_approved") notifIcon = "🤝";
+                    else if (n.type === "new_pickup" || n.type === "food_delivered") notifIcon = "🚚";
+                    else if (n.type === "delivery_confirmed") notifIcon = "✅";
+
+                    notifications.push({
+                        id: n.id,
+                        donationId: n.donation_id,
+                        title: n.title,
+                        text: n.message,
+                        dateStr: n.created_at,
+                        icon: notifIcon,
+                        is_read: n.is_read,
+                        tabId: userRole === 'ngo' ? 'sidebarNGO' : (userRole === 'volunteer' ? 'sidebarVolunteer' : 'sidebarMyDonations')
+                    });
+                });
+            }
+        } catch (err) {
+            console.warn("Could not fetch remote notifications:", err);
+        }
+    }
     
     // Generate notifications based on role
     if (userRole === "donor") {
@@ -2331,14 +2367,23 @@ window.loadNotifications = function(allDonations) {
         });
     }
     
-    // Sort
-    notifications.sort((a, b) => {
+    // Sort & Deduplicate
+    const seenIds = new Set();
+    const uniqueNotifs = [];
+    notifications.forEach(n => {
+        if (!seenIds.has(n.id)) {
+            seenIds.add(n.id);
+            uniqueNotifs.push(n);
+        }
+    });
+
+    uniqueNotifs.sort((a, b) => {
         const dateA = parseCustomDate(a.dateStr);
         const dateB = parseCustomDate(b.dateStr);
         return dateB - dateA;
     });
     
-    notifications = notifications.slice(0, 15);
+    notifications = uniqueNotifs.slice(0, 20);
     
     let readIds = [];
     try {

@@ -1202,9 +1202,9 @@ function initAdmin() {
     ];
 
     sidebarIds.forEach(id => {
-        const btn = document.getElementById(id);
-        if (btn) {
-            btn.addEventListener("click", (e) => {
+        const sideBtn = document.getElementById(id);
+        if (sideBtn) {
+            sideBtn.addEventListener("click", (e) => {
                 e.preventDefault();
                 window.navigateToSection(id);
             });
@@ -1213,11 +1213,11 @@ function initAdmin() {
 
     // Profile Dropdown Menu Toggle & Actions
     function positionAdminProfileMenu() {
-        const btn = document.getElementById("profileBtn");
+        const pBtn = document.getElementById("profileBtn");
         const menu = document.getElementById("profileMenu");
-        if (!btn || !menu) return;
+        if (!pBtn || !menu) return;
 
-        const rect = btn.getBoundingClientRect();
+        const rect = pBtn.getBoundingClientRect();
         const viewportWidth = window.innerWidth;
         
         menu.style.position = "fixed";
@@ -1349,8 +1349,8 @@ function initAdmin() {
     if (profileChangePasswordBtn) {
         profileChangePasswordBtn.addEventListener("click", (e) => {
             e.preventDefault();
-            const modal = document.getElementById("changePasswordModal");
-            if (modal) modal.style.display = "flex";
+            const pwdMenuModal = document.getElementById("changePasswordModal");
+            if (pwdMenuModal) pwdMenuModal.style.display = "flex";
             closeAdminProfileMenu();
         });
     }
@@ -1359,8 +1359,8 @@ function initAdmin() {
     if (profileHelpBtn) {
         profileHelpBtn.addEventListener("click", (e) => {
             e.preventDefault();
-            const modal = document.getElementById("helpCenterModal");
-            if (modal) modal.style.display = "flex";
+            const helpMenuModal = document.getElementById("helpCenterModal");
+            if (helpMenuModal) helpMenuModal.style.display = "flex";
             closeAdminProfileMenu();
         });
     }
@@ -1368,24 +1368,24 @@ function initAdmin() {
     const closeChangePasswordModal = document.getElementById("closeChangePasswordModal");
     if (closeChangePasswordModal) {
         closeChangePasswordModal.onclick = () => {
-            const modal = document.getElementById("changePasswordModal");
-            if (modal) modal.style.display = "none";
+            const pwdCloseModal = document.getElementById("changePasswordModal");
+            if (pwdCloseModal) pwdCloseModal.style.display = "none";
         };
     }
 
     const closeHelpCenterModal = document.getElementById("closeHelpCenterModal");
     if (closeHelpCenterModal) {
         closeHelpCenterModal.onclick = () => {
-            const modal = document.getElementById("helpCenterModal");
-            if (modal) modal.style.display = "none";
+            const helpCloseModal = document.getElementById("helpCenterModal");
+            if (helpCloseModal) helpCloseModal.style.display = "none";
         };
     }
 
     const closeDocModal = document.getElementById("closeDocModal");
     if (closeDocModal) {
         closeDocModal.onclick = () => {
-            const modal = document.getElementById("documentModal");
-            if (modal) modal.style.display = "none";
+            const docModalEl = document.getElementById("documentModal");
+            if (docModalEl) docModalEl.style.display = "none";
             if (window.activeDocumentBlobUrl) {
                 URL.revokeObjectURL(window.activeDocumentBlobUrl);
                 window.activeDocumentBlobUrl = null;
@@ -1396,8 +1396,8 @@ function initAdmin() {
     const closeUserDetailsModal = document.getElementById("closeUserDetailsModal");
     if (closeUserDetailsModal) {
         closeUserDetailsModal.onclick = () => {
-            const modal = document.getElementById("userDetailsModal");
-            if (modal) modal.style.display = "none";
+            const userDetailModalEl = document.getElementById("userDetailsModal");
+            if (userDetailModalEl) userDetailModalEl.style.display = "none";
         };
     }
 
@@ -1409,61 +1409,61 @@ function initAdmin() {
             const currentPassword = document.getElementById("currentPasswordInput")?.value || "";
             const newPassword = document.getElementById("newPasswordInput")?.value || "";
             const confirmPassword = document.getElementById("confirmPasswordInput")?.value || "";
-            const msgEl = document.getElementById("changePasswordMsg");
-            const btn = document.getElementById("savePasswordBtn");
+            const pwdMsgEl = document.getElementById("changePasswordMsg");
+            const savePwdBtn = document.getElementById("savePasswordBtn");
 
-            if (!msgEl) return;
+            if (!pwdMsgEl) return;
 
             if (newPassword !== confirmPassword) {
-                msgEl.style.display = "block";
-                msgEl.style.background = "#fee2e2";
-                msgEl.style.color = "#dc2626";
-                msgEl.innerText = "New passwords do not match!";
+                pwdMsgEl.style.display = "block";
+                pwdMsgEl.style.background = "#fee2e2";
+                pwdMsgEl.style.color = "#dc2626";
+                pwdMsgEl.innerText = "New passwords do not match!";
                 return;
             }
 
-            const email = localStorage.getItem("email") || "admin.demo@foodbridge.test";
-            if (btn) {
-                btn.disabled = true;
-                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Updating...`;
+            const pwdEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
+            if (savePwdBtn) {
+                savePwdBtn.disabled = true;
+                savePwdBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Updating...`;
             }
 
             try {
                 const apiBase = getApiBase();
-                const res = await fetch(`${apiBase}/user/change-password`, {
+                const pwdRes = await fetch(`${apiBase}/user/change-password`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ email, current_password: currentPassword, new_password: newPassword })
+                    body: JSON.stringify({ email: pwdEmail, current_password: currentPassword, new_password: newPassword })
                 });
 
-                const result = await res.json();
-                if (res.ok && result.status === "success") {
-                    msgEl.style.display = "block";
-                    msgEl.style.background = "#dcfce7";
-                    msgEl.style.color = "#15803d";
-                    msgEl.innerText = "✓ Password changed successfully!";
+                const pwdResult = await pwdRes.json();
+                if (pwdRes.ok && pwdResult.status === "success") {
+                    pwdMsgEl.style.display = "block";
+                    pwdMsgEl.style.background = "#dcfce7";
+                    pwdMsgEl.style.color = "#15803d";
+                    pwdMsgEl.innerText = "✓ Password changed successfully!";
                     changePasswordForm.reset();
                     setTimeout(() => {
-                        msgEl.style.display = "none";
-                        const modal = document.getElementById("changePasswordModal");
-                        if (modal) modal.style.display = "none";
+                        pwdMsgEl.style.display = "none";
+                        const pwdFormModal = document.getElementById("changePasswordModal");
+                        if (pwdFormModal) pwdFormModal.style.display = "none";
                     }, 2000);
                 } else {
-                    msgEl.style.display = "block";
-                    msgEl.style.background = "#fee2e2";
-                    msgEl.style.color = "#dc2626";
-                    msgEl.innerText = result.message || "Failed to update password";
+                    pwdMsgEl.style.display = "block";
+                    pwdMsgEl.style.background = "#fee2e2";
+                    pwdMsgEl.style.color = "#dc2626";
+                    pwdMsgEl.innerText = pwdResult.message || "Failed to update password";
                 }
             } catch (err) {
                 console.error("Change password error:", err);
-                msgEl.style.display = "block";
-                msgEl.style.background = "#fee2e2";
-                msgEl.style.color = "#dc2626";
-                msgEl.innerText = "Network error updating password.";
+                pwdMsgEl.style.display = "block";
+                pwdMsgEl.style.background = "#fee2e2";
+                pwdMsgEl.style.color = "#dc2626";
+                pwdMsgEl.innerText = "Network error updating password.";
             } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = `<i class="fa-solid fa-lock"></i> Update Password`;
+                if (savePwdBtn) {
+                    savePwdBtn.disabled = false;
+                    savePwdBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Update Password`;
                 }
             }
         });
@@ -1487,18 +1487,18 @@ function initAdmin() {
     // ADMIN PROFILE LOGIC & API SYNC
     // ==========================================
     async function loadAdminProfile() {
-        const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
+        const profileEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
         const adminEmailEl = document.getElementById("profileAdminEmail");
-        if (adminEmailEl) adminEmailEl.innerText = adminEmail;
+        if (adminEmailEl) adminEmailEl.innerText = profileEmail;
 
         try {
-            const apiBase = getApiBase();
-            const res = await fetch(`${apiBase}/user/profile?email=${encodeURIComponent(adminEmail)}`);
-            if (res.ok) {
-                const data = await res.json();
-                if (data.status === "success") {
-                    if (data.name) localStorage.setItem("name", data.name);
-                    const adminName = data.name || "System Admin";
+            const currentApiBase = getApiBase();
+            const profileRes = await fetch(`${currentApiBase}/user/profile?email=${encodeURIComponent(profileEmail)}`);
+            if (profileRes.ok) {
+                const profileData = await profileRes.json();
+                if (profileData.status === "success") {
+                    if (profileData.name) localStorage.setItem("name", profileData.name);
+                    const fetchedAdminName = profileData.name || "System Admin";
                     
                     const adminNameEl = document.getElementById("profileAdminName");
                     const adminHeaderNameEl = document.getElementById("settingsAdminProfileName");
@@ -1507,15 +1507,15 @@ function initAdmin() {
                     const adminInputPhone = document.getElementById("adminSettingsPhone");
                     const adminInputAddress = document.getElementById("adminSettingsAddress");
 
-                    if (adminNameEl) adminNameEl.innerText = adminName;
-                    if (adminHeaderNameEl) adminHeaderNameEl.innerText = adminName;
-                    if (adminInputName) adminInputName.value = adminName;
-                    if (adminInputEmail) adminInputEmail.value = data.email || adminEmail;
-                    if (adminInputPhone) adminInputPhone.value = data.phone || "";
-                    if (adminInputAddress) adminInputAddress.value = data.address || "";
+                    if (adminNameEl) adminNameEl.innerText = fetchedAdminName;
+                    if (adminHeaderNameEl) adminHeaderNameEl.innerText = fetchedAdminName;
+                    if (adminInputName) adminInputName.value = fetchedAdminName;
+                    if (adminInputEmail) adminInputEmail.value = profileData.email || profileEmail;
+                    if (adminInputPhone) adminInputPhone.value = profileData.phone || "";
+                    if (adminInputAddress) adminInputAddress.value = profileData.address || "";
 
                     // Admin Avatar
-                    let avatarSrc = data.profile_image || localStorage.getItem("profile_image") || "assets/brand/logo-mark.svg";
+                    let avatarSrc = profileData.profile_image || localStorage.getItem("profile_image") || "assets/brand/logo-mark.svg";
                     document.querySelectorAll(".profile-button img, .profile-menu-header img, #settingsAdminAvatar, #topMenuAdminAvatar").forEach(img => {
                         img.src = avatarSrc;
                     });
@@ -1554,31 +1554,31 @@ function initAdmin() {
 
     if (saveAdminProfileBtn) {
         saveAdminProfileBtn.addEventListener("click", async () => {
-            const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
+            const targetAdminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
             saveAdminProfileBtn.disabled = true;
             saveAdminProfileBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Saving...`;
 
             const payload = {
-                email: adminEmail,
+                email: targetAdminEmail,
                 name: document.getElementById("adminSettingsName")?.value || "",
                 phone: document.getElementById("adminSettingsPhone")?.value || "",
                 address: document.getElementById("adminSettingsAddress")?.value || ""
             };
 
             try {
-                const apiBase = getApiBase();
-                const res = await fetch(`${apiBase}/user/profile/update`, {
+                const saveApiBase = getApiBase();
+                const saveRes = await fetch(`${saveApiBase}/user/profile/update`, {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
-                        "X-User-Email": adminEmail
+                        "X-User-Email": targetAdminEmail
                     },
                     body: JSON.stringify(payload)
                 });
 
-                const result = await res.json();
-                if (res.ok && result.status === "success") {
-                    if (result.name) localStorage.setItem("name", result.name);
+                const saveResult = await saveRes.json();
+                if (saveRes.ok && saveResult.status === "success") {
+                    if (saveResult.name) localStorage.setItem("name", saveResult.name);
                     if (adminProfileSaveMsg) {
                         adminProfileSaveMsg.style.display = "block";
                         adminProfileSaveMsg.style.background = "#dcfce7";
@@ -1593,7 +1593,7 @@ function initAdmin() {
                         adminProfileSaveMsg.style.display = "block";
                         adminProfileSaveMsg.style.background = "#fee2e2";
                         adminProfileSaveMsg.style.color = "#dc2626";
-                        adminProfileSaveMsg.innerText = result.message || "Failed to update profile";
+                        adminProfileSaveMsg.innerText = saveResult.message || "Failed to update profile";
                     }
                 }
             } catch (err) {
@@ -1618,12 +1618,13 @@ function initAdmin() {
                 const base64Image = ev.target.result;
                 document.querySelectorAll(".profile-button img, .profile-menu-header img, #settingsAdminAvatar").forEach(img => img.src = base64Image);
                 localStorage.setItem("profile_image", base64Image);
-                const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
+                const avatarEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
                 try {
-                    await fetch("https://food-donation-ai1.onrender.com/user/profile/image", {
+                    const avatarApiBase = getApiBase();
+                    await fetch(`${avatarApiBase}/user/profile/image`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ email: adminEmail, profile_image: base64Image })
+                        body: JSON.stringify({ email: avatarEmail, profile_image: base64Image })
                     });
                 } catch (err) {
                     console.error("Error saving admin avatar:", err);
@@ -1650,13 +1651,6 @@ function initAdmin() {
     let savedTab = "sidebarAdminHome";
     try { savedTab = sessionStorage.getItem("activeAdminTab") || "sidebarAdminHome"; } catch(e){}
     window.navigateToSection(savedTab);
-
-    // Modal Close Listeners
-    const closeDocModal = document.getElementById("closeDocModal");
-    if (closeDocModal) closeDocModal.onclick = () => { document.getElementById("documentModal").style.display = "none"; };
-
-    const closeUserDetailsModal = document.getElementById("closeUserDetailsModal");
-    if (closeUserDetailsModal) closeUserDetailsModal.onclick = () => { document.getElementById("userDetailsModal").style.display = "none"; };
 
     window.onclick = (e) => {
         const docM = document.getElementById("documentModal");

@@ -189,11 +189,13 @@ def get_user_document(user_identifier):
         user = users.find_one({"_id": ObjectId(user_identifier)})
     if not user:
         user = users.find_one({"email": user_identifier})
+    if not user:
+        user = users.find_one({"email": {"$regex": f"^{user_identifier}$", "$options": "i"}})
 
     if not user:
-        return jsonify({"status": "error", "message": "User not found"}), 404
+        return jsonify({"status": "error", "message": f"User not found for identifier: {user_identifier}"}), 404
 
-    doc_path = user.get("document_path") or user.get("document_image")
+    doc_path = user.get("document_path") or user.get("document_image") or user.get("document_filename")
     if not doc_path:
         return jsonify({"status": "error", "message": "No verification document uploaded for this user"}), 404
 
@@ -207,36 +209,68 @@ def get_user_document(user_identifier):
         except Exception:
             return jsonify({"status": "error", "message": "Invalid base64 document encoding"}), 400
 
-    rel_path = doc_path.replace("\\", "/")
-    if rel_path.startswith("uploads/"):
-        abs_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', rel_path))
-    else:
-        abs_path = os.path.abspath(rel_path)
+    clean_path = doc_path.replace("\\", "/").strip()
+    backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
-    if not os.path.exists(abs_path):
-        doc_name = os.path.basename(rel_path)
-        fallback_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'uploads', 'documents', doc_name))
-        if os.path.exists(fallback_path):
-            abs_path = fallback_path
-        else:
-            return jsonify({"status": "error", "message": f"Document file not found: {doc_name}"}), 404
+    possible_paths = []
+    if os.path.isabs(clean_path):
+        possible_paths.append(clean_path)
 
-    mime_type, _ = mimetypes.guess_type(abs_path)
+    possible_paths.append(os.path.abspath(os.path.join(backend_dir, clean_path)))
+
+    if clean_path.startswith("backend/uploads/"):
+        rel_sub = clean_path.replace("backend/uploads/", "", 1)
+        possible_paths.append(os.path.abspath(os.path.join(backend_dir, 'uploads', rel_sub)))
+    elif clean_path.startswith("uploads/"):
+        rel_sub = clean_path.replace("uploads/", "", 1)
+        possible_paths.append(os.path.abspath(os.path.join(backend_dir, 'uploads', rel_sub)))
+
+    doc_filename = user.get("document_filename") or os.path.basename(clean_path)
+    if doc_filename:
+        possible_paths.append(os.path.abspath(os.path.join(backend_dir, 'uploads', 'documents', doc_filename)))
+        possible_paths.append(os.path.abspath(os.path.join(backend_dir, 'uploads', doc_filename)))
+
+    resolved_path = None
+    for p in possible_paths:
+        if os.path.isfile(p):
+            resolved_path = p
+            break
+
+    if not resolved_path:
+        # Check if persistent Base64 data stream is stored in MongoDB as fallback
+        b64_data = user.get("document_image") or user.get("document_b64")
+        if b64_data and isinstance(b64_data, str) and b64_data.startswith("data:"):
+            import base64
+            try:
+                header, encoded = b64_data.split(",", 1)
+                mime_type = header.split(";")[0].replace("data:", "")
+                data = base64.b64decode(encoded)
+                return Response(data, mimetype=mime_type)
+            except Exception:
+                pass
+
+        return jsonify({
+            "status": "error",
+            "message": f"Document file '{doc_filename or clean_path}' not found on server."
+        }), 404
+
+    mime_type, _ = mimetypes.guess_type(resolved_path)
     if not mime_type:
-        if abs_path.endswith(".pdf"):
-            mime_type = "application/pdf"
-        elif abs_path.endswith(".png"):
-            mime_type = "image/png"
-        elif abs_path.endswith((".jpg", ".jpeg")):
-            mime_type = "image/jpeg"
+        ext = resolved_path.rsplit('.', 1)[-1].lower() if '.' in resolved_path else ''
+        if ext == 'pdf':
+            mime_type = 'application/pdf'
+        elif ext in ['jpg', 'jpeg']:
+            mime_type = 'image/jpeg'
+        elif ext == 'png':
+            mime_type = 'image/png'
         else:
-            mime_type = "application/octet-stream"
+            mime_type = 'application/octet-stream'
 
     return send_file(
-        abs_path,
+        resolved_path,
         mimetype=mime_type,
         as_attachment=False,
-        download_name=user.get("document_filename") or os.path.basename(abs_path)
+        download_name=user.get("document_filename") or os.path.basename(resolved_path)
     )
 
 def process_user_verification(email, status):

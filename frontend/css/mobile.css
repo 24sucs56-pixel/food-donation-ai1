@@ -51,6 +51,18 @@
         height: auto;
     }
 
+    .admin-table-scroll,
+    .mobile-table-scroll,
+    .table-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch !important;
+        touch-action: pan-x pan-y !important;
+        display: block !important;
+    }
+
     /* ==========================================
        2. LANDING PAGE NAVBAR & HEADER (index.html)
        ========================================== */
@@ -894,7 +906,7 @@
         box-sizing: border-box !important;
         overflow-x: hidden !important;
         overflow-y: visible !important;
-        touch-action: pan-y !important;
+        touch-action: pan-x pan-y !important;
     }
 
     .container {
@@ -3873,10 +3885,10 @@
         display: block !important;
         width: 100% !important;
         max-width: 100% !important;
-        overflow-x: scroll !important;
+        overflow-x: auto !important;
         overflow-y: hidden !important;
         -webkit-overflow-scrolling: touch !important;
-        touch-action: pan-x !important;
+        touch-action: pan-x pan-y !important;
         scrollbar-width: auto !important;
         border-radius: 12px !important;
         margin: 0 !important;
@@ -3898,7 +3910,7 @@
     .admin-table-scroll div,
     .mobile-table-scroll *,
     .table-container * {
-        touch-action: pan-x !important;
+        touch-action: pan-x pan-y !important;
     }
 
     .premium-card {

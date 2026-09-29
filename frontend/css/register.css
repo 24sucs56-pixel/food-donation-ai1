@@ -232,6 +232,7 @@ RIGHT PANEL
 
 .custom-dropdown {
     position: relative;
+    z-index: 100;
 }
 
 .dropdown-list {
@@ -242,16 +243,17 @@ RIGHT PANEL
     background: #fff;
     border: 2px solid #dbeafe;
     border-radius: 12px;
-    max-height: 200px;
+    max-height: 220px;
     overflow-y: auto;
-    z-index: 10;
+    -webkit-overflow-scrolling: touch;
+    z-index: 1000 !important;
     display: none;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
     margin-top: 4px;
 }
 
 .dropdown-list.show {
-    display: block;
+    display: block !important;
 }
 
 .dropdown-option {
@@ -260,6 +262,8 @@ RIGHT PANEL
     font-size: 15px;
     color: #334155;
     transition: 0.2s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .dropdown-option:hover {

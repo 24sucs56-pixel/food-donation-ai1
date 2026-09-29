@@ -104,11 +104,11 @@ function renderDashboardPendingList(pendingUsers) {
     if (!container) return;
 
     if (pendingUsers.length === 0) {
-        container.innerHTML = `<p style="color: #64748b; font-size: 13px; text-align: center; padding: 15px;">No pending verification requests.</p>`;
+        container.innerHTML = `<tr><td colspan="4" style="padding: 15px; color: #64748b; text-align: center;">No pending verification requests.</td></tr>`;
         return;
     }
 
-    let html = `<div style="display: flex; flex-direction: column; gap: 10px;">`;
+    let html = "";
     pendingUsers.forEach(u => {
         let roleTarget = "sidebarAdminUsers";
         if (u.role === "donor") roleTarget = "sidebarAdminDonors";
@@ -116,16 +116,19 @@ function renderDashboardPendingList(pendingUsers) {
         else if (u.role === "volunteer") roleTarget = "sidebarAdminVolunteers";
 
         html += `
-            <div style="display: flex; justify-content: space-between; align-items: center; background: #fff8e6; border: 1px solid #fef3c7; padding: 10px 14px; border-radius: 10px;">
-                <div>
-                    <h4 style="margin: 0; font-size: 14px; font-weight: 600; color: #1e293b;">${u.name}</h4>
-                    <p style="margin: 2px 0 0 0; font-size: 12px; color: #64748b;">${u.email} &bull; <strong style="text-transform: uppercase; color: #d97706;">${u.role}</strong></p>
-                </div>
-                <button class="btn-action btn-view" onclick="navigateToSection('${roleTarget}')" style="padding: 5px 10px; font-size: 11.5px;">Review</button>
-            </div>
+            <tr>
+                <td>
+                    <strong style="font-size: 13.5px; color: #1e293b;">${u.name}</strong><br>
+                    <span style="font-size: 11.5px; color: #64748b;">${u.email}</span>
+                </td>
+                <td><strong style="text-transform: uppercase; color: #d97706; font-size: 11.5px;">${u.role}</strong></td>
+                <td><span class="badge-status badge-pending" style="font-size: 11px; padding: 3px 8px;">Pending</span></td>
+                <td>
+                    <button class="btn-action btn-view" onclick="navigateToSection('${roleTarget}')" style="padding: 5px 10px; font-size: 11.5px;">Review</button>
+                </td>
+            </tr>
         `;
     });
-    html += `</div>`;
     container.innerHTML = html;
 }
 
@@ -135,11 +138,11 @@ function renderDashboardRecentActivity(activities) {
     if (!container) return;
 
     if (activities.length === 0) {
-        container.innerHTML = `<p style="color: #64748b; font-size: 13px; text-align: center; padding: 15px;">No recent admin actions logged.</p>`;
+        container.innerHTML = `<tr><td colspan="5" style="padding: 15px; color: #64748b; text-align: center;">No recent admin actions logged.</td></tr>`;
         return;
     }
 
-    let html = `<div style="display: flex; flex-direction: column; gap: 10px;">`;
+    let html = "";
     activities.forEach(act => {
         const isApprove = act.status === "Approved";
         const iconClass = isApprove ? "fa-circle-check" : "fa-circle-xmark";
@@ -147,19 +150,23 @@ function renderDashboardRecentActivity(activities) {
         const badgeClass = isApprove ? "badge-approved" : "badge-rejected";
 
         html += `
-            <div style="display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #f1f5f9; padding: 10px 14px; border-radius: 10px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <i class="fa-solid ${iconClass}" style="color: ${iconColor}; font-size: 16px;"></i>
-                    <div>
-                        <h4 style="margin: 0; font-size: 13.5px; font-weight: 600; color: #1e293b;">${act.user_name} (${act.user_role})</h4>
-                        <p style="margin: 2px 0 0 0; font-size: 11.5px; color: #64748b;">${act.user_email} &bull; ${act.timestamp || ''}</p>
+            <tr>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid ${iconClass}" style="color: ${iconColor}; font-size: 13px;"></i>
+                        <strong style="font-size: 12.5px; color: #1e293b;">${act.admin_email || 'Admin'}</strong>
                     </div>
-                </div>
-                <span class="badge-status ${badgeClass}" style="font-size: 11px; padding: 3px 8px;">${act.status}</span>
-            </div>
+                </td>
+                <td>
+                    <strong style="font-size: 12.5px; color: #1e293b;">${act.user_name || 'User'}</strong><br>
+                    <span style="font-size: 11px; color: #64748b;">${act.user_email || ''}</span>
+                </td>
+                <td><span style="text-transform: uppercase; font-weight: 600; font-size: 11px; color: #475569;">${act.user_role || '-'}</span></td>
+                <td><span class="badge-status ${badgeClass}" style="font-size: 11px; padding: 3px 8px;">${act.status}</span></td>
+                <td><span style="font-size: 11px; color: #64748b; white-space: nowrap;">${act.timestamp || ''}</span></td>
+            </tr>
         `;
     });
-    html += `</div>`;
     container.innerHTML = html;
 }
 
@@ -722,7 +729,7 @@ window.viewUserDetails = function(email) {
     modal.style.display = "flex";
 };
 
-// Document inline viewer inside User Details modal (same page display via Blob URL)
+// Document viewer modal & inline display using Blob URL stream
 window.viewDocument = async function(email, event) {
     if (event && typeof event.preventDefault === "function") {
         event.preventDefault();
@@ -730,38 +737,46 @@ window.viewDocument = async function(email, event) {
     }
 
     const user = (window.allAdminUsersList || []).find(u => u.email === email);
-    const modal = document.getElementById("userDetailsModal");
     
-    // Open user details modal first if not currently displayed
-    if (!modal || modal.style.display !== "flex") {
-        viewUserDetails(email);
-    }
+    // 1. Standalone Document Preview Modal elements
+    const docModal = document.getElementById("documentModal");
+    const docTitle = document.getElementById("modalDocTitle");
+    const docImg = document.getElementById("modalDocImg");
+    const docIframe = document.getElementById("modalDocIframe");
+    const docLoading = document.getElementById("modalDocLoading");
+    const docError = document.getElementById("modalDocError");
 
+    // 2. Inline Embedded Viewer inside User Details Modal (if active)
+    const userDetailsModal = document.getElementById("userDetailsModal");
     const viewer = document.getElementById("embeddedDocViewer");
     const content = document.getElementById("embeddedDocContent");
     const label = document.getElementById("embeddedDocLabel");
 
-    if (!viewer || !content) return;
-
-    // Show inline loading state
-    if (label) {
-        label.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color: #0284c7;"></i> Loading Document Preview...`;
-    }
-    content.innerHTML = `
-        <div style="padding: 30px; text-align: center; color: #64748b;">
-            <i class="fa-solid fa-spinner fa-spin" style="font-size: 28px; color: #0284c7;"></i>
-            <div style="margin-top: 10px; font-size: 13.5px; font-weight: 600;">Fetching secure document stream...</div>
-        </div>
-    `;
-    viewer.style.display = "block";
-    viewer.scrollIntoView({ behavior: "smooth", block: "nearest" });
-
     const apiBase = getApiBase();
     const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
-
-    // Build secure document stream URL with Admin credentials
     const targetIdentifier = user ? (user.id || user.email) : email;
     const docUrl = `${apiBase}/admin/user/${encodeURIComponent(targetIdentifier)}/document?user_email=${encodeURIComponent(adminEmail)}&user_role=admin`;
+
+    // Determine viewer display: If userDetailsModal is visible, show embedded viewer; else open standalone documentModal
+    const isUserDetailsOpen = userDetailsModal && userDetailsModal.style.display === "flex";
+
+    if (isUserDetailsOpen && viewer && content) {
+        if (label) label.innerHTML = `<i class="fa-solid fa-spinner fa-spin" style="color: #0284c7;"></i> Loading Document Preview...`;
+        content.innerHTML = `
+            <div style="padding: 30px; text-align: center; color: #64748b;">
+                <i class="fa-solid fa-spinner fa-spin" style="font-size: 28px; color: #0284c7;"></i>
+                <div style="margin-top: 10px; font-size: 13.5px; font-weight: 600;">Fetching secure document stream...</div>
+            </div>
+        `;
+        viewer.style.display = "block";
+    } else if (docModal) {
+        if (docTitle) docTitle.innerText = `Verification Document - ${user ? user.name : email}`;
+        if (docImg) docImg.style.display = "none";
+        if (docIframe) docIframe.style.display = "none";
+        if (docError) docError.style.display = "none";
+        if (docLoading) docLoading.style.display = "block";
+        docModal.style.display = "flex";
+    }
 
     try {
         const response = await fetch(docUrl, {
@@ -773,14 +788,21 @@ window.viewDocument = async function(email, event) {
         });
 
         if (!response.ok) {
+            const errJson = await response.json().catch(() => ({}));
+            const errMsg = errJson.message || `Unable to load document preview (HTTP ${response.status}).`;
+
+            if (docLoading) docLoading.style.display = "none";
+            if (docError) {
+                docError.innerText = errMsg;
+                docError.style.display = "block";
+            }
             if (label) label.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color: #dc2626;"></i> Preview Error`;
-            content.innerHTML = `<div style="padding: 20px; color: #dc2626; font-size: 13.5px; font-weight: 600;">Unable to load document preview (HTTP ${response.status}).</div>`;
+            if (content) content.innerHTML = `<div style="padding: 20px; color: #dc2626; font-size: 13.5px; font-weight: 600;">${errMsg}</div>`;
             return;
         }
 
         const blob = await response.blob();
 
-        // Revoke previous Blob URL if active
         if (window.activeDocumentBlobUrl) {
             URL.revokeObjectURL(window.activeDocumentBlobUrl);
             window.activeDocumentBlobUrl = null;
@@ -793,28 +815,43 @@ window.viewDocument = async function(email, event) {
         const blobType = (blob.type || "").toLowerCase();
         const isImage = blobType.startsWith("image/") || docFilename.endsWith(".jpg") || docFilename.endsWith(".jpeg") || docFilename.endsWith(".png") || docFilename.endsWith(".webp");
 
+        if (docLoading) docLoading.style.display = "none";
+
         if (isImage) {
-            if (label) {
-                label.innerHTML = `<i class="fa-solid fa-file-image" style="color: #0284c7;"></i> Image Document Preview`;
+            if (docImg) {
+                docImg.src = blobUrl;
+                docImg.style.display = "block";
             }
-            content.innerHTML = `
-                <div style="padding: 10px; background: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 250px;">
-                    <img src="${blobUrl}" alt="Uploaded Document Preview" style="max-width: 100%; max-height: 480px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); object-fit: contain;">
-                </div>
-            `;
+            if (label) label.innerHTML = `<i class="fa-solid fa-file-image" style="color: #0284c7;"></i> Image Document Preview`;
+            if (content) {
+                content.innerHTML = `
+                    <div style="padding: 10px; background: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 250px;">
+                        <img src="${blobUrl}" alt="Uploaded Document Preview" style="max-width: 100%; max-height: 480px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); object-fit: contain;">
+                    </div>
+                `;
+            }
         } else {
-            // Default to PDF iframe viewer using local Blob URL
-            if (label) {
-                label.innerHTML = `<i class="fa-solid fa-file-pdf" style="color: #ea580c;"></i> PDF Document Preview`;
+            if (docIframe) {
+                docIframe.src = blobUrl;
+                docIframe.style.display = "block";
             }
-            content.innerHTML = `
-                <iframe src="${blobUrl}" style="width: 100%; height: 460px; border: none; border-radius: 6px;" title="Uploaded Verification Document"></iframe>
-            `;
+            if (label) label.innerHTML = `<i class="fa-solid fa-file-pdf" style="color: #ea580c;"></i> PDF Document Preview`;
+            if (content) {
+                content.innerHTML = `
+                    <iframe src="${blobUrl}" style="width: 100%; height: 460px; border: none; border-radius: 6px;" title="Uploaded Verification Document"></iframe>
+                `;
+            }
         }
     } catch (error) {
         console.error("Error fetching document blob:", error);
+        const errMsg = "Failed to fetch document preview. Please check network connection.";
+        if (docLoading) docLoading.style.display = "none";
+        if (docError) {
+            docError.innerText = errMsg;
+            docError.style.display = "block";
+        }
         if (label) label.innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color: #dc2626;"></i> Preview Error`;
-        content.innerHTML = `<div style="padding: 20px; color: #dc2626; font-size: 13.5px; font-weight: 600;">Failed to fetch document preview. Please check network connection.</div>`;
+        if (content) content.innerHTML = `<div style="padding: 20px; color: #dc2626; font-size: 13.5px; font-weight: 600;">${errMsg}</div>`;
     }
 };
 
@@ -1319,6 +1356,26 @@ function initAdmin() {
     if (closeHelpCenterModal) {
         closeHelpCenterModal.onclick = () => {
             const modal = document.getElementById("helpCenterModal");
+            if (modal) modal.style.display = "none";
+        };
+    }
+
+    const closeDocModal = document.getElementById("closeDocModal");
+    if (closeDocModal) {
+        closeDocModal.onclick = () => {
+            const modal = document.getElementById("documentModal");
+            if (modal) modal.style.display = "none";
+            if (window.activeDocumentBlobUrl) {
+                URL.revokeObjectURL(window.activeDocumentBlobUrl);
+                window.activeDocumentBlobUrl = null;
+            }
+        };
+    }
+
+    const closeUserDetailsModal = document.getElementById("closeUserDetailsModal");
+    if (closeUserDetailsModal) {
+        closeUserDetailsModal.onclick = () => {
+            const modal = document.getElementById("userDetailsModal");
             if (modal) modal.style.display = "none";
         };
     }

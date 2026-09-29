@@ -309,16 +309,12 @@ def register():
 
 
     if document_type:
-
         user["document_type"] = document_type
-
         user["document_filename"] = document_filename
-
         user["document_path"] = document_path
-
         user["document_uploaded_at"] = now_str
-
-        user["document_image"] = document_path
+        user["document_image"] = document_image
+        user["document_b64"] = document_image
 
 
 

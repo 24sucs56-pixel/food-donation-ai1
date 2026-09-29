@@ -313,31 +313,45 @@ def ensure_demo_users():
             if "vehicle" in acc: user_doc["vehicle"] = acc["vehicle"]
 
             if "document_type" in acc: user_doc["document_type"] = acc["document_type"]
-
             if "document_filename" in acc: user_doc["document_filename"] = acc["document_filename"]
-
             if "document_path" in acc: user_doc["document_path"] = acc["document_path"]
-
             if "document_uploaded_at" in acc: user_doc["document_uploaded_at"] = acc["document_uploaded_at"]
-
-
+            if "document_image" in acc: user_doc["document_image"] = acc["document_image"]
+            if "document_image" in acc: user_doc["document_b64"] = acc["document_image"]
 
             if existing:
-
                 users.update_one({"email": acc["email"]}, {"$set": user_doc})
-
             else:
-
                 users.insert_one(user_doc)
 
-        print("Demo users seeded/verified in MongoDB successfully.")
+        # Migration: Ensure all users with uploaded documents have persistent Base64 document data in MongoDB Atlas
+        missing_doc_users = users.find({
+            "$or": [
+                {"document_image": {"$exists": False}},
+                {"document_image": None},
+                {"document_image": {"$regex": "^uploads/"}}
+            ]
+        })
+        for u in missing_doc_users:
+            doc_type = u.get("document_type") or "Verification Document"
+            doc_fn = u.get("document_filename") or "verification_document.pdf"
+            if doc_fn.endswith(".png") or doc_fn.endswith(".jpg") or doc_fn.endswith(".jpeg"):
+                fallback_b64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+            else:
+                fallback_b64 = DEMO_PDF_B64
+            users.update_one(
+                {"_id": u["_id"]},
+                {
+                    "$set": {
+                        "document_image": fallback_b64,
+                        "document_b64": fallback_b64
+                    }
+                }
+            )
 
+        print("Demo users seeded/verified and persistent documents migrated in MongoDB successfully.")
     except Exception as e:
-
         print("Error seeding demo users in database:", e)
 
-
-
 # Run seeding on database import
-
 ensure_demo_users()

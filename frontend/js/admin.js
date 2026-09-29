@@ -103,39 +103,6 @@ async function loadDashboard() {
     }
 }
 
-// Enable smooth touch horizontal swiping for admin tables on mobile devices
-function enableMobileTableSwipe() {
-    setTimeout(() => {
-        const scrollContainers = document.querySelectorAll(".admin-table-scroll, .mobile-table-scroll, .table-container");
-        scrollContainers.forEach(container => {
-            if (container.dataset.swipeBound) return;
-            container.dataset.swipeBound = "true";
-
-            let isDown = false;
-            let startX = 0;
-            let scrollLeft = 0;
-
-            container.addEventListener("touchstart", (e) => {
-                if (e.touches && e.touches.length === 1) {
-                    isDown = true;
-                    startX = e.touches[0].clientX;
-                    scrollLeft = container.scrollLeft;
-                }
-            }, { passive: true });
-
-            container.addEventListener("touchmove", (e) => {
-                if (!isDown || !e.touches || e.touches.length !== 1) return;
-                const currentX = e.touches[0].clientX;
-                const diffX = startX - currentX;
-                container.scrollLeft = scrollLeft + diffX;
-            }, { passive: true });
-
-            container.addEventListener("touchend", () => { isDown = false; }, { passive: true });
-            container.addEventListener("touchcancel", () => { isDown = false; }, { passive: true });
-        });
-    }, 100);
-}
-
 // Render pending users list widget on dashboard
 function renderDashboardPendingList(pendingUsers) {
     const container = document.getElementById("dashboardPendingList");
@@ -170,7 +137,6 @@ function renderDashboardPendingList(pendingUsers) {
         `;
     });
     container.innerHTML = html;
-    enableMobileTableSwipe();
 }
 
 // Render real recent admin activity audit log on dashboard
@@ -209,7 +175,6 @@ function renderDashboardRecentActivity(activities) {
         `;
     });
     container.innerHTML = html;
-    enableMobileTableSwipe();
 }
 
 // =======================================

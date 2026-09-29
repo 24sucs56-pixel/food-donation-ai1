@@ -123,7 +123,7 @@ function renderRoleNavigation() {
     const role = (localStorage.getItem("role") || "").toLowerCase().trim();
     const isLoggedIn = !!(email && role);
 
-    const isPublicPage = path.endsWith("index.html") || path.endsWith("/") || path.endsWith("login.html") || path.endsWith("register.html");
+    const isPublicPage = path === "" || path === "/" || path.endsWith("/") || path.endsWith("index.html") || path.endsWith("/index") || path.endsWith("login.html") || path.endsWith("/login") || path.endsWith("register.html") || path.endsWith("/register");
 
     if (!isLoggedIn) {
         // Logged-out users: allow public pages (index.html, login.html, register.html)

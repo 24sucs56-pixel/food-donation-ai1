@@ -63,12 +63,6 @@ async function loadDashboard() {
             setElementText("volRejectedCount", volOverview.rejected || 0);
         }
 
-        // Render Pending Verifications List on Dashboard
-        renderDashboardPendingList(data.pending_users_list || []);
-
-        // Render Recent Admin Activity Log on Dashboard
-        renderDashboardRecentActivity(data.recent_activity || []);
-
         // Charts & Performance Indicators
         loadStatusChart(data);
         loadCategoryChart(data);
@@ -101,80 +95,6 @@ async function loadDashboard() {
     } catch (error) {
         console.error("Unable to load dashboard:", error);
     }
-}
-
-// Render pending users list widget on dashboard
-function renderDashboardPendingList(pendingUsers) {
-    const container = document.getElementById("dashboardPendingList");
-    const badge = document.getElementById("dashboardPendingBadge");
-    if (badge) badge.innerText = `${pendingUsers.length} Pending`;
-    if (!container) return;
-
-    if (pendingUsers.length === 0) {
-        container.innerHTML = `<tr><td colspan="4" style="padding: 15px; color: #64748b; text-align: center;">No pending verification requests.</td></tr>`;
-        return;
-    }
-
-    let html = "";
-    pendingUsers.forEach(u => {
-        let roleTarget = "sidebarAdminUsers";
-        if (u.role === "donor") roleTarget = "sidebarAdminDonors";
-        else if (u.role === "ngo") roleTarget = "sidebarAdminNGOs";
-        else if (u.role === "volunteer") roleTarget = "sidebarAdminVolunteers";
-
-        html += `
-            <tr>
-                <td>
-                    <strong style="font-size: 13.5px; color: #1e293b;">${u.name}</strong><br>
-                    <span style="font-size: 11.5px; color: #64748b;">${u.email}</span>
-                </td>
-                <td><strong style="text-transform: uppercase; color: #d97706; font-size: 11.5px;">${u.role}</strong></td>
-                <td><span class="badge-status badge-pending" style="font-size: 11px; padding: 3px 8px;">Pending</span></td>
-                <td>
-                    <button class="btn-action btn-view" onclick="navigateToSection('${roleTarget}')" style="padding: 5px 10px; font-size: 11.5px;">Review</button>
-                </td>
-            </tr>
-        `;
-    });
-    container.innerHTML = html;
-}
-
-// Render real recent admin activity audit log on dashboard
-function renderDashboardRecentActivity(activities) {
-    const container = document.getElementById("dashboardRecentActivity");
-    if (!container) return;
-
-    if (activities.length === 0) {
-        container.innerHTML = `<tr><td colspan="5" style="padding: 15px; color: #64748b; text-align: center;">No recent admin actions logged.</td></tr>`;
-        return;
-    }
-
-    let html = "";
-    activities.forEach(act => {
-        const isApprove = act.status === "Approved";
-        const iconClass = isApprove ? "fa-circle-check" : "fa-circle-xmark";
-        const iconColor = isApprove ? "#16a34a" : "#dc2626";
-        const badgeClass = isApprove ? "badge-approved" : "badge-rejected";
-
-        html += `
-            <tr>
-                <td>
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <i class="fa-solid ${iconClass}" style="color: ${iconColor}; font-size: 13px;"></i>
-                        <strong style="font-size: 12.5px; color: #1e293b;">${act.admin_email || 'Admin'}</strong>
-                    </div>
-                </td>
-                <td>
-                    <strong style="font-size: 12.5px; color: #1e293b;">${act.user_name || 'User'}</strong><br>
-                    <span style="font-size: 11px; color: #64748b;">${act.user_email || ''}</span>
-                </td>
-                <td><span style="text-transform: uppercase; font-weight: 600; font-size: 11px; color: #475569;">${act.user_role || '-'}</span></td>
-                <td><span class="badge-status ${badgeClass}" style="font-size: 11px; padding: 3px 8px;">${act.status}</span></td>
-                <td><span style="font-size: 11px; color: #64748b; white-space: nowrap;">${act.timestamp || ''}</span></td>
-            </tr>
-        `;
-    });
-    container.innerHTML = html;
 }
 
 // =======================================

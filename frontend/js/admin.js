@@ -20,7 +20,14 @@ window.activeDonationTab = "all";
 async function loadDashboard() {
     try {
         const apiBase = getApiBase();
-        const response = await fetch(`${apiBase}/admin/dashboard`);
+        const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
+        const adminRole = (localStorage.getItem("role") || "admin").toLowerCase().trim();
+        const response = await fetch(`${apiBase}/admin/dashboard`, {
+            headers: {
+                "X-User-Email": adminEmail,
+                "X-User-Role": adminRole
+            }
+        });
         const data = await response.json();
         
         if (data.status !== "success") {
@@ -176,7 +183,14 @@ function renderDashboardRecentActivity(activities) {
 async function loadUsersData() {
     try {
         const apiBase = getApiBase();
-        const response = await fetch(`${apiBase}/admin/users`);
+        const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
+        const adminRole = (localStorage.getItem("role") || "admin").toLowerCase().trim();
+        const response = await fetch(`${apiBase}/admin/users`, {
+            headers: {
+                "X-User-Email": adminEmail,
+                "X-User-Role": adminRole
+            }
+        });
         const res = await response.json();
         
         if (res.status !== "success") {
@@ -484,7 +498,14 @@ function renderRoleVerifications() {
 async function loadDonationManagement() {
     try {
         const apiBase = getApiBase();
-        const response = await fetch(`${apiBase}/admin/donations`);
+        const adminEmail = localStorage.getItem("email") || "admin.demo@foodbridge.test";
+        const adminRole = (localStorage.getItem("role") || "admin").toLowerCase().trim();
+        const response = await fetch(`${apiBase}/admin/donations`, {
+            headers: {
+                "X-User-Email": adminEmail,
+                "X-User-Role": adminRole
+            }
+        });
         const res = await response.json();
         
         if (res.status !== "success") return;

@@ -146,11 +146,10 @@ function renderRoleNavigation() {
 
 // Check Login Session
 function checkLogin() {
-    const name = localStorage.getItem("name");
     const role = localStorage.getItem("role");
     const email = localStorage.getItem("email");
 
-    if (!name || !role || !email) {
+    if (!email || !role) {
         window.location.href = "login.html";
         return false;
     }

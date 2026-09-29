@@ -842,6 +842,13 @@ window.viewDocument = async function(email, event) {
 
         if (docLoading) docLoading.style.display = "none";
 
+        const docOpenBtn = document.getElementById("modalDocOpenBtn");
+        if (docOpenBtn) {
+            docOpenBtn.href = blobUrl;
+            docOpenBtn.download = docFilename || "verification_document";
+            docOpenBtn.style.display = "inline-flex";
+        }
+
         if (isImage) {
             if (docIframe) docIframe.style.display = "none";
             if (docImg) {
@@ -865,12 +872,15 @@ window.viewDocument = async function(email, event) {
                 docImg.style.objectFit = "contain";
                 docImg.style.margin = "0 auto";
             }
-            if (label) label.innerHTML = `<i class="fa-solid fa-file-image" style="color: #0284c7;"></i> Image Document Preview`;
+            if (label) label.innerHTML = `<i class="fa-solid fa-file-image" style="color: #0284c7;"></i> Image Document Preview <a href="${blobUrl}" target="_blank" rel="noopener" download="${docFilename || 'document'}" style="margin-left: 10px; font-size: 12px; color: #16a34a; font-weight: 600; text-decoration: underline;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open Full</a>`;
             if (content) {
                 const fallbackImg = (user && user.document_image && user.document_image.startsWith("data:image/")) ? user.document_image : "";
                 content.innerHTML = `
-                    <div style="padding: 10px; background: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 220px; max-height: 65vh; overflow: auto; width: 100%;">
+                    <div style="padding: 10px; background: #f8fafc; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 220px; max-height: 65vh; overflow: auto; width: 100%;">
                         <img src="${blobUrl}" alt="Uploaded Document Preview" style="max-width: 100%; max-height: 60vh; height: auto; width: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); object-fit: contain; display: block; margin: 0 auto;" ${fallbackImg ? `onerror="this.src='${fallbackImg}';"` : ""}>
+                        <a href="${blobUrl}" target="_blank" rel="noopener" download="${docFilename || 'document'}" class="btn-action" style="margin-top: 10px; background: #16a34a; color: #ffffff; padding: 6px 14px; font-size: 12.5px; font-weight: 600; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Document in New Tab
+                        </a>
                     </div>
                 `;
             }
@@ -880,10 +890,15 @@ window.viewDocument = async function(email, event) {
                 docIframe.src = blobUrl;
                 docIframe.style.display = "block";
             }
-            if (label) label.innerHTML = `<i class="fa-solid fa-file-pdf" style="color: #ea580c;"></i> PDF Document Preview`;
+            if (label) label.innerHTML = `<i class="fa-solid fa-file-pdf" style="color: #ea580c;"></i> PDF Document Preview <a href="${blobUrl}" target="_blank" rel="noopener" download="${docFilename || 'document'}" style="margin-left: 10px; font-size: 12px; color: #16a34a; font-weight: 600; text-decoration: underline;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Open Full</a>`;
             if (content) {
                 content.innerHTML = `
                     <iframe src="${blobUrl}" style="width: 100%; height: 460px; border: none; border-radius: 6px;" title="Uploaded Verification Document"></iframe>
+                    <div style="margin-top: 10px; text-align: center;">
+                        <a href="${blobUrl}" target="_blank" rel="noopener" download="${docFilename || 'document'}" class="btn-action" style="background: #16a34a; color: #ffffff; padding: 6px 14px; font-size: 12.5px; font-weight: 600; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Document in New Tab
+                        </a>
+                    </div>
                 `;
             }
         }

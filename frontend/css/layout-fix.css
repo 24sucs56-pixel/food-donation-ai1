@@ -784,7 +784,7 @@
         min-height: 100% !important;
         padding: 14px 12px 40px 12px !important;
         box-sizing: border-box !important;
-        overflow-x: hidden !important;
+        overflow-x: visible !important;
         overflow-y: visible !important;
         touch-action: pan-x pan-y !important;
     }

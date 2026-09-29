@@ -103,6 +103,39 @@ async function loadDashboard() {
     }
 }
 
+// Enable smooth touch horizontal swiping for admin tables on mobile devices
+function enableMobileTableSwipe() {
+    setTimeout(() => {
+        const scrollContainers = document.querySelectorAll(".admin-table-scroll, .mobile-table-scroll, .table-container");
+        scrollContainers.forEach(container => {
+            if (container.dataset.swipeBound) return;
+            container.dataset.swipeBound = "true";
+
+            let isDown = false;
+            let startX = 0;
+            let scrollLeft = 0;
+
+            container.addEventListener("touchstart", (e) => {
+                if (e.touches && e.touches.length === 1) {
+                    isDown = true;
+                    startX = e.touches[0].clientX;
+                    scrollLeft = container.scrollLeft;
+                }
+            }, { passive: true });
+
+            container.addEventListener("touchmove", (e) => {
+                if (!isDown || !e.touches || e.touches.length !== 1) return;
+                const currentX = e.touches[0].clientX;
+                const diffX = startX - currentX;
+                container.scrollLeft = scrollLeft + diffX;
+            }, { passive: true });
+
+            container.addEventListener("touchend", () => { isDown = false; }, { passive: true });
+            container.addEventListener("touchcancel", () => { isDown = false; }, { passive: true });
+        });
+    }, 100);
+}
+
 // Render pending users list widget on dashboard
 function renderDashboardPendingList(pendingUsers) {
     const container = document.getElementById("dashboardPendingList");
@@ -137,6 +170,7 @@ function renderDashboardPendingList(pendingUsers) {
         `;
     });
     container.innerHTML = html;
+    enableMobileTableSwipe();
 }
 
 // Render real recent admin activity audit log on dashboard
@@ -175,6 +209,7 @@ function renderDashboardRecentActivity(activities) {
         `;
     });
     container.innerHTML = html;
+    enableMobileTableSwipe();
 }
 
 // =======================================
@@ -834,24 +869,48 @@ window.viewDocument = async function(email, event) {
 
         const docFilename = (user && (user.document_filename || user.document_path)) ? (user.document_filename || user.document_path).toLowerCase() : "";
         const blobType = (blob.type || "").toLowerCase();
-        const isImage = blobType.startsWith("image/") || docFilename.endsWith(".jpg") || docFilename.endsWith(".jpeg") || docFilename.endsWith(".png") || docFilename.endsWith(".webp");
+        const isImage = blobType.startsWith("image/") ||
+                        docFilename.endsWith(".jpg") || docFilename.endsWith(".jpeg") ||
+                        docFilename.endsWith(".png") || docFilename.endsWith(".webp") ||
+                        docFilename.endsWith(".gif") ||
+                        (user && user.document_image && user.document_image.startsWith("data:image/"));
 
         if (docLoading) docLoading.style.display = "none";
 
         if (isImage) {
+            if (docIframe) docIframe.style.display = "none";
             if (docImg) {
+                docImg.onload = () => {
+                    docImg.style.display = "block";
+                    if (docLoading) docLoading.style.display = "none";
+                };
+                docImg.onerror = () => {
+                    if (user && user.document_image && user.document_image.startsWith("data:image/")) {
+                        docImg.src = user.document_image;
+                        docImg.style.display = "block";
+                    } else if (docError) {
+                        docError.innerText = "Unable to render image preview.";
+                        docError.style.display = "block";
+                    }
+                };
                 docImg.src = blobUrl;
                 docImg.style.display = "block";
+                docImg.style.maxWidth = "100%";
+                docImg.style.maxHeight = "65vh";
+                docImg.style.objectFit = "contain";
+                docImg.style.margin = "0 auto";
             }
             if (label) label.innerHTML = `<i class="fa-solid fa-file-image" style="color: #0284c7;"></i> Image Document Preview`;
             if (content) {
+                const fallbackImg = (user && user.document_image && user.document_image.startsWith("data:image/")) ? user.document_image : "";
                 content.innerHTML = `
-                    <div style="padding: 10px; background: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 250px;">
-                        <img src="${blobUrl}" alt="Uploaded Document Preview" style="max-width: 100%; max-height: 480px; border-radius: 6px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); object-fit: contain;">
+                    <div style="padding: 10px; background: #f8fafc; display: flex; justify-content: center; align-items: center; min-height: 220px; max-height: 65vh; overflow: auto; width: 100%;">
+                        <img src="${blobUrl}" alt="Uploaded Document Preview" style="max-width: 100%; max-height: 60vh; height: auto; width: auto; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); object-fit: contain; display: block; margin: 0 auto;" ${fallbackImg ? `onerror="this.src='${fallbackImg}';"` : ""}>
                     </div>
                 `;
             }
         } else {
+            if (docImg) docImg.style.display = "none";
             if (docIframe) {
                 docIframe.src = blobUrl;
                 docIframe.style.display = "block";

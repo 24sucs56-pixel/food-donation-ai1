@@ -16,7 +16,7 @@
         height: auto !important;
         margin: 0 !important;
         padding: 0 !important;
-        overflow-x: clip !important;
+        overflow-x: hidden !important;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch !important;
         touch-action: pan-x pan-y !important;
@@ -29,7 +29,7 @@
         height: auto !important;
         margin: 0 !important;
         padding: 0 !important;
-        overflow-x: clip !important;
+        overflow-x: hidden !important;
         overflow-y: visible !important;
         -webkit-overflow-scrolling: touch !important;
         touch-action: pan-x pan-y !important;
@@ -3896,28 +3896,13 @@
         overflow-y: hidden !important;
         -webkit-overflow-scrolling: touch !important;
         touch-action: pan-x pan-y !important;
+        overscroll-behavior-x: contain !important;
         scrollbar-width: auto !important;
         border-radius: 12px !important;
         margin: 0 !important;
         padding: 0 !important;
         box-sizing: border-box !important;
         position: relative !important;
-    }
-
-    .admin-table-scroll *,
-    .admin-table-scroll table,
-    .admin-table-scroll thead,
-    .admin-table-scroll tbody,
-    .admin-table-scroll tr,
-    .admin-table-scroll th,
-    .admin-table-scroll td,
-    .admin-table-scroll button,
-    .admin-table-scroll span,
-    .admin-table-scroll a,
-    .admin-table-scroll div,
-    .mobile-table-scroll *,
-    .table-container * {
-        touch-action: pan-x pan-y !important;
     }
 
     .premium-card {
@@ -3937,7 +3922,7 @@
     table.responsive-user-table {
         display: table !important;
         width: max-content !important;
-        min-width: 900px !important;
+        min-width: 720px !important;
         max-width: none !important;
         border-collapse: separate !important;
         border-spacing: 0 !important;

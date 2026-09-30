@@ -35,6 +35,10 @@ def check_food_freshness(expiry_time, expiry_date=None):
             expiry = expiry.replace(year=now.year, month=now.month, day=now.day)
 
         hours_left = (expiry - now).total_seconds() / 3600
+        if hours_left <= 0 and not expiry_date:
+            from datetime import timedelta
+            expiry = expiry + timedelta(days=1)
+            hours_left = (expiry - now).total_seconds() / 3600
 
         if hours_left > 4:
 

@@ -106,7 +106,7 @@ def donate():
 
     # STRICT BACKEND SECURITY EXPIRY VERIFICATION
     # 1. EXPIRED FOOD: ALWAYS REJECT
-    if ai_result["result"] in ["Expired", "Invalid"] or ai_result.get("hours_left", 0) <= 0:
+    if ai_result["result"] in ["Expired", "Invalid"]:
         return jsonify({
             "status": "error",
             "message": "❌ Expired Food: This food has already passed its expiry time and cannot be donated."

@@ -251,6 +251,22 @@ function hideFCMPermissionBanner() {
   }
 }
 
+// Notify native Android bridge of logged in user
+function notifyAndroidNativeApp() {
+  if (window.AndroidBridge && typeof window.AndroidBridge.onUserLoggedIn === 'function') {
+    const email = localStorage.getItem("email") || window.currentUserEmail;
+    const role = localStorage.getItem("role") || window.currentUserRole || "donor";
+    if (email) {
+      try {
+        window.AndroidBridge.onUserLoggedIn(email, role);
+        console.log("Notified native Android app of logged-in user:", email, role);
+      } catch (e) {
+        console.warn("Error calling AndroidBridge:", e);
+      }
+    }
+  }
+}
+
 // Foreground messaging setup
 function setupForegroundFCM() {
   const messaging = initFCM();
@@ -277,6 +293,7 @@ function setupForegroundFCM() {
 // Auto-run on DOM ready
 document.addEventListener("DOMContentLoaded", () => {
   setTimeout(() => {
+    notifyAndroidNativeApp();
     checkAndShowFCMPermissionBanner();
     setupForegroundFCM();
   }, 1500);
@@ -285,3 +302,5 @@ document.addEventListener("DOMContentLoaded", () => {
 // Export globally
 window.requestFCMPermission = requestFCMPermission;
 window.deleteFCMTokenFromBackend = deleteFCMTokenFromBackend;
+window.notifyAndroidNativeApp = notifyAndroidNativeApp;
+

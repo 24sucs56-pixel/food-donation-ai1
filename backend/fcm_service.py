@@ -94,7 +94,6 @@ def send_multicast_push(tokens, title, body, data=None):
     if not tokens or not init_firebase():
         return False
 
-    # Ensure token uniqueness
     unique_tokens = list(set([t for t in tokens if t]))
     if not unique_tokens:
         return False
@@ -109,10 +108,20 @@ def send_multicast_push(tokens, title, body, data=None):
 
     message = messaging.MulticastMessage(
         tokens=unique_tokens,
+        notification=messaging.Notification(
+            title=str(title),
+            body=str(body)
+        ),
         data=payload_data,
         webpush=messaging.WebpushConfig(
+            notification=messaging.WebpushNotification(
+                title=str(title),
+                body=str(body),
+                icon="https://food-donation-ai1.vercel.app/icons/icon-192x192.png",
+                badge="https://food-donation-ai1.vercel.app/icons/icon-72x72.png"
+            ),
             fcm_options=messaging.WebpushFCMOptions(
-                link="https://food-donation-ai1.vercel.app/"
+                link="https://food-donation-ai1.vercel.app/dashboard.html"
             )
         )
     )
@@ -121,7 +130,6 @@ def send_multicast_push(tokens, title, body, data=None):
         response = messaging.send_each_for_multicast(message)
         logger.info(f"FCM multicast sent. Success count: {response.success_count}, Failure count: {response.failure_count}")
 
-        # Check for invalid tokens to clean up
         if response.failure_count > 0:
             for idx, resp in enumerate(response.responses):
                 if not resp.success:

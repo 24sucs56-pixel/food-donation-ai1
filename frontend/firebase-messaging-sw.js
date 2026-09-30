@@ -26,13 +26,13 @@ try {
   messaging.onBackgroundMessage((payload) => {
     console.log('[firebase-messaging-sw.js] Received background message:', payload);
 
-    const title = (payload.data && payload.data.title) || (payload.notification && payload.notification.title) || 'Smart Food Donation Alert';
-    const body = (payload.data && payload.data.body) || (payload.notification && payload.notification.body) || 'You have a new update regarding food donation.';
+    const title = (payload.notification && payload.notification.title) || (payload.data && payload.data.title) || '🍱 Smart Food Donation';
+    const body = (payload.notification && payload.notification.body) || (payload.data && payload.data.body) || 'You have a new update regarding food donation.';
     
     const options = {
       body: body,
-      icon: (payload.data && payload.data.icon) || (payload.notification && payload.notification.icon) || '/icons/icon-192x192.png',
-      badge: '/icons/icon-72x72.png',
+      icon: (payload.notification && payload.notification.icon) || (payload.data && payload.data.icon) || 'https://food-donation-ai1.vercel.app/icons/icon-192x192.png',
+      badge: 'https://food-donation-ai1.vercel.app/icons/icon-72x72.png',
       tag: 'food-donation-notification',
       data: payload.data || {}
     };
@@ -47,7 +47,7 @@ try {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
-  const targetUrl = (event.notification.data && event.notification.data.url) || '/dashboard.html';
+  const targetUrl = (event.notification.data && event.notification.data.url) || 'https://food-donation-ai1.vercel.app/dashboard.html';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {

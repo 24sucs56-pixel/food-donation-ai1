@@ -1,19 +1,29 @@
 from datetime import datetime
 
 
-def check_food_freshness(expiry_time):
-
+def check_food_freshness(expiry_time, expiry_date=None):
     try:
-
         now = datetime.now()
+        if not expiry_time:
+            expiry_time = "23:59"
+            
+        try:
+            expiry = datetime.strptime(str(expiry_time), "%H:%M")
+        except ValueError:
+            expiry = datetime.strptime("23:59", "%H:%M")
 
-        expiry = datetime.strptime(expiry_time, "%H:%M")
-
-        expiry = expiry.replace(
-            year=now.year,
-            month=now.month,
-            day=now.day
-        )
+        if expiry_date:
+            try:
+                exp_dt = datetime.strptime(str(expiry_date), "%Y-%m-%d")
+                expiry = expiry.replace(year=exp_dt.year, month=exp_dt.month, day=exp_dt.day)
+            except ValueError:
+                try:
+                    exp_dt = datetime.strptime(str(expiry_date), "%d-%m-%Y")
+                    expiry = expiry.replace(year=exp_dt.year, month=exp_dt.month, day=exp_dt.day)
+                except ValueError:
+                    expiry = expiry.replace(year=now.year, month=now.month, day=now.day)
+        else:
+            expiry = expiry.replace(year=now.year, month=now.month, day=now.day)
 
         hours_left = (expiry - now).total_seconds() / 3600
 

@@ -26,12 +26,17 @@ try {
   messaging.onBackgroundMessage((payload) => {
     console.log('[firebase-messaging-sw.js] Received background message:', payload);
 
-    const title = (payload.notification && payload.notification.title) || (payload.data && payload.data.title) || '🍱 Smart Food Donation';
-    const body = (payload.notification && payload.notification.body) || (payload.data && payload.data.body) || 'You have a new update regarding food donation.';
+    // If notification payload is present, Firebase JS SDK handles native WebPush display automatically.
+    if (payload && payload.notification) {
+      return;
+    }
+
+    const title = (payload.data && payload.data.title) || '🍱 Smart Food Donation';
+    const body = (payload.data && payload.data.body) || 'You have a new update regarding food donation.';
     
     const options = {
       body: body,
-      icon: (payload.notification && payload.notification.icon) || (payload.data && payload.data.icon) || 'https://food-donation-ai1.vercel.app/icons/icon-192x192.png',
+      icon: (payload.data && payload.data.icon) || 'https://food-donation-ai1.vercel.app/icons/icon-192x192.png',
       badge: 'https://food-donation-ai1.vercel.app/icons/icon-72x72.png',
       tag: 'food-donation-notification',
       data: payload.data || {}

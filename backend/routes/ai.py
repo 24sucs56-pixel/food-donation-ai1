@@ -7,21 +7,30 @@ def check_food_freshness(expiry_time, expiry_date=None):
         if not expiry_time:
             expiry_time = "23:59"
             
-        try:
-            expiry = datetime.strptime(str(expiry_time), "%H:%M")
-        except ValueError:
+        time_str = str(expiry_time).strip()
+        expiry = None
+        for fmt in ("%H:%M", "%I:%M %p", "%H:%M:%S", "%I:%M:%S %p"):
+            try:
+                expiry = datetime.strptime(time_str, fmt)
+                break
+            except ValueError:
+                pass
+        if not expiry:
             expiry = datetime.strptime("23:59", "%H:%M")
 
         if expiry_date:
-            try:
-                exp_dt = datetime.strptime(str(expiry_date), "%Y-%m-%d")
-                expiry = expiry.replace(year=exp_dt.year, month=exp_dt.month, day=exp_dt.day)
-            except ValueError:
+            date_str = str(expiry_date).strip()
+            exp_dt = None
+            for dfmt in ("%Y-%m-%d", "%d-%m-%Y", "%m/%d/%Y", "%d/%m/%Y"):
                 try:
-                    exp_dt = datetime.strptime(str(expiry_date), "%d-%m-%Y")
-                    expiry = expiry.replace(year=exp_dt.year, month=exp_dt.month, day=exp_dt.day)
+                    exp_dt = datetime.strptime(date_str, dfmt)
+                    break
                 except ValueError:
-                    expiry = expiry.replace(year=now.year, month=now.month, day=now.day)
+                    pass
+            if exp_dt:
+                expiry = expiry.replace(year=exp_dt.year, month=exp_dt.month, day=exp_dt.day)
+            else:
+                expiry = expiry.replace(year=now.year, month=now.month, day=now.day)
         else:
             expiry = expiry.replace(year=now.year, month=now.month, day=now.day)
 

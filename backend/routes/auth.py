@@ -998,15 +998,25 @@ def delete_fcm_token():
 @auth.route("/api/notifications", methods=["GET"])
 @auth.route("/notifications", methods=["GET"])
 def get_user_notifications():
-    email = request.headers.get("X-User-Email") or request.args.get("email")
-    role = (request.headers.get("X-User-Role") or request.args.get("role") or "").lower()
+    email = (request.headers.get("X-User-Email") or request.args.get("email") or "").strip().lower()
+    role = (request.headers.get("X-User-Role") or request.args.get("role") or "").strip().lower()
 
-    if not email:
-        return jsonify({"status": "error", "message": "User email is required"}), 400
+    if not email and not role:
+        return jsonify({"status": "error", "message": "User email or role is required"}), 400
 
     try:
         from database import notifications
-        query = {"$or": [{"recipient": email.lower()}, {"recipient": role}, {"recipient": "all"}]}
+        import re
+
+        or_conditions = [{"recipient": "all"}]
+        if email:
+            or_conditions.append({"recipient": email})
+            or_conditions.append({"recipient": {"$regex": f"^{re.escape(email)}$", "$options": "i"}})
+        if role:
+            or_conditions.append({"recipient": role})
+            or_conditions.append({"recipient": {"$regex": f"^{re.escape(role)}$", "$options": "i"}})
+
+        query = {"$or": or_conditions}
         notif_list = list(notifications.find(query).sort("created_at", -1).limit(50))
 
         results = []

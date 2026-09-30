@@ -172,10 +172,10 @@ def donate():
 
     try:
         from fcm_service import send_push_to_role, send_push_to_ngo
-        rec_ngo = ngo.get("name") if isinstance(ngo, dict) else None
-        if rec_ngo:
+        rec_ngo_target = (ngo.get("email") or ngo.get("name")) if isinstance(ngo, dict) else None
+        if rec_ngo_target:
             send_push_to_ngo(
-                rec_ngo,
+                rec_ngo_target,
                 "New Food Donation",
                 "A new food donation is available for your NGO.",
                 data={"donation_id": str(res.inserted_id), "type": "new_donation"}

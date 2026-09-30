@@ -52,8 +52,11 @@ function initFCM() {
 
 // Save FCM token to Flask backend API
 async function saveFCMTokenToBackend(token) {
-  const email = localStorage.getItem("email");
-  if (!email || !token) return;
+  const email = localStorage.getItem("email") || window.currentUserEmail;
+  if (!email || !token) {
+    console.warn("FCM Token save deferred: missing email or token.", { email, token });
+    return;
+  }
 
   try {
     const apiBase = getFCMApiBase();
@@ -73,7 +76,7 @@ async function saveFCMTokenToBackend(token) {
     const data = await response.json();
     if (data.status === "success") {
       localStorage.setItem("fcm_token", token);
-      console.log("FCM Token registered with backend successfully.");
+      console.log("FCM Token registered with backend successfully for email:", email);
     }
   } catch (err) {
     console.warn("Error sending FCM token to backend:", err);
@@ -113,7 +116,11 @@ async function requestFCMPermission() {
   }
 
   try {
-    const permission = await Notification.requestPermission();
+    let permission = Notification.permission;
+    if (permission === 'default') {
+      permission = await Notification.requestPermission();
+    }
+
     if (permission === 'granted') {
       console.log("Notification permission granted.");
       hideFCMPermissionBanner();
@@ -121,13 +128,9 @@ async function requestFCMPermission() {
       // Register Service Worker & Fetch Token
       if ('serviceWorker' in navigator) {
         try {
-          // Initialize Firebase App & Messaging
           const messaging = initFCM();
 
-          // Register Service Worker if not already registered
           await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-
-          // Explicitly wait for the Service Worker to become active and ready
           const readyRegistration = await navigator.serviceWorker.ready;
           console.log("FCM Service Worker is ready and active:", readyRegistration);
 
@@ -179,17 +182,14 @@ async function requestFCMPermission() {
   return false;
 }
 
-// Display UX Permission Request Banner post-login if permission is default and user hasn't dismissed
+// Display UX Permission Request Banner post-login or request permission
 function checkAndShowFCMPermissionBanner() {
   const email = localStorage.getItem("email");
-  if (!email) return; // Only show for logged in users
+  if (!email) return;
 
   if (!('Notification' in window)) return;
 
-  if (Notification.permission === 'default' && !localStorage.getItem("fcm_permission_dismissed")) {
-    showFCMPermissionBanner();
-  } else if (Notification.permission === 'granted') {
-    // Silently refresh token if granted
+  if (Notification.permission === 'granted' || Notification.permission === 'default') {
     requestFCMPermission();
   }
 }

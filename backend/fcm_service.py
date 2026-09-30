@@ -140,12 +140,14 @@ def send_multicast_push(tokens, title, body, data=None):
 def record_notification_in_db(recipient, title, body, data=None):
     """
     Saves a persistent in-app notification document in MongoDB Atlas notifications collection.
+    Standardizes recipient to lowercase string (email, role, or ID).
     """
     try:
         from database import notifications
         payload_data = data or {}
+        rec_clean = str(recipient).strip().lower() if recipient else "all"
         notif_doc = {
-            "recipient": str(recipient).lower() if "@" in str(recipient) or str(recipient) in ["donor", "ngo", "volunteer", "admin"] else str(recipient),
+            "recipient": rec_clean,
             "title": str(title),
             "message": str(body),
             "type": str(payload_data.get("type", "general")),
@@ -164,13 +166,13 @@ def send_push_to_user(user_identifier, title, body, data=None):
     Also records persistent in-app notification in MongoDB Atlas.
     """
     try:
-        user = users.find_one({"$or": [{"email": user_identifier}, {"name": user_identifier}]})
+        user = users.find_one({"$or": [{"email": str(user_identifier).lower()}, {"email": user_identifier}, {"name": user_identifier}]})
         if not user:
             from bson.objectid import ObjectId
             if ObjectId.is_valid(str(user_identifier)):
                 user = users.find_one({"_id": ObjectId(str(user_identifier))})
 
-        recipient_target = user.get("email") if user else user_identifier
+        recipient_target = user.get("email").lower() if user and user.get("email") else str(user_identifier).lower()
         record_notification_in_db(recipient_target, title, body, data)
 
         if not user or "fcm_tokens" not in user or not user["fcm_tokens"]:
@@ -194,7 +196,7 @@ def send_push_to_users(user_identifiers, title, body, data=None):
         for u_id in user_identifiers:
             record_notification_in_db(u_id, title, body, data)
 
-        query = {"$or": [{"email": {"$in": user_identifiers}}, {"name": {"$in": user_identifiers}}]}
+        query = {"$or": [{"email": {"$in": [str(x).lower() for x in user_identifiers]}}, {"name": {"$in": user_identifiers}}]}
         matched_users = users.find(query)
         all_tokens = []
         for u in matched_users:
@@ -230,20 +232,43 @@ def send_push_to_role(role, title, body, data=None):
 
 def send_push_to_ngo(ngo_identifier, title, body, data=None):
     """
-    Sends push to NGO user by NGO name or email. Fallbacks to all NGO role users if specific NGO user not found.
+    Sends push to NGO user by NGO email, name, or NGO title. Fallbacks to all NGO role users if needed.
+    Records in-app notifications in MongoDB Atlas for the specific NGO email and role 'ngo'.
     """
     try:
-        ngo_user = users.find_one({"role": "ngo", "$or": [{"ngo_name": ngo_identifier}, {"email": ngo_identifier}, {"name": ngo_identifier}]})
-        recipient_target = ngo_user.get("email") if ngo_user else ngo_identifier
-        record_notification_in_db(recipient_target, title, body, data)
+        ngo_user = None
+        if ngo_identifier:
+            query_str = str(ngo_identifier).strip()
+            ngo_user = users.find_one({
+                "role": "ngo",
+                "$or": [
+                    {"email": query_str.lower()},
+                    {"email": query_str},
+                    {"ngo_name": query_str},
+                    {"name": query_str}
+                ]
+            })
 
+        recipient_email = ngo_user.get("email").lower() if ngo_user and ngo_user.get("email") else None
+
+        if recipient_email:
+            record_notification_in_db(recipient_email, title, body, data)
+            record_notification_in_db("ngo", title, body, data)
+        else:
+            record_notification_in_db("ngo", title, body, data)
+
+        tokens = []
         if ngo_user:
             tokens = [t.get("token") for t in ngo_user.get("fcm_tokens", []) if t.get("token")]
-            if tokens:
-                return send_multicast_push(tokens, title, body, data)
 
-        # Fallback to all NGOs if specific NGO doesn't have token
-        return send_push_to_role("ngo", title, body, data)
+        if not tokens:
+            role_users = users.find({"role": "ngo"})
+            for u in role_users:
+                for t in u.get("fcm_tokens", []):
+                    if t.get("token"):
+                        tokens.append(t.get("token"))
+
+        return send_multicast_push(tokens, title, body, data)
     except Exception as e:
         logger.error(f"Exception in send_push_to_ngo: {e}")
         return False

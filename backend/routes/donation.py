@@ -102,11 +102,19 @@ def donate():
     near_expiry_acknowledged = bool(data.get("near_expiry_acknowledged", False))
 
     # AI Food Analysis
-    ai_result = check_food_freshness(expiry, expiry_date)
+    ai_result = check_food_freshness(
+        expiry_time=expiry,
+        expiry_date=expiry_date,
+        prep_time=prepared_time,
+        prep_date=prepared_date,
+        category=category,
+        storage=storage,
+        food_name=food_name
+    )
 
     # STRICT BACKEND SECURITY EXPIRY VERIFICATION
     # 1. EXPIRED FOOD: ALWAYS REJECT
-    if ai_result["result"] in ["Expired", "Invalid"]:
+    if ai_result["result"] in ["Expired", "Invalid"] or ai_result["freshness"] == 0:
         return jsonify({
             "status": "error",
             "message": "❌ Expired Food: This food has already passed its expiry time and cannot be donated."

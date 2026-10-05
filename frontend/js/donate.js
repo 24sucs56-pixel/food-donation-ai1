@@ -31,88 +31,13 @@ preview.style.display = "block";
         AI FOOD SAFETY
 =========================================*/
 
-const prepared=document.getElementById("preparedTime");
-
-const expiry = document.getElementById("expiry");
-if(prepared && expiry){
-
-    prepared.addEventListener("change", calculateAI);
-
-    expiry.addEventListener("change", calculateAI);
-
-}
-function calculateAI(){
-
-if(prepared.value==="" || expiry.value==="") return;
-
-const p=prepared.value.split(":");
-
-const e=expiry.value.split(":");
-
-const prepareMinutes=parseInt(p[0])*60+parseInt(p[1]);
-
-const expiryMinutes=parseInt(e[0])*60+parseInt(e[1]);
-
-const diff=expiryMinutes-prepareMinutes;
-
-let freshness=0;
-
-let status="";
-
-let recommendation="";
-
-if(diff>=360){
-
-freshness=96;
-
-status="Excellent";
-
-recommendation="Food is safe for donation.";
-
+function calculateAI() {
+    analyzeFood();
 }
 
-else if(diff>=240){
-
-freshness=85;
-
-status="Good";
-
-recommendation="Donate as soon as possible.";
-
-}
-
-else if(diff>=120){
-
-freshness=65;
-
-status="Average";
-
-recommendation="Deliver within 1 hour.";
-
-}
-
-else{
-
-freshness=30;
-
-status="Unsafe";
-
-recommendation="Not recommended for donation.";
-
-}
-
-document.getElementById("freshness").innerHTML=freshness+"%";
-
-document.getElementById("foodStatus").innerHTML=status;
-
-document.getElementById("recommendation").innerHTML=recommendation;
-
-}
-// [Form submission logic consolidated in the unified handler at the bottom of the file]
 // ==========================================
 // AI FOOD SAFETY VARIABLES
 // ==========================================
-const getFoodCategoryValue = () => { const el = document.querySelector(".foodCategoryInput"); return el ? el.value : ""; };
 const storage = document.getElementById("storage");
 
 const preparedDate = document.getElementById("preparedDate");
@@ -126,31 +51,98 @@ const expiryPeriod = document.getElementById("expiryPeriod");
 const freshness = document.getElementById("freshness");
 const foodStatus = document.getElementById("foodStatus");
 const recommendation = document.getElementById("recommendation");
+
 // ==========================================================
-// CONVERT 12-HOUR TIME TO 24-HOUR TIME
+// CONVERT 12-HOUR / 24-HOUR TIME STRINGS PROPERLY
 // ==========================================================
 function convertTo24Hour(time, period) {
+    if (!time || typeof time !== "string") return { hour: NaN, minute: NaN };
+    let trimmed = time.trim();
 
-    let [hour, minute] = time.split(":").map(Number);
-
-    if (period === "AM" && hour === 12) {
-        hour = 0;
+    // Check if AM/PM is embedded in time string (e.g. "05:00 PM")
+    const ampmMatch = trimmed.match(/(AM|PM)/i);
+    if (ampmMatch) {
+        period = ampmMatch[1].toUpperCase();
+        trimmed = trimmed.replace(/(AM|PM)/i, "").trim();
     }
 
-    if (period === "PM" && hour !== 12) {
-        hour += 12;
+    const parts = trimmed.split(":");
+    if (parts.length < 2) return { hour: NaN, minute: NaN };
+
+    let hour = parseInt(parts[0], 10);
+    let minute = parseInt(parts[1], 10);
+
+    if (isNaN(hour) || isNaN(minute) || hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+        return { hour: NaN, minute: NaN };
     }
 
-    return {
-        hour,
-        minute
-    };
+    // HTML5 input type="time" returns HH:mm in 24-hour format (00:00 to 23:59).
+    // If hour > 12, it is ALREADY 24-hour format (e.g., 17:00 for 5 PM, 20:00 for 8 PM). NEVER add 12.
+    if (hour > 12) {
+        return { hour, minute };
+    }
+
+    // If hour <= 12 and period is explicitly provided ("AM" or "PM")
+    if (period === "AM") {
+        if (hour === 12) hour = 0;
+    } else if (period === "PM") {
+        if (hour < 12) hour += 12;
+    }
+
+    return { hour, minute };
 }
+
+function parseLocalDate(dateStr, timeObj) {
+    if (!dateStr || isNaN(timeObj.hour) || isNaN(timeObj.minute)) {
+        return null;
+    }
+    const parts = dateStr.split("-").map(Number);
+    if (parts.length < 3) return null;
+    const [year, month, day] = parts;
+    if (!year || !month || !day) return null;
+
+    const dt = new Date(year, month - 1, day, timeObj.hour, timeObj.minute, 0, 0);
+    if (isNaN(dt.getTime())) return null;
+    return dt;
+}
+
+function getAllFoodItems() {
+    const rows = document.querySelectorAll("#foodInputList .food-input-row");
+    const items = [];
+    rows.forEach(row => {
+        const nameEl = row.querySelector(".foodNameInput");
+        const catEl = row.querySelector(".foodCategoryInput");
+        const name = nameEl ? nameEl.value.trim() : "";
+        const category = catEl ? catEl.value : "";
+        if (name || category) {
+            items.push({ name, category });
+        }
+    });
+    return items;
+}
+
+function getCategoryAdjustment(cat) {
+    if (!cat || typeof cat !== "string") return 0;
+    const norm = cat.trim().toLowerCase();
+    if (norm === "non veg" || norm === "non-veg") return -10;
+    if (norm === "veg") return -2;
+    if (norm === "bakery" || norm === "fruits") return 0;
+    return 0;
+}
+
+function getStorageAdjustment(stg) {
+    if (!stg || typeof stg !== "string") return 0;
+    const norm = stg.trim().toLowerCase();
+    if (norm === "room temperature") return -10;
+    if (norm === "refrigerated" || norm === "refrigerator") return 3;
+    if (norm === "frozen") return 5;
+    return 0;
+}
+
 // ==========================================================
-// AI FOOD ANALYSIS
+// AI FOOD ANALYSIS (UNIFIED FRONTEND CALCULATION)
 // ==========================================================
 function analyzeFood() {
-
     if (
         !storage ||
         !preparedDate ||
@@ -158,278 +150,158 @@ function analyzeFood() {
         !preparedPeriod ||
         !expiryDate ||
         !expiryTime ||
-        !expiryPeriod
+        !expiryPeriod ||
+        !freshness ||
+        !foodStatus ||
+        !recommendation
     ) {
-        console.error("AI: Required elements not found");
         return;
     }
 
-    const categoryVal = getFoodCategoryValue();
+    const foodItems = getAllFoodItems();
+    const hasCategory = foodItems.some(item => item.category !== "");
 
-    // Check all required values
+    // Check required fields
     if (
-        !categoryVal ||
+        !hasCategory ||
         !storage.value ||
         !preparedDate.value ||
         !preparedTime.value ||
         !expiryDate.value ||
         !expiryTime.value
     ) {
-        return;
-    }
-
-    // ==========================
-    // CONVERT PREPARED TIME
-    // ==========================
-
-    const prep = convertTo24Hour(
-        preparedTime.value,
-        preparedPeriod.value
-    );
-
-    // ==========================
-    // CONVERT EXPIRY TIME
-    // ==========================
-
-    const exp = convertTo24Hour(
-        expiryTime.value,
-        expiryPeriod.value
-    );
-
-    // ==========================
-    // CREATE REAL DATE/TIME
-    // ==========================
-
-    const preparationDateTime = new Date(
-        preparedDate.value + "T" +
-        String(prep.hour).padStart(2, "0") + ":" +
-        String(prep.minute).padStart(2, "0")
-    );
-
-    const expiryDateTime = new Date(
-        expiryDate.value + "T" +
-        String(exp.hour).padStart(2, "0") + ":" +
-        String(exp.minute).padStart(2, "0")
-    );
-
-    // ==========================
-    // VALIDATE DATES
-    // ==========================
-
-    if (expiryDateTime <= preparationDateTime) {
-
         freshness.innerText = "--";
-
-        foodStatus.innerText = "❌ Invalid";
-
-        recommendation.innerText =
-            "Expiry date/time must be after preparation date/time.";
-
+        foodStatus.innerText = "Waiting...";
+        recommendation.innerText = "Select preparation and expiry time.";
+        const warnContainer = document.getElementById("expiryWarningContainer");
+        if (warnContainer) warnContainer.style.display = "none";
         return;
     }
 
-    // ==========================
-    // CURRENT TIME
-    // ==========================
+    // Convert times
+    const prep = convertTo24Hour(preparedTime.value, preparedPeriod ? preparedPeriod.value : "");
+    const exp = convertTo24Hour(expiryTime.value, expiryPeriod ? expiryPeriod.value : "");
 
+    const preparationDateTime = parseLocalDate(preparedDate.value, prep);
+    const expiryDateTime = parseLocalDate(expiryDate.value, exp);
     const now = new Date();
 
-    // ==========================
-    // FOOD TOTAL LIFE
-    // ==========================
+    const warnContainer = document.getElementById("expiryWarningContainer");
+    const warnContent = document.getElementById("expiryWarningContent");
+    const agreeBox = document.getElementById("nearExpiryAgreementBox");
 
-    const totalLife =
-        expiryDateTime - preparationDateTime;
-
-    // ==========================
-    // TIME ALREADY PASSED
-    // ==========================
-
-    const elapsed =
-        now - preparationDateTime;
-
-    // ==========================
-    // CHECK IF NOT PREPARED YET
-    // ==========================
-
-    if (elapsed < 0) {
-
+    // VALIDATION: Check for invalid dates or NaN (BUG 2)
+    if (!preparationDateTime || !expiryDateTime || isNaN(preparationDateTime.getTime()) || isNaN(expiryDateTime.getTime())) {
         freshness.innerText = "--";
+        foodStatus.innerText = "⚠️ Invalid Data";
+        recommendation.innerText = "Please enter a valid preparation and expiry date/time.";
+        if (warnContainer) warnContainer.style.display = "none";
+        return;
+    }
 
+    if (expiryDateTime <= preparationDateTime) {
+        freshness.innerText = "--";
+        foodStatus.innerText = "❌ Invalid";
+        recommendation.innerText = "Expiry date/time must be after preparation date/time.";
+        if (warnContainer) warnContainer.style.display = "none";
+        return;
+    }
+
+    const totalLife = expiryDateTime.getTime() - preparationDateTime.getTime(); // ms
+    const elapsed = now.getTime() - preparationDateTime.getTime(); // ms
+    const remaining = expiryDateTime.getTime() - now.getTime(); // ms
+
+    if (isNaN(totalLife) || totalLife <= 0 || isNaN(elapsed) || isNaN(remaining)) {
+        freshness.innerText = "--";
+        foodStatus.innerText = "⚠️ Invalid Data";
+        recommendation.innerText = "Please enter a valid preparation and expiry date/time.";
+        if (warnContainer) warnContainer.style.display = "none";
+        return;
+    }
+
+    // Check if preparation time is in the future
+    if (elapsed < 0) {
+        freshness.innerText = "--";
         foodStatus.innerText = "⏳ Upcoming";
-
-        recommendation.innerText =
-            "Preparation time has not been reached yet.";
-
+        recommendation.innerText = "Preparation time has not been reached yet.";
+        if (warnContainer) warnContainer.style.display = "none";
         return;
     }
 
-    // ==========================
-    // CHECK IF EXPIRED
-    // ==========================
-
-    if (now >= expiryDateTime) {
-
+    // Check if expired
+    if (remaining <= 0 || now >= expiryDateTime) {
         freshness.innerText = "0%";
-
         foodStatus.innerText = "❌ Expired";
+        recommendation.innerText = "Food has passed its expiry time. Do not donate.";
 
-        recommendation.innerText =
-            "Food has passed its expiry time. Do not donate.";
-
+        if (warnContainer && warnContent) {
+            warnContainer.style.display = "block";
+            warnContainer.style.background = "rgba(220, 38, 38, 0.08)";
+            warnContainer.style.border = "1px solid #ef4444";
+            warnContent.style.color = "#991b1b";
+            warnContent.innerHTML = "<strong>❌ Expired Food Warning:</strong> This food has passed its expiry time and cannot be donated.";
+            if (agreeBox) agreeBox.style.display = "none";
+        }
         return;
     }
 
-    // ==========================
-    // REMAINING TIME
-    // ==========================
+    // Calculate remaining hours and base percentage
+    const remainingHours = remaining / (1000 * 60 * 60);
+    const baseRatio = (remaining / totalLife) * 100;
+    const storageAdj = getStorageAdjustment(storage.value);
 
-    const remaining =
-        expiryDateTime - now;
+    // Calculate score for ALL food items (BUG 5)
+    let lowestScore = 100;
+    foodItems.forEach(item => {
+        const catAdj = getCategoryAdjustment(item.category);
+        const score = Math.round(Math.max(0, Math.min(100, baseRatio + catAdj + storageAdj)));
+        if (score < lowestScore) {
+            lowestScore = score;
+        }
+    });
 
-    const totalHours =
-        totalLife / (1000 * 60 * 60);
+    const freshnessScore = Math.round(Math.max(0, Math.min(100, lowestScore)));
 
-    const remainingHours =
-        remaining / (1000 * 60 * 60);
+    // Display Freshness Score
+    freshness.innerText = freshnessScore + "%";
 
-    // ==========================
-    // TIME PROGRESS
-    // ==========================
+    // Select Food Status based on priorities (BUG 4)
+    if (remainingHours <= 1) {
+        foodStatus.innerText = "🔴 Near Expiry";
+        recommendation.innerText = "Less than 1 hour remaining. Donate immediately if food has been stored safely.";
 
-    let freshnessScore =
-        (remaining / totalLife) * 100;
+        if (warnContainer && warnContent) {
+            warnContainer.style.display = "block";
+            warnContainer.style.background = "rgba(234, 179, 8, 0.08)";
+            warnContainer.style.border = "1px solid #eab308";
+            warnContent.style.color = "#713f12";
+            warnContent.innerHTML = "<strong>⚠️ Near-Expiry Food Warning:</strong> This food has less than 1 hour of shelf life remaining. Please ensure it is stored safely and can be collected promptly.";
+            if (agreeBox) agreeBox.style.display = "block";
+        }
+    } else {
+        if (warnContainer) warnContainer.style.display = "none";
 
-    // ==========================
-    // FOOD CATEGORY
-    // ==========================
-
-    if (categoryVal === "Non Veg" ||
-        categoryVal === "Non-Veg") {
-
-        freshnessScore -= 10;
-
-    }
-    else if (categoryVal === "Veg") {
-
-        freshnessScore -= 2;
-
-    }
-
-    // ==========================
-    // STORAGE
-    // ==========================
-
-    if (storage.value === "Room Temperature") {
-
-        freshnessScore -= 10;
-
-    }
-    else if (
-        storage.value === "Refrigerated" ||
-        storage.value === "Refrigerator"
-    ) {
-
-        freshnessScore += 3;
-
-    }
-    else if (storage.value === "Frozen") {
-
-        freshnessScore += 5;
-
+        if (freshnessScore >= 75) {
+            foodStatus.innerText = "✅ Fresh";
+            recommendation.innerText = "Food appears fresh. Donate as soon as possible.";
+        } else if (freshnessScore >= 50) {
+            foodStatus.innerText = "⚠ Moderate";
+            recommendation.innerText = "Food is approaching expiry. Prioritize donation.";
+        } else {
+            foodStatus.innerText = "⚠ Low Freshness";
+            recommendation.innerText = "Food is close to expiry. Donate immediately if safe.";
+        }
     }
 
-    // Keep between 0 and 100
-
-    freshnessScore = Math.round(
-        Math.max(0, Math.min(100, freshnessScore))
-    );
-
-    // ==========================
-    // DISPLAY FRESHNESS
-    // ==========================
-
-    freshness.innerText =
-        freshnessScore + "%";
-
-    // ==========================
-    // FOOD STATUS
-    // ==========================
-
-    if (remainingHours <= 0) {
-
-        foodStatus.innerText = "❌ Expired";
-
-        recommendation.innerText =
-            "Food has expired. Do not donate.";
-
-    }
-    else if (remainingHours <= 1) {
-
-        foodStatus.innerText =
-            "🔴 Near Expiry";
-
-        recommendation.innerText =
-            "Less than 1 hour remaining. Donate immediately if food has been stored safely.";
-
-    }
-    else if (freshnessScore >= 75) {
-
-        foodStatus.innerText =
-            "✅ Fresh";
-
-        recommendation.innerText =
-            "Food appears fresh. Donate as soon as possible.";
-
-    }
-    else if (freshnessScore >= 50) {
-
-        foodStatus.innerText =
-            "⚠ Moderate";
-
-        recommendation.innerText =
-            "Food is approaching expiry. Prioritize donation.";
-
-    }
-    else {
-
-        foodStatus.innerText =
-            "⚠ Low Freshness";
-
-        recommendation.innerText =
-            "Food is close to expiry. Donate immediately if safe.";
-
-    }
-
-    // ==========================
-    // CONSOLE INFORMATION
-    // ==========================
-
-    console.log(
-        "Prepared:",
-        preparedDate.value,
-        preparedTime.value,
-        preparedPeriod.value
-    );
-
-    console.log(
-        "Expiry:",
-        expiryDate.value,
-        expiryTime.value,
-        expiryPeriod.value
-    );
-
-    console.log(
-        "Remaining:",
-        remainingHours.toFixed(2),
-        "hours"
-    );
-
-    console.log(
-        "Freshness:",
-        freshnessScore + "%"
-    );
+    console.log("AI Analysis:", {
+        prep: preparationDateTime.toLocaleString(),
+        exp: expiryDateTime.toLocaleString(),
+        remainingHours: remainingHours.toFixed(2),
+        freshnessScore,
+        status: foodStatus.innerText
+    });
 }
+
 // ==========================================================
 // RUN AI WHEN TIME / FOOD DATA CHANGES
 // ==========================================================
@@ -440,17 +312,38 @@ if (foodInputListEl) {
             analyzeFood();
         }
     });
+    foodInputListEl.addEventListener("input", (e) => {
+        if (e.target && (e.target.classList.contains("foodCategoryInput") || e.target.classList.contains("foodNameInput"))) {
+            analyzeFood();
+        }
+    });
 }
 
-storage.addEventListener("change", analyzeFood);
-
-preparedDate.addEventListener("change", analyzeFood);
-preparedTime.addEventListener("change", analyzeFood);
-preparedPeriod.addEventListener("change", analyzeFood);
-
-expiryDate.addEventListener("change", analyzeFood);
-expiryTime.addEventListener("change", analyzeFood);
-expiryPeriod.addEventListener("change", analyzeFood);
+if (storage) {
+    storage.addEventListener("change", analyzeFood);
+}
+if (preparedDate) {
+    preparedDate.addEventListener("change", analyzeFood);
+    preparedDate.addEventListener("input", analyzeFood);
+}
+if (preparedTime) {
+    preparedTime.addEventListener("change", analyzeFood);
+    preparedTime.addEventListener("input", analyzeFood);
+}
+if (preparedPeriod) {
+    preparedPeriod.addEventListener("change", analyzeFood);
+}
+if (expiryDate) {
+    expiryDate.addEventListener("change", analyzeFood);
+    expiryDate.addEventListener("input", analyzeFood);
+}
+if (expiryTime) {
+    expiryTime.addEventListener("change", analyzeFood);
+    expiryTime.addEventListener("input", analyzeFood);
+}
+if (expiryPeriod) {
+    expiryPeriod.addEventListener("change", analyzeFood);
+}
 // ==========================================
 // FOOD IMAGE PREVIEW
 // ==========================================
@@ -920,6 +813,38 @@ if (donateForm) {
         const prepared_time_str = `${String(prep.hour).padStart(2, "0")}:${String(prep.minute).padStart(2, "0")}`;
         const expiry_time_str = `${String(exp.hour).padStart(2, "0")}:${String(exp.minute).padStart(2, "0")}`;
 
+        const prepDt = parseLocalDate(preparedDate, prep);
+        const expDt = parseLocalDate(expiryDate, exp);
+        const now = new Date();
+
+        if (!prepDt || !expDt || isNaN(prepDt.getTime()) || isNaN(expDt.getTime())) {
+            alert("Please enter a valid preparation and expiry date/time.");
+            return;
+        }
+
+        if (expDt <= prepDt) {
+            alert("Expiry date/time must be after preparation date/time.");
+            return;
+        }
+
+        if (expDt <= now) {
+            alert("❌ Expired Food: This food has already passed its expiry time and cannot be donated.");
+            return;
+        }
+
+        const remainingHours = (expDt.getTime() - now.getTime()) / (1000 * 60 * 60);
+        const nearExpiryAgreeCheckbox = document.getElementById("nearExpiryAgreeCheckbox");
+        const nearExpiryValidationError = document.getElementById("nearExpiryValidationError");
+
+        if (remainingHours <= 1) {
+            if (!nearExpiryAgreeCheckbox || !nearExpiryAgreeCheckbox.checked) {
+                if (nearExpiryValidationError) nearExpiryValidationError.style.display = "block";
+                alert("⚠️ This food is near expiry. Please check the agreement box confirming you understand the warning.");
+                return;
+            }
+        }
+        if (nearExpiryValidationError) nearExpiryValidationError.style.display = "none";
+
         const donor_email = localStorage.getItem("email") || "rohan.sharma.donor@gmail.com";
         const primaryCategory = foodItems.length > 0 ? foodItems[0].category : "";
 
@@ -952,13 +877,16 @@ if (donateForm) {
                     food_name: foodItems,
                     quantity: quantity,
                     category: primaryCategory,
+                    prepared_date: preparedDate,
                     prepared_time: prepared_time_str,
                     storage: storage,
+                    expiry_date: expiryDate,
                     expiry: expiry_time_str,
                     address: address,
                     latitude: latitude,
                     longitude: longitude,
-                    donor_email: donor_email
+                    donor_email: donor_email,
+                    near_expiry_acknowledged: nearExpiryAgreeCheckbox ? nearExpiryAgreeCheckbox.checked : false
                 })
             });
 
@@ -967,6 +895,12 @@ if (donateForm) {
                 if (data.status === "success") {
                     backendSubmitted = true;
                     console.log("Submitted to backend successfully:", data.message);
+                }
+            } else {
+                const errData = await response.json().catch(() => ({}));
+                if (errData.message) {
+                    alert(errData.message);
+                    return;
                 }
             }
         } catch (error) {

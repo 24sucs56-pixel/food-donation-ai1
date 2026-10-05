@@ -101,7 +101,7 @@ def check_food_freshness(expiry_time, expiry_date=None, prep_time=None, prep_dat
                 "freshness": 0,
                 "hours_left": 0,
                 "result": "Expired",
-                "recommendation": "Food has passed its expiry time. Do not donate."
+                "recommendation": "This food is expired and is not good for donation. Please do not donate this food."
             }
 
         if elapsed_sec < 0:
@@ -148,13 +148,13 @@ def check_food_freshness(expiry_time, expiry_date=None, prep_time=None, prep_dat
 
         if hours_left <= 1:
             result = "Near Expiry"
-            rec = "Less than 1 hour remaining. Donate immediately if food has been stored safely."
+            rec = "This food is nearly expired and is not recommended for donation. Please do not donate this food."
         elif final_score >= 75:
             result = "Fresh"
-            rec = "Food appears fresh. Donate as soon as possible."
+            rec = "This food is fresh and safe to donate. Please donate this food."
         elif final_score >= 50:
             result = "Moderate"
-            rec = "Food is approaching expiry. Prioritize donation."
+            rec = "This food is moderately fresh. It can be donated, but please donate it as soon as possible."
         else:
             result = "Low Freshness"
             rec = "Food is close to expiry. Donate immediately if safe."

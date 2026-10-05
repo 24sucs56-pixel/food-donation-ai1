@@ -112,21 +112,20 @@ def donate():
         food_name=food_name
     )
 
-    # STRICT BACKEND SECURITY EXPIRY VERIFICATION
+    # STRICT BACKEND SECURITY EXPIRY & NEAR-EXPIRY VERIFICATION
     # 1. EXPIRED FOOD: ALWAYS REJECT
     if ai_result["result"] in ["Expired", "Invalid"] or ai_result["freshness"] == 0:
         return jsonify({
             "status": "error",
-            "message": "❌ Expired Food: This food has already passed its expiry time and cannot be donated."
+            "message": "❌ Expired Food: This food is expired and is not good for donation. Please do not donate this food."
         }), 400
 
-    # 2. NEAR-EXPIRY FOOD: REQUIRE ACKNOWLEDGEMENT
+    # 2. NEAR-EXPIRY FOOD: ALWAYS REJECT
     if ai_result["result"] == "Near Expiry" or (0 < ai_result.get("hours_left", 999) <= 1):
-        if not near_expiry_acknowledged:
-            return jsonify({
-                "status": "error",
-                "message": "⚠️ This food is near expiry. You must acknowledge the near-expiry warning before donating."
-            }), 400
+        return jsonify({
+            "status": "error",
+            "message": "🔴 Near Expiry Food: This food is nearly expired and is not recommended for donation. Please do not donate this food."
+        }), 400
 
     priority = get_priority(ai_result["freshness"])
     ngo = recommend_ngo(category, latitude, longitude)

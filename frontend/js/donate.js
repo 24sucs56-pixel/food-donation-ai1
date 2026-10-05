@@ -232,14 +232,14 @@ function analyzeFood() {
     if (remaining <= 0 || now >= expiryDateTime) {
         freshness.innerText = "0%";
         foodStatus.innerText = "❌ Expired";
-        recommendation.innerText = "Food has passed its expiry time. Do not donate.";
+        recommendation.innerText = "This food is expired and is not good for donation. Please do not donate this food.";
 
         if (warnContainer && warnContent) {
             warnContainer.style.display = "block";
             warnContainer.style.background = "rgba(220, 38, 38, 0.08)";
             warnContainer.style.border = "1px solid #ef4444";
             warnContent.style.color = "#991b1b";
-            warnContent.innerHTML = "<strong>❌ Expired Food Warning:</strong> This food has passed its expiry time and cannot be donated.";
+            warnContent.innerHTML = "<strong>❌ Expired Food Warning:</strong> This food is expired and is not good for donation. Please do not donate this food.";
             if (agreeBox) agreeBox.style.display = "none";
         }
         return;
@@ -268,25 +268,25 @@ function analyzeFood() {
     // Select Food Status based on priorities (BUG 4)
     if (remainingHours <= 1) {
         foodStatus.innerText = "🔴 Near Expiry";
-        recommendation.innerText = "Less than 1 hour remaining. Donate immediately if food has been stored safely.";
+        recommendation.innerText = "This food is nearly expired and is not recommended for donation. Please do not donate this food.";
 
         if (warnContainer && warnContent) {
             warnContainer.style.display = "block";
-            warnContainer.style.background = "rgba(234, 179, 8, 0.08)";
-            warnContainer.style.border = "1px solid #eab308";
-            warnContent.style.color = "#713f12";
-            warnContent.innerHTML = "<strong>⚠️ Near-Expiry Food Warning:</strong> This food has less than 1 hour of shelf life remaining. Please ensure it is stored safely and can be collected promptly.";
-            if (agreeBox) agreeBox.style.display = "block";
+            warnContainer.style.background = "rgba(220, 38, 38, 0.08)";
+            warnContainer.style.border = "1px solid #ef4444";
+            warnContent.style.color = "#991b1b";
+            warnContent.innerHTML = "<strong>🔴 Near-Expiry Food Warning:</strong> This food is nearly expired and is not recommended for donation. Please do not donate this food.";
+            if (agreeBox) agreeBox.style.display = "none";
         }
     } else {
         if (warnContainer) warnContainer.style.display = "none";
 
         if (freshnessScore >= 75) {
-            foodStatus.innerText = "✅ Fresh";
-            recommendation.innerText = "Food appears fresh. Donate as soon as possible.";
+            foodStatus.innerText = "🟢 Fresh";
+            recommendation.innerText = "This food is fresh and safe to donate. Please donate this food.";
         } else if (freshnessScore >= 50) {
-            foodStatus.innerText = "⚠ Moderate";
-            recommendation.innerText = "Food is approaching expiry. Prioritize donation.";
+            foodStatus.innerText = "🟡 Moderate";
+            recommendation.innerText = "This food is moderately fresh. It can be donated, but please donate it as soon as possible.";
         } else {
             foodStatus.innerText = "⚠ Low Freshness";
             recommendation.innerText = "Food is close to expiry. Donate immediately if safe.";
@@ -828,22 +828,16 @@ if (donateForm) {
         }
 
         if (expDt <= now) {
-            alert("❌ Expired Food: This food has already passed its expiry time and cannot be donated.");
+            alert("❌ Expired Food: This food is expired and is not good for donation. Please do not donate this food.");
             return;
         }
 
         const remainingHours = (expDt.getTime() - now.getTime()) / (1000 * 60 * 60);
-        const nearExpiryAgreeCheckbox = document.getElementById("nearExpiryAgreeCheckbox");
-        const nearExpiryValidationError = document.getElementById("nearExpiryValidationError");
 
         if (remainingHours <= 1) {
-            if (!nearExpiryAgreeCheckbox || !nearExpiryAgreeCheckbox.checked) {
-                if (nearExpiryValidationError) nearExpiryValidationError.style.display = "block";
-                alert("⚠️ This food is near expiry. Please check the agreement box confirming you understand the warning.");
-                return;
-            }
+            alert("🔴 Near Expiry Food: This food is nearly expired and is not recommended for donation. Please do not donate this food.");
+            return;
         }
-        if (nearExpiryValidationError) nearExpiryValidationError.style.display = "none";
 
         const donor_email = localStorage.getItem("email") || "rohan.sharma.donor@gmail.com";
         const primaryCategory = foodItems.length > 0 ? foodItems[0].category : "";

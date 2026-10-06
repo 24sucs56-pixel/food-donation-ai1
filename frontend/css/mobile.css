@@ -4243,18 +4243,24 @@ textarea#address,
    ========================================================== */
 @media (max-width: 768px) {
     .notification-menu {
-        position: absolute !important;
-        top: calc(100% + 8px) !important;
-        right: 0 !important;
+        position: fixed !important;
+        top: 68px !important;
+        right: 12px !important;
         left: auto !important;
         width: 310px !important;
         max-width: calc(100vw - 24px) !important;
         box-sizing: border-box !important;
         border-radius: 16px !important;
-        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18) !important;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22) !important;
         border: 1px solid #e2e8f0 !important;
         overflow: hidden !important;
-        z-index: 9999 !important;
+        z-index: 999999 !important;
+        margin: 0 !important;
+        transform: none !important;
+    }
+
+    .notification-menu.show {
+        display: block !important;
     }
 
     .notification-header,
@@ -4263,26 +4269,41 @@ textarea#address,
         font-size: 14px !important;
         background: #f8fafc !important;
         border-bottom: 1px solid #f1f5f9 !important;
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+    }
+
+    .notification-header h3,
+    .notification-title h3 {
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        color: #0f172a !important;
+        margin: 0 !important;
     }
 
     .notification-body {
-        max-height: 260px !important;
+        max-height: 280px !important;
         overflow-y: auto !important;
         padding: 6px 8px !important;
         -webkit-overflow-scrolling: touch !important;
     }
 
     .notification-item {
-        padding: 8px 10px !important;
+        padding: 10px 12px !important;
         gap: 10px !important;
         border-bottom: 1px solid #f1f5f9 !important;
         font-size: 13px !important;
+        display: flex !important;
+        align-items: flex-start !important;
+        cursor: pointer !important;
     }
 
     .notification-icon {
         width: 32px !important;
         height: 32px !important;
         font-size: 16px !important;
+        border-radius: 8px !important;
         flex-shrink: 0 !important;
     }
 
@@ -4299,7 +4320,7 @@ textarea#address,
     .view-all-btn {
         display: block !important;
         width: 100% !important;
-        padding: 8px 12px !important;
+        padding: 10px 12px !important;
         font-size: 13px !important;
         font-weight: 600 !important;
         color: #16a34a !important;
@@ -4307,3 +4328,4 @@ textarea#address,
         box-sizing: border-box !important;
     }
 }
+

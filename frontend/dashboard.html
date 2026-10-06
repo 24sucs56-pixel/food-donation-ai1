@@ -177,9 +177,15 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 
             <h3>Notifications</h3>
 
-            <span class="new-count">4 New</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="new-count">4 New</span>
+                <button type="button" class="notification-close-btn" onclick="event.stopPropagation(); document.getElementById('notificationMenu').classList.remove('show');" aria-label="Close Notifications" style="background: none; border: none; color: #64748b; font-size: 16px; cursor: pointer; padding: 2px 4px; display: flex; align-items: center; justify-content: center; border-radius: 6px;">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
 
         </div>
+
 
         <div class="notification-body">
 

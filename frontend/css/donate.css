@@ -907,86 +907,91 @@ form {
    LOCATION SEARCH
 ========================================== */
 
-.location-search {
-
-    display: flex;
-
-    align-items: center;
-
+.location-search-group {
     width: 100%;
-
-    height: 56px;
-
-    margin-bottom: 18px;
-
-    border: 2px solid #c8f5dc;
-
-    border-radius: 12px;
-
-    background: #ffffff;
-
+    margin-bottom: 12px;
     box-sizing: border-box;
-
-    overflow: hidden;
 }
 
+.location-search-input-box {
+    position: relative;
+    width: 100%;
+    height: 46px;
+    box-sizing: border-box;
+}
 
-.location-search > i {
-
-    margin-left: 16px;
-
-    margin-right: 10px;
-
+.location-search-input-box > i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
     color: #16a34a;
-
-    font-size: 17px;
-
+    font-size: 15px;
+    pointer-events: none;
+    z-index: 2;
 }
 
-
-.location-search input {
-
-    flex: 1;
-
-    height: 100%;
-
-    border: none;
-
+.location-search-input-box input,
+#locationSearch {
+    width: 100%;
+    height: 46px;
+    border: 1.5px solid #bbf7d0;
+    border-radius: 10px;
+    background: #ffffff;
+    padding-left: 38px;
+    padding-right: 12px;
+    font-size: 14px;
+    color: #0f172a;
     outline: none;
-
-    padding: 0 10px;
-
-    font-size: 15px;
-
-    background: transparent;
-
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+.location-search-input-box input:focus,
+#locationSearch:focus {
+    border-color: #16a34a;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
 
-.location-search button {
+.location-search-btn-wrapper {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+    margin-top: 8px;
+    margin-bottom: 12px;
+    box-sizing: border-box;
+}
 
-    height: 100%;
-
-    padding: 0 25px;
-
+.location-search-btn-wrapper button,
+#searchLocationBtn {
+    width: 86px;
+    height: 38px;
+    padding: 0;
+    margin: 0;
     border: none;
-
+    border-radius: 10px;
     background: #16a34a;
-
-    color: white;
-
-    font-size: 15px;
-
+    color: #ffffff;
+    font-size: 13.5px;
     font-weight: 600;
-
     cursor: pointer;
-
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    transition: background 0.2s, transform 0.15s;
 }
 
-
-.location-search button:hover {
-
+.location-search-btn-wrapper button:hover,
+#searchLocationBtn:hover {
     background: #15803d;
+}
+
+.location-search-btn-wrapper button:active,
+#searchLocationBtn:active {
+    transform: scale(0.96);
+}
 
 }
 

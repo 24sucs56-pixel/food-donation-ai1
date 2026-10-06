@@ -2174,17 +2174,20 @@
         word-break: break-word !important;
     }
 
-    .location-search {
-        display: flex !important;
-        flex-direction: row !important;
-        gap: 8px !important;
+    .location-search-group {
         width: 100% !important;
         margin-bottom: 12px !important;
-        position: relative !important;
         box-sizing: border-box !important;
     }
 
-    .location-search i {
+    .location-search-input-box {
+        position: relative !important;
+        width: 100% !important;
+        height: 46px !important;
+        box-sizing: border-box !important;
+    }
+
+    .location-search-input-box i {
         position: absolute !important;
         left: 14px !important;
         top: 50% !important;
@@ -2195,26 +2198,38 @@
         z-index: 2 !important;
     }
 
-    .location-search input,
+    .location-search-input-box input,
     #locationSearch {
-        flex: 1 1 auto !important;
-        min-width: 0 !important;
+        width: 100% !important;
         height: 46px !important;
+        min-height: 44px !important;
         font-size: 13.5px !important;
         padding-left: 38px !important;
-        padding-right: 10px !important;
+        padding-right: 12px !important;
         border-radius: 10px !important;
         border: 1.5px solid #bbf7d0 !important;
         background: #ffffff !important;
         box-sizing: border-box !important;
+        outline: none !important;
+        margin: 0 !important;
     }
 
-    .location-search button,
+    .location-search-btn-wrapper {
+        display: flex !important;
+        justify-content: flex-end !important;
+        width: 100% !important;
+        margin-top: 8px !important;
+        margin-bottom: 12px !important;
+        box-sizing: border-box !important;
+    }
+
+    .location-search-btn-wrapper button,
     #searchLocationBtn {
-        flex: 0 0 auto !important;
-        height: 46px !important;
-        min-height: 44px !important;
-        padding: 0 16px !important;
+        width: 86px !important;
+        height: 38px !important;
+        min-height: 38px !important;
+        padding: 0 !important;
+        margin: 0 !important;
         font-size: 13px !important;
         font-weight: 600 !important;
         border-radius: 10px !important;
@@ -2223,10 +2238,14 @@
         border: none !important;
         cursor: pointer !important;
         white-space: nowrap !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        box-sizing: border-box !important;
         transition: transform 0.15s ease !important;
     }
 
-    .location-search button:active,
+    .location-search-btn-wrapper button:active,
     #searchLocationBtn:active {
         transform: scale(0.96) !important;
     }

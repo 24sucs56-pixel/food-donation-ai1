@@ -273,29 +273,17 @@
    LOCATION SEARCH
 ========================================== */
 
-.location-search {
+.location-search-group {
     width: 100% !important;
-
-    display: flex !important;
-
-    align-items: stretch;
-
-    margin: 20px 0 !important;
-
+    margin: 14px 0 10px 0 !important;
     box-sizing: border-box;
 }
 
-
-.location-search input {
-    flex: 1 !important;
-
-    min-width: 0 !important;
-
-    width: auto !important;
+.location-search-input-box input {
+    width: 100% !important;
 }
 
-
-.location-search button {
+.location-search-btn-wrapper button {
     flex-shrink: 0;
 }
 
@@ -1173,26 +1161,23 @@
         font-size: 12.5px !important;
     }
 
-    .location-search {
-        display: flex !important;
-        flex-direction: row !important;
-        gap: 8px !important;
+    .location-search-group {
         width: 100% !important;
         margin-bottom: 12px !important;
     }
 
-    .location-search input {
-        flex: 1 !important;
-        min-width: 0 !important;
+    .location-search-input-box input {
+        width: 100% !important;
         height: 46px !important;
-        font-size: 13px !important;
-        padding-left: 36px !important;
+        font-size: 13.5px !important;
+        padding-left: 38px !important;
     }
 
-    .location-search button,
+    .location-search-btn-wrapper button,
     #searchLocationBtn {
-        height: 46px !important;
-        padding: 0 14px !important;
+        width: 86px !important;
+        height: 38px !important;
+        padding: 0 !important;
         font-size: 13px !important;
         white-space: nowrap !important;
         flex-shrink: 0 !important;

@@ -871,22 +871,26 @@ accept="image/*">
 
     <!-- ADDRESS SEARCH -->
 
-    <div class="location-search">
+    <div class="location-search-group">
 
-        <i class="fa-solid fa-location-dot"></i>
+        <div class="location-search-input-box">
+            <i class="fa-solid fa-location-dot"></i>
+            <input
+                type="text"
+                id="locationSearch"
+                placeholder="Search location">
+        </div>
 
-        <input
-            type="text"
-            id="locationSearch"
-            placeholder="Enter pickup address">
-
-        <button
-            type="button"
-            id="searchLocationBtn">
-            Search
-        </button>
+        <div class="location-search-btn-wrapper">
+            <button
+                type="button"
+                id="searchLocationBtn">
+                Search
+            </button>
+        </div>
 
     </div>
+
 
 
     <!-- MAP -->

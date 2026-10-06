@@ -42,11 +42,9 @@ const storage = document.getElementById("storage");
 
 const preparedDate = document.getElementById("preparedDate");
 const preparedTime = document.getElementById("preparedTime");
-const preparedPeriod = document.getElementById("preparedPeriod");
 
 const expiryDate = document.getElementById("expiryDate");
 const expiryTime = document.getElementById("expiryTime");
-const expiryPeriod = document.getElementById("expiryPeriod");
 
 const freshness = document.getElementById("freshness");
 const foodStatus = document.getElementById("foodStatus");
@@ -55,9 +53,10 @@ const recommendation = document.getElementById("recommendation");
 // ==========================================================
 // CONVERT 12-HOUR / 24-HOUR TIME STRINGS PROPERLY
 // ==========================================================
-function convertTo24Hour(time, period) {
+function convertTo24Hour(time) {
     if (!time || typeof time !== "string") return { hour: NaN, minute: NaN };
     let trimmed = time.trim();
+    let period = "";
 
     // Check if AM/PM is embedded in time string (e.g. "05:00 PM")
     const ampmMatch = trimmed.match(/(AM|PM)/i);
@@ -147,10 +146,8 @@ function analyzeFood() {
         !storage ||
         !preparedDate ||
         !preparedTime ||
-        !preparedPeriod ||
         !expiryDate ||
         !expiryTime ||
-        !expiryPeriod ||
         !freshness ||
         !foodStatus ||
         !recommendation
@@ -179,8 +176,8 @@ function analyzeFood() {
     }
 
     // Convert times
-    const prep = convertTo24Hour(preparedTime.value, preparedPeriod ? preparedPeriod.value : "");
-    const exp = convertTo24Hour(expiryTime.value, expiryPeriod ? expiryPeriod.value : "");
+    const prep = convertTo24Hour(preparedTime.value);
+    const exp = convertTo24Hour(expiryTime.value);
 
     const preparationDateTime = parseLocalDate(preparedDate.value, prep);
     const expiryDateTime = parseLocalDate(expiryDate.value, exp);
@@ -330,9 +327,6 @@ if (preparedTime) {
     preparedTime.addEventListener("change", analyzeFood);
     preparedTime.addEventListener("input", analyzeFood);
 }
-if (preparedPeriod) {
-    preparedPeriod.addEventListener("change", analyzeFood);
-}
 if (expiryDate) {
     expiryDate.addEventListener("change", analyzeFood);
     expiryDate.addEventListener("input", analyzeFood);
@@ -340,9 +334,6 @@ if (expiryDate) {
 if (expiryTime) {
     expiryTime.addEventListener("change", analyzeFood);
     expiryTime.addEventListener("input", analyzeFood);
-}
-if (expiryPeriod) {
-    expiryPeriod.addEventListener("change", analyzeFood);
 }
 // ==========================================
 // FOOD IMAGE PREVIEW
@@ -773,10 +764,8 @@ if (donateForm) {
         const quantity = document.getElementById("quantity").value;
         const preparedDate = document.getElementById("preparedDate").value;
         const preparedTime = document.getElementById("preparedTime").value;
-        const preparedPeriod = document.getElementById("preparedPeriod").value;
         const expiryDate = document.getElementById("expiryDate").value;
         const expiryTime = document.getElementById("expiryTime").value;
-        const expiryPeriod = document.getElementById("expiryPeriod").value;
         const storage = document.getElementById("storage").value;
         const address = document.getElementById("locationSearch").value.trim();
         const latitude = document.getElementById("latitude").value;
@@ -808,8 +797,8 @@ if (donateForm) {
         }
 
         // Format dates and times for backend logic
-        const prep = convertTo24Hour(preparedTime, preparedPeriod);
-        const exp = convertTo24Hour(expiryTime, expiryPeriod);
+        const prep = convertTo24Hour(preparedTime);
+        const exp = convertTo24Hour(expiryTime);
         const prepared_time_str = `${String(prep.hour).padStart(2, "0")}:${String(prep.minute).padStart(2, "0")}`;
         const expiry_time_str = `${String(exp.hour).padStart(2, "0")}:${String(exp.minute).padStart(2, "0")}`;
 

@@ -483,21 +483,6 @@ header h1{
     font-family: inherit;
 }
 
-/* AM / PM */
-
-.period-select {
-    height: 48px;
-    width: 75px;
-    border: 2px solid #d1fae5;
-    border-radius: 12px;
-    background: white;
-    padding: 0 8px;
-    font-size: 14px;
-    cursor: pointer;
-    outline: none;
-}
-
-.period-select:focus,
 .date-box:focus-within,
 .time-box:focus-within {
     border-color: #16a34a;
@@ -807,12 +792,7 @@ body {
 }
 
 
-/* AM / PM */
 
-.time-input-wrapper select[id$="Period"] {
-    width: 58px;
-    font-weight: 600;
-}
 
 
 /* Colon */

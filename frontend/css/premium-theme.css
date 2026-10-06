@@ -811,10 +811,10 @@ span.status.pending { background: #fef3c7 !important; color: #d97706 !important;
     margin-left: auto !important;
 }
 
-/* Align notification menu dropdown to the left of the button to prevent sidebar clipping */
+/* Align notification menu dropdown cleanly to the right of topbar container */
 .notification-menu {
-    left: 0 !important;
-    right: auto !important;
+    right: 0 !important;
+    left: auto !important;
     transform: none !important;
 }
 

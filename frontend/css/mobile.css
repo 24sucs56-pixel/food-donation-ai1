@@ -1884,6 +1884,13 @@
         max-width: 100% !important;
     }
 
+    #address,
+    .input-box textarea,
+    .input-box #address {
+        padding: 12px 14px 12px 50px !important;
+        padding-left: 50px !important;
+    }
+
     /* Dynamic Food Rows & Varieties */
     #foodItemsContainer {
         width: 100% !important;
@@ -2013,10 +2020,10 @@
         padding: 0 !important;
     }
 
-    /* Time picker takes majority of line 2 */
+    /* Time picker takes full width on line 2 */
     .time-box {
-        flex: 1 1 calc(100% - 90px) !important;
-        min-width: 130px !important;
+        width: 100% !important;
+        flex: 1 1 100% !important;
         height: 48px !important;
         padding: 0 12px !important;
         border: 1.5px solid #d1fae5 !important;
@@ -2044,22 +2051,6 @@
         margin-right: 8px !important;
         font-size: 14px !important;
         flex-shrink: 0 !important;
-    }
-
-    /* Period selector (AM/PM) sits right next to time picker on line 2 */
-    .period-select {
-        flex: 0 0 80px !important;
-        width: 80px !important;
-        height: 48px !important;
-        border: 1.5px solid #d1fae5 !important;
-        border-radius: 10px !important;
-        background: #ffffff !important;
-        font-size: 13.5px !important;
-        font-weight: 600 !important;
-        text-align: center !important;
-        cursor: pointer !important;
-        box-sizing: border-box !important;
-        padding: 0 8px !important;
     }
 
     /* Storage Condition */
@@ -3556,16 +3547,7 @@
         gap: 6px !important;
     }
 
-    .time-box {
-        min-width: 110px !important;
-    }
 
-    .period-select {
-        flex: 0 0 70px !important;
-        width: 70px !important;
-        padding: 0 4px !important;
-        font-size: 12.5px !important;
-    }
 
     .submit-btn,
     button[type="submit"].submit-btn {
@@ -4226,5 +4208,83 @@
         color: #eab308 !important;
         font-size: 17px !important;
         animation: pulse 2s infinite !important;
+    }
+}
+
+#address,
+textarea#address,
+.input-box textarea,
+.input-box #address {
+    padding: 14px 14px 14px 50px !important;
+    padding-left: 50px !important;
+}
+
+/* ==========================================================
+   MOBILE NOTIFICATION POPUP RESPONSIVE STYLING (PIXEL 7 & ALL MOBILE)
+   ========================================================== */
+@media (max-width: 768px) {
+    .notification-menu {
+        position: absolute !important;
+        top: calc(100% + 8px) !important;
+        right: 0 !important;
+        left: auto !important;
+        width: 310px !important;
+        max-width: calc(100vw - 24px) !important;
+        box-sizing: border-box !important;
+        border-radius: 16px !important;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.18) !important;
+        border: 1px solid #e2e8f0 !important;
+        overflow: hidden !important;
+        z-index: 9999 !important;
+    }
+
+    .notification-header,
+    .notification-title {
+        padding: 12px 16px !important;
+        font-size: 14px !important;
+        background: #f8fafc !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+    }
+
+    .notification-body {
+        max-height: 260px !important;
+        overflow-y: auto !important;
+        padding: 6px 8px !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .notification-item {
+        padding: 8px 10px !important;
+        gap: 10px !important;
+        border-bottom: 1px solid #f1f5f9 !important;
+        font-size: 13px !important;
+    }
+
+    .notification-icon {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 16px !important;
+        flex-shrink: 0 !important;
+    }
+
+    .notification-footer {
+        padding: 10px 14px !important;
+        text-align: center !important;
+        background: #ffffff !important;
+        border-top: 1px solid #f1f5f9 !important;
+    }
+
+    .notification-footer a,
+    .notification-footer button,
+    #viewAllNotificationsBtn,
+    .view-all-btn {
+        display: block !important;
+        width: 100% !important;
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        color: #16a34a !important;
+        text-align: center !important;
+        box-sizing: border-box !important;
     }
 }

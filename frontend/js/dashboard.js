@@ -376,10 +376,37 @@ if(chatUserName){
         `;
     }
 
+    function updateNotificationBellVisibility(clickedId) {
+        const notifBtn = document.getElementById("notificationBtn");
+        const notifMenu = document.getElementById("notificationMenu");
+        
+        // Bell & Popup are DASHBOARD ONLY for all roles (Donor, NGO, Volunteer, Admin)
+        const isDashboard = (
+            clickedId === "sidebarHome" || 
+            clickedId === "dashboardHomeSection" ||
+            clickedId === "home"
+        );
+
+        if (notifBtn) {
+            if (isDashboard) {
+                notifBtn.style.setProperty("display", "inline-flex", "important");
+            } else {
+                notifBtn.style.setProperty("display", "none", "important");
+                if (notifMenu) {
+                    notifMenu.classList.remove("active", "show");
+                    notifMenu.style.setProperty("display", "none", "important");
+                }
+            }
+        }
+    }
+
     function switchTab(clickedId) {
         const activeRole = (localStorage.getItem("role") || "donor").toLowerCase().trim();
         const target = sections[clickedId];
         if (!target) return;
+
+        // Ensure notification bell is ONLY visible on Dashboard
+        updateNotificationBellVisibility(clickedId);
 
         // Auto close mobile drawer and profile dropdown on selection
         closeMobileMenu();

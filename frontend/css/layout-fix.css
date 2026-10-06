@@ -1028,6 +1028,13 @@
         padding: 10px 12px !important;
     }
 
+    #address,
+    .input-box textarea,
+    .input-box #address {
+        padding: 12px 14px 12px 50px !important;
+        padding-left: 50px !important;
+    }
+
     /* Dynamic Food Rows on Mobile */
     .food-input-row {
         display: flex !important;
@@ -1088,10 +1095,7 @@
         box-sizing: border-box !important;
     }
 
-    .period-select {
-        width: 100% !important;
-        height: 44px !important;
-    }
+
 
     /* Food Image Upload & Preview */
     #foodImage {

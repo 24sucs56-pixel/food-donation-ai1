@@ -305,9 +305,14 @@ select{
 
 }
 
+#address,
 .input-box textarea{
 
     resize:none;
+
+    padding:15px 18px 15px 50px !important;
+
+    padding-left:50px !important;
 
 }
 
@@ -617,5 +622,13 @@ input[type="file"]{
     .role-card{
         padding:10px 8px !important;
     }
+}
+
+#address,
+textarea#address,
+.input-box textarea,
+.input-box #address {
+    padding: 14px 14px 14px 50px !important;
+    padding-left: 50px !important;
 }
 

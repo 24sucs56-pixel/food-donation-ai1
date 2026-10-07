@@ -39,6 +39,7 @@ const ROLE_NAVIGATION_CONFIG = {
         { id: "sidebarNgoAccepted", icon: "fa-solid fa-box-archive", label: "Accepted Donations", target: "sidebarNgoAccepted" },
         { id: "sidebarNearbyDonors", icon: "fa-solid fa-location-dot", label: "Nearby Donors", target: "sidebarNearbyDonors" },
         { id: "sidebarVolunteer", icon: "fa-solid fa-users", label: "Volunteers", target: "sidebarVolunteer" },
+        { id: "sidebarAI", icon: "fa-solid fa-robot", label: "AI Assistant", target: "sidebarAI" },
         { id: "sidebarReports", icon: "fa-solid fa-chart-line", label: "Reports", target: "sidebarReports" },
         { id: "sidebarSettings", icon: "fa-solid fa-gear", label: "Settings", target: "sidebarSettings" }
     ],
@@ -47,6 +48,7 @@ const ROLE_NAVIGATION_CONFIG = {
         { id: "sidebarVolunteer", icon: "fa-solid fa-truck-fast", label: "Assigned Pickups", target: "sidebarVolunteer" },
         { id: "sidebarNGO", icon: "fa-solid fa-building-circle-check", label: "Nearby Donations", target: "sidebarNGO" },
         { id: "sidebarDeliveries", icon: "fa-solid fa-boxes-packing", label: "My Deliveries", target: "sidebarVolunteer" },
+        { id: "sidebarAI", icon: "fa-solid fa-robot", label: "AI Assistant", target: "sidebarAI" },
         { id: "sidebarReports", icon: "fa-solid fa-chart-line", label: "Reports", target: "sidebarReports" },
         { id: "sidebarSettings", icon: "fa-solid fa-gear", label: "Settings", target: "sidebarSettings" }
     ],

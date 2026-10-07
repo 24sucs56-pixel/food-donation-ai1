@@ -144,40 +144,54 @@ document.addEventListener("DOMContentLoaded", () => {
                 <li><strong>First Come First Serve</strong>: The first volunteer to tap "Accept" on their dashboard receives the pickup route.</li>
             </ol>
         `,
-        "Can I change my pickup address after submitting a donation?": `
-            <p><strong>✏️ Updating Donation Information:</strong></p>
+        "How do NGOs accept available donations?": `
+            <p><strong>🏢 NGO Accepting Donations Guide:</strong></p>
             <ol style="margin-top: 8px; padding-left: 20px; line-height: 1.6;">
-                <li><strong>Check Claim Status</strong>: You can only edit details if the donation is still in the "Waiting" status.</li>
-                <li><strong>Go to My Donations</strong>: Click on <strong><a href="mydonations.html">My Donations</a></strong> and select the donation.</li>
-                <li><strong>Click Edit</strong>: Press the edit icon to change the pickup address or coordinates.</li>
-                <li><strong>Confirm Changes</strong>: Re-submit the form to update coordinates for nearby volunteers.</li>
+                <li><strong>Open Available Donations</strong>: Click on the <strong>Available Donations</strong> tab in your sidebar.</li>
+                <li><strong>Inspect Donation Details</strong>: Check the food type, quantity, preparation time, and AI freshness rating.</li>
+                <li><strong>Click Accept Donation</strong>: Press the <strong>"Accept Donation"</strong> button on the item card.</li>
+                <li><strong>Volunteer Dispatch</strong>: The status will change to <em>Accepted</em> and alerts will notify local volunteers for pickup.</li>
             </ol>
         `,
-        "What should I do if the food is close to expiry?": `
-            <p><strong>⚠️ Action Plan for Near-Expiry Donations:</strong></p>
+        "How do NGOs manage accepted donations?": `
+            <p><strong>📦 NGO Accepted Donations Management:</strong></p>
             <ol style="margin-top: 8px; padding-left: 20px; line-height: 1.6;">
-                <li><strong>Immediate Storage</strong>: Keep the food refrigerated or frozen to slow down spoilage.</li>
-                <li><strong>Set Accurate Timings</strong>: Ensure you enter the exact expiry time when donating.</li>
-                <li><strong>AI Flash Alert</strong>: The system automatically tags items with less than 3 hours left as "High Priority".</li>
-                <li><strong>Local Direct Contact</strong>: Direct contact numbers for matching volunteers will be shared to speed up collection.</li>
+                <li><strong>Go to Accepted Donations</strong>: Click on <strong>Accepted Donations</strong> in the sidebar menu.</li>
+                <li><strong>Track Delivery Progress</strong>: View real-time status badges (<em>Accepted</em>, <em>Picked</em>, or <em>Delivered</em>).</li>
+                <li><strong>Confirm Receipt</strong>: Once the volunteer delivers the food, click <strong>"Confirm Receipt"</strong> to finalize the record and rate the volunteer.</li>
             </ol>
         `,
-        "How does the system notify NGOs about donations?": `
-            <p><strong>🔔 NGO Notification System:</strong></p>
+        "How does NGO volunteer coordination work?": `
+            <p><strong>🚚 NGO Volunteer Coordination Guide:</strong></p>
             <ol style="margin-top: 8px; padding-left: 20px; line-height: 1.6;">
-                <li><strong>Instantly Matches</strong>: The backend checks for nearby matching NGOs as soon as a donor submits food.</li>
-                <li><strong>Dashboard Alert</strong>: An orange alert badge appears on the NGO's top bar notification bell.</li>
-                <li><strong>Map Pins</strong>: Available donations appear immediately as interactive pins on the NGO's map.</li>
-                <li><strong>Claim Window</strong>: NGOs have 30 minutes to claim high-priority foods before they are opened to other agencies.</li>
+                <li><strong>View Volunteers Network</strong>: Click on the <strong>Volunteers</strong> tab in your sidebar.</li>
+                <li><strong>Check Volunteer Ratings</strong>: View active volunteers, their vehicle types, ratings, and contact info.</li>
+                <li><strong>Approve Pickup Requests</strong>: Review pickup requests submitted by volunteers and confirm assignment for your accepted donations.</li>
             </ol>
         `,
-        "How can I contact support or view the Help Center?": `
-            <p><strong>📞 Contacting Support & Help Center:</strong></p>
+        "How do volunteers manage assigned pickups?": `
+            <p><strong>🚚 Volunteer Assigned Pickups Guide:</strong></p>
             <ol style="margin-top: 8px; padding-left: 20px; line-height: 1.6;">
-                <li><strong>Profile Menu</strong>: Click on your avatar in the top bar to open the user menu.</li>
-                <li><strong>Select Help Center</strong>: Click <strong>"Help Center"</strong>.</li>
-                <li><strong>Read FAQs</strong>: Browse through our knowledgebase categories.</li>
-                <li><strong>Submit Support Ticket</strong>: Use the contact form at the bottom of the page to message our admin team directly.</li>
+                <li><strong>Open Assigned Pickups</strong>: Click on <strong>Assigned Pickups</strong> from your sidebar navigation.</li>
+                <li><strong>Request/Accept Pickup</strong>: Browse available collection requests and click <strong>"Request Pickup"</strong>.</li>
+                <li><strong>Navigate to Donor</strong>: Use the map coordinates and donor address to travel to the donor site.</li>
+                <li><strong>Mark as Picked Up</strong>: Inspect food condition and press <strong>"Picked Up"</strong> in the app to notify the NGO.</li>
+            </ol>
+        `,
+        "How do volunteers complete food delivery?": `
+            <p><strong>📦 Volunteer Delivery Completion Guide:</strong></p>
+            <ol style="margin-top: 8px; padding-left: 20px; line-height: 1.6;">
+                <li><strong>Travel to NGO Shelter</strong>: Follow the address of the recipient NGO shown on your active job card.</li>
+                <li><strong>Hand Over Food</strong>: Deliver the packaged food safely to the NGO staff or shelter representative.</li>
+                <li><strong>Mark as Delivered</strong>: Press <strong>"Mark Delivered"</strong> to complete the delivery and earn performance ratings.</li>
+            </ol>
+        `,
+        "What are the food safety guidelines for volunteers during transit?": `
+            <p><strong>🥗 Safe Food Handling for Volunteers:</strong></p>
+            <ol style="margin-top: 8px; padding-left: 20px; line-height: 1.6;">
+                <li><strong>Insulated Containers</strong>: Store hot meals in thermal bags and cold/dairy items in insulated coolers.</li>
+                <li><strong>Hygienic Packaging</strong>: Ensure all food covers remain sealed and untouched during transportation.</li>
+                <li><strong>Timely Delivery</strong>: Transport high-priority perishable items immediately without unneeded delays.</li>
             </ol>
         `,
         "What details can I see inside the Reports panel?": `
@@ -213,7 +227,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                     <div class="ai-chat-title">
                         <h3>Smart Food Donation AI Assistant</h3>
-                        <span>Local Mode</span>
+                        <span>Local & Backend Mode</span>
                     </div>
                 </div>
                 <button id="closeChatBtn" class="ai-chat-close">
@@ -223,7 +237,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <div id="widgetMessages" class="ai-chat-messages">
                 <div class="ai-msg bot">
                     <p>👋 Hello! I'm your Smart Food Donation AI Assistant.</p>
-                    <p>I can help you navigate the app, explain how to donate food, and troubleshoot common errors. What can I do for you today?</p>
+                    <p>I can help you navigate the app, explain food donation procedures, and assist with your role workflows. What can I do for you today?</p>
                 </div>
             </div>
             <div id="widgetChips" class="ai-chat-chips">
@@ -316,23 +330,8 @@ document.addEventListener("DOMContentLoaded", () => {
             chatMain.insertBefore(dashboardSuggestions, chatMain.querySelector(".chat-input-area"));
         }
 
-        // Setup initial greeting message with interactive new-user chips
+        // Setup initial greeting message with interactive chips tailored per role
         showDashboardGreeting();
-
-        // Setup sidebar FAQ click listeners
-        const faqListItems = document.querySelectorAll(".faq-list li");
-        if (faqListItems) {
-            faqListItems.forEach(item => {
-                item.addEventListener("click", () => {
-                    const queryText = item.getAttribute("data-query");
-                    if (queryText) {
-                        appendMessage(queryText, "user", dashboardMessages);
-                        scrollToBottom(dashboardMessages);
-                        showBotResponse(queryText, dashboardMessages, dashboardHistory);
-                    }
-                });
-            });
-        }
 
         // Bind dashboard actions
         dashboardSendBtn.addEventListener("click", () => {
@@ -378,7 +377,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Select the history array based on container
         const historyArray = messagesContainer.id === "chatMessages" ? dashboardHistory : widgetHistory;
 
-        // Process response locally
+        // Process response with backend API and local fallback
         showBotResponse(text, messagesContainer, historyArray);
     }
 
@@ -404,19 +403,46 @@ document.addEventListener("DOMContentLoaded", () => {
         container.appendChild(msgDiv);
     }
 
-    function showBotResponse(userQuery, messagesContainer, historyArray) {
-        // Append user message to local history context
+    function getDefaultFallbackForRole(role) {
+        if (role === "ngo") {
+            return `
+                <p>I couldn't find an exact procedure for your question. Here are top NGO procedures you can look up:</p>
+                <div class="dashboard-chips" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                    <button class="ai-chip" data-query="How do NGOs accept available donations?">🏢 Accepting donations</button>
+                    <button class="ai-chip" data-query="How do NGOs manage accepted donations?">📦 Managing accepted food</button>
+                    <button class="ai-chip" data-query="How does NGO volunteer coordination work?">🚚 Volunteer coordination</button>
+                </div>
+            `;
+        } else if (role === "volunteer") {
+            return `
+                <p>I couldn't find an exact procedure for your question. Here are top Volunteer procedures you can look up:</p>
+                <div class="dashboard-chips" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                    <button class="ai-chip" data-query="How do volunteers manage assigned pickups?">🚚 Pickup procedure</button>
+                    <button class="ai-chip" data-query="How do volunteers complete food delivery?">📦 Delivery confirmation</button>
+                    <button class="ai-chip" data-query="What are the food safety guidelines for volunteers during transit?">🥗 Transport safety</button>
+                </div>
+            `;
+        } else {
+            return `
+                <p>I couldn't find a matching procedure for your question. Here are top step-by-step procedures you can look up:</p>
+                <div class="dashboard-chips" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
+                    <button class="ai-chip" data-query="How do I donate food in this app?">🍱 How to donate?</button>
+                    <button class="ai-chip" data-query="How does the AI freshness score work?">🌱 AI Freshness check</button>
+                    <button class="ai-chip" data-query="What are the common error messages and fixes?">⚠️ Common errors & fixes</button>
+                </div>
+            `;
+        }
+    }
+
+    async function showBotResponse(userQuery, messagesContainer, historyArray) {
         historyArray.push({ role: "user", text: userQuery });
 
-        // Create typing indicator element
         const indicatorDiv = document.createElement("div");
-        
         if (messagesContainer.id === "chatMessages") {
             indicatorDiv.className = "bot-message typing-indicator-wrapper";
         } else {
             indicatorDiv.className = "ai-msg bot typing-indicator-wrapper";
         }
-        
         indicatorDiv.innerHTML = `
             <div class="ai-typing-indicator">
                 <div class="ai-typing-dot"></div>
@@ -424,79 +450,161 @@ document.addEventListener("DOMContentLoaded", () => {
                 <div class="ai-typing-dot"></div>
             </div>
         `;
-        
         messagesContainer.appendChild(indicatorDiv);
         scrollToBottom(messagesContainer);
 
-        // Simulate typing animation delay (500ms) for high-quality local flow
-        setTimeout(() => {
-            indicatorDiv.remove();
+        let responseHtml = "";
+        const role = (localStorage.getItem("role") || "donor").toLowerCase().trim();
+        const email = localStorage.getItem("email") || "";
 
-            // Find matching step-by-step procedure locally
+        try {
+            const apiBase = typeof getApiBase === "function" ? getApiBase() : (window.location.protocol === "file:" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" ? "http://127.0.0.1:5000" : "https://food-donation-ai1.onrender.com");
+            const res = await fetch(`${apiBase}/assistant/chat`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-User-Role": role,
+                    "X-User-Email": email
+                },
+                body: JSON.stringify({
+                    message: userQuery,
+                    history: historyArray,
+                    user_role: role,
+                    user_email: email
+                })
+            });
+            if (res.ok) {
+                const data = await res.json();
+                if (data.status === "success" && data.reply) {
+                    responseHtml = data.reply;
+                }
+            }
+        } catch (err) {
+            console.warn("Backend AI Assistant API call skipped/failed, falling back to local QA:", err);
+        }
+
+        if (!responseHtml) {
             const cleanQuery = userQuery.toLowerCase().trim();
-            let responseHtml = "";
+            const predefined = Object.keys(LOCAL_QA_DATABASE);
+            const exactKey = predefined.find(k => k.toLowerCase() === cleanQuery);
 
-            // Check exact key match
-            const exactKey = PREDEFINED_QUESTIONS.find(k => k.toLowerCase() === cleanQuery);
             if (exactKey) {
                 responseHtml = LOCAL_QA_DATABASE[exactKey];
             } else {
-                // Check substring match
-                const matchingKey = PREDEFINED_QUESTIONS.find(k => k.toLowerCase().includes(cleanQuery) || cleanQuery.includes(k.toLowerCase()));
+                const matchingKey = predefined.find(k => k.toLowerCase().includes(cleanQuery) || cleanQuery.includes(k.toLowerCase()));
                 if (matchingKey) {
                     responseHtml = LOCAL_QA_DATABASE[matchingKey];
                 } else {
-                    // Search keywords
-                    const keywords = ["donate", "freshness", "error", "ngo", "volunteer", "category", "storage", "track", "offline", "about"];
+                    const keywords = ["donate", "freshness", "error", "ngo", "volunteer", "category", "storage", "track", "offline", "about", "pickup", "delivery", "accept"];
                     const foundKeyword = keywords.find(word => cleanQuery.includes(word));
-                    
+
                     if (foundKeyword) {
-                        const matchingKey = PREDEFINED_QUESTIONS.find(k => k.toLowerCase().includes(foundKeyword));
-                        responseHtml = LOCAL_QA_DATABASE[matchingKey];
+                        const matchingKey = predefined.find(k => k.toLowerCase().includes(foundKeyword));
+                        responseHtml = matchingKey ? LOCAL_QA_DATABASE[matchingKey] : getDefaultFallbackForRole(role);
                     } else {
-                        // Default offline template response
-                        responseHtml = `
-                            <p>I couldn't find a matching procedure for your question. Here are the top step-by-step procedures you can look up:</p>
-                            <div class="dashboard-chips" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
-                                <button class="ai-chip" data-query="How do I donate food in this app?">🍱 How to donate?</button>
-                                <button class="ai-chip" data-query="How does the AI freshness score work?">🌱 AI Freshness check</button>
-                                <button class="ai-chip" data-query="What are the common error messages and fixes?">⚠️ Common errors & fixes</button>
-                            </div>
-                        `;
+                        responseHtml = getDefaultFallbackForRole(role);
                     }
                 }
             }
+        }
 
-            appendMessage(responseHtml, "bot", messagesContainer);
-            historyArray.push({ role: "model", text: responseHtml });
-            
-            // Re-bind chip listeners in case chips were generated inside responseHtml
-            const newChips = messagesContainer.querySelector(".dashboard-chips:last-of-type");
-            if (newChips) {
-                bindChipListeners(newChips, messagesContainer, historyArray);
-            }
+        indicatorDiv.remove();
+        appendMessage(responseHtml, "bot", messagesContainer);
+        historyArray.push({ role: "model", text: responseHtml });
 
-            scrollToBottom(messagesContainer);
-        }, 500);
+        const newChips = messagesContainer.querySelector(".dashboard-chips:last-of-type");
+        if (newChips) {
+            bindChipListeners(newChips, messagesContainer, historyArray);
+        }
+
+        scrollToBottom(messagesContainer);
     }
 
     // Displays the main greeting inside the dashboard chat panel
     function showDashboardGreeting() {
         if (!dashboardMessages) return;
         const name = localStorage.getItem("name") || "User";
+        const role = (localStorage.getItem("role") || "donor").toLowerCase().trim();
+
+        // Dynamically update FAQ sidebar items based on role
+        const faqList = document.querySelector(".faq-list");
+        if (faqList) {
+            if (role === "ngo") {
+                faqList.innerHTML = `
+                    <li data-query="How do NGOs accept available donations?"><i class="fa-solid fa-building-circle-check"></i> How to accept donations?</li>
+                    <li data-query="How do NGOs manage accepted donations?"><i class="fa-solid fa-box-archive"></i> Managing accepted food</li>
+                    <li data-query="How does NGO volunteer coordination work?"><i class="fa-solid fa-users"></i> Volunteer coordination</li>
+                    <li data-query="How are donations matched with NGOs?"><i class="fa-solid fa-calculator"></i> NGO matching algorithm</li>
+                    <li data-query="What details can I see inside the Reports panel?"><i class="fa-solid fa-chart-line"></i> Analytics & Reports</li>
+                `;
+            } else if (role === "volunteer") {
+                faqList.innerHTML = `
+                    <li data-query="How do volunteers manage assigned pickups?"><i class="fa-solid fa-truck-fast"></i> Assigned pickup guide</li>
+                    <li data-query="How do volunteers complete food delivery?"><i class="fa-solid fa-boxes-packing"></i> Delivery confirmation</li>
+                    <li data-query="What are the food safety guidelines for volunteers during transit?"><i class="fa-solid fa-shield-halved"></i> Food handling safety</li>
+                    <li data-query="How does the matching algorithm select volunteers?"><i class="fa-solid fa-robot"></i> Dispatch algorithm</li>
+                    <li data-query="What are the common error messages and fixes?"><i class="fa-solid fa-triangle-exclamation"></i> Troubleshooting & fixes</li>
+                `;
+            } else {
+                faqList.innerHTML = `
+                    <li data-query="How do I donate food in this app?"><i class="fa-solid fa-hand-holding-heart"></i> How to donate food?</li>
+                    <li data-query="How does the AI freshness score work?"><i class="fa-solid fa-carrot"></i> AI Freshness check?</li>
+                    <li data-query="What are the common error messages and fixes?"><i class="fa-solid fa-triangle-exclamation"></i> Common errors & fixes</li>
+                    <li data-query="How are donations matched with NGOs?"><i class="fa-solid fa-building-circle-check"></i> NGO matching process</li>
+                    <li data-query="Who collects the food after donation?"><i class="fa-solid fa-truck-fast"></i> Food collection & transit</li>
+                `;
+            }
+            
+            // Rebind sidebar FAQ click listeners
+            faqList.querySelectorAll("li").forEach(item => {
+                item.addEventListener("click", () => {
+                    const queryText = item.getAttribute("data-query");
+                    if (queryText) {
+                        appendMessage(queryText, "user", dashboardMessages);
+                        scrollToBottom(dashboardMessages);
+                        showBotResponse(queryText, dashboardMessages, dashboardHistory);
+                    }
+                });
+            });
+        }
+
+        let chipsHtml = "";
+        let roleSummary = "";
+
+        if (role === "ngo") {
+            roleSummary = "I can help you with available donations, accepting donations, volunteer coordination, and distribution guidance.";
+            chipsHtml = `
+                <button class="ai-chip" data-query="How do NGOs accept available donations?">🏢 Accept donations</button>
+                <button class="ai-chip" data-query="How do NGOs manage accepted donations?">📦 Manage accepted food</button>
+                <button class="ai-chip" data-query="How does NGO volunteer coordination work?">🚚 Volunteer coordination</button>
+            `;
+        } else if (role === "volunteer") {
+            roleSummary = "I can help you with pickup guidance, assigned deliveries, volunteer workflow, and safe food handling.";
+            chipsHtml = `
+                <button class="ai-chip" data-query="How do volunteers manage assigned pickups?">🚚 Pickup guidance</button>
+                <button class="ai-chip" data-query="How do volunteers complete food delivery?">📦 Delivery confirmation</button>
+                <button class="ai-chip" data-query="What are the food safety guidelines for volunteers during transit?">🥗 Transport safety</button>
+            `;
+        } else {
+            roleSummary = "I can help you with food donation guidance, freshness score calculation, NGO matching, and donation tracking.";
+            chipsHtml = `
+                <button class="ai-chip" data-query="How do I donate food in this app?">🍱 How to donate?</button>
+                <button class="ai-chip" data-query="How does the AI freshness score work?">🌱 AI Freshness check</button>
+                <button class="ai-chip" data-query="What are the common error messages and fixes?">⚠️ Errors & fixes</button>
+            `;
+        }
+
         dashboardMessages.innerHTML = `
             <div class="bot-message">
                 👋 Hello <strong id="chatUserName">${name}</strong>!
                 <br><br>
-                I'm your Smart Food Donation AI Assistant (Local Mode).
+                I'm your Smart Food Donation AI Assistant (${role.toUpperCase()} Mode).
                 <br><br>
-                I can help you navigate the app with step-by-step instructions.
+                ${roleSummary}
                 <br><br>
-                <strong>Quick Questions for New Users:</strong>
+                <strong>Quick Questions:</strong>
                 <div class="dashboard-chips" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px;">
-                    <button class="ai-chip" data-query="How do I donate food in this app?">🍱 How to donate?</button>
-                    <button class="ai-chip" data-query="How does the AI freshness score work?">🌱 AI Freshness check</button>
-                    <button class="ai-chip" data-query="What are the common error messages and fixes?">⚠️ Errors & fixes</button>
+                    ${chipsHtml}
                 </div>
             </div>
         `;
@@ -577,4 +685,3 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
-

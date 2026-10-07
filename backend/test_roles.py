@@ -1,41 +1,62 @@
 import unittest
-import urllib.request
-import urllib.error
 import json
-
-BASE_URL = "http://127.0.0.1:5000"
-
-def make_request(path, headers=None):
-    url = f"{BASE_URL}{path}"
-    req = urllib.request.Request(url, headers=headers or {})
-    try:
-        with urllib.request.urlopen(req) as response:
-            return response.status, json.loads(response.read().decode())
-    except urllib.error.HTTPError as e:
-        body = json.loads(e.read().decode()) if e.fp else {}
-        return e.code, body
+from app import app
 
 class TestRoleAuthorization(unittest.TestCase):
+    def setUp(self):
+        self.client = app.test_client()
+
     def test_donor_cannot_access_admin_users(self):
-        status, body = make_request("/admin/users", {"X-User-Role": "donor", "X-User-Email": "donor@example.com"})
-        self.assertEqual(status, 403)
-        self.assertEqual(body.get("status"), "error")
+        res = self.client.get("/admin/users", headers={"X-User-Role": "donor", "X-User-Email": "donor@example.com"})
+        self.assertEqual(res.status_code, 403)
+        data = res.get_json()
+        self.assertEqual(data.get("status"), "error")
 
     def test_ngo_cannot_access_admin_users(self):
-        status, body = make_request("/admin/users", {"X-User-Role": "ngo", "X-User-Email": "ngo@example.com"})
-        self.assertEqual(status, 403)
+        res = self.client.get("/admin/users", headers={"X-User-Role": "ngo", "X-User-Email": "ngo@example.com"})
+        self.assertEqual(res.status_code, 403)
 
     def test_volunteer_cannot_access_admin_users(self):
-        status, body = make_request("/admin/users", {"X-User-Role": "volunteer", "X-User-Email": "vol@example.com"})
-        self.assertEqual(status, 403)
+        res = self.client.get("/admin/users", headers={"X-User-Role": "volunteer", "X-User-Email": "vol@example.com"})
+        self.assertEqual(res.status_code, 403)
 
     def test_admin_can_access_admin_users(self):
-        status, body = make_request("/admin/users", {"X-User-Role": "admin", "X-User-Email": "admin@example.com"})
-        self.assertEqual(status, 200)
+        res = self.client.get("/admin/users", headers={"X-User-Role": "admin", "X-User-Email": "admin@example.com"})
+        self.assertEqual(res.status_code, 200)
 
     def test_public_donations_endpoint(self):
-        status, body = make_request("/donations")
-        self.assertEqual(status, 200)
+        res = self.client.get("/donations")
+        self.assertEqual(res.status_code, 200)
+
+    def test_unauthorized_ai_access(self):
+        res = self.client.post("/assistant/chat", json={"message": "Hello"})
+        self.assertEqual(res.status_code, 403)
+        data = res.get_json()
+        self.assertEqual(data.get("status"), "error")
+
+    def test_donor_ai_access(self):
+        res = self.client.post("/assistant/chat", 
+                               json={"message": "How do I donate food?"},
+                               headers={"X-User-Role": "donor", "X-User-Email": "donor@example.com"})
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertEqual(data.get("status"), "success")
+
+    def test_ngo_ai_access(self):
+        res = self.client.post("/assistant/chat", 
+                               json={"message": "How to accept donations?"},
+                               headers={"X-User-Role": "ngo", "X-User-Email": "ngo@example.com"})
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertEqual(data.get("status"), "success")
+
+    def test_volunteer_ai_access(self):
+        res = self.client.post("/assistant/chat", 
+                               json={"message": "How to deliver food?"},
+                               headers={"X-User-Role": "volunteer", "X-User-Email": "vol@example.com"})
+        self.assertEqual(res.status_code, 200)
+        data = res.get_json()
+        self.assertEqual(data.get("status"), "success")
 
 if __name__ == "__main__":
     unittest.main()

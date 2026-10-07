@@ -139,8 +139,8 @@ if(chatUserName){
     // Role-based Sidebar Menu Visibility Guard
     const roleMenuVisibility = {
         donor: ["sidebarHome", "sidebarDonate", "sidebarMyDonations", "sidebarAI", "sidebarReports", "sidebarSettings", "logoutBtn"],
-        ngo: ["sidebarHome", "sidebarNGO", "sidebarNgoAccepted", "sidebarNearbyDonors", "sidebarVolunteer", "sidebarReports", "sidebarSettings", "logoutBtn"],
-        volunteer: ["sidebarHome", "sidebarVolunteer", "sidebarNGO", "sidebarDeliveries", "sidebarReports", "sidebarSettings", "logoutBtn"],
+        ngo: ["sidebarHome", "sidebarNGO", "sidebarNgoAccepted", "sidebarNearbyDonors", "sidebarVolunteer", "sidebarAI", "sidebarReports", "sidebarSettings", "logoutBtn"],
+        volunteer: ["sidebarHome", "sidebarVolunteer", "sidebarNGO", "sidebarDeliveries", "sidebarAI", "sidebarReports", "sidebarSettings", "logoutBtn"],
         admin: ["sidebarHome", "sidebarAdminUsers", "sidebarAdminNGOs", "sidebarAdminDonations", "sidebarAdminVolunteers", "sidebarReports", "sidebarSettings", "logoutBtn"]
     };
 

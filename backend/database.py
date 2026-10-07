@@ -72,15 +72,15 @@ def ensure_demo_users():
 
             "address": "123 Demo Street, Madurai",
 
-            "status": "Pending",
+            "status": "Approved",
 
-            "verification_status": "Pending",
+            "verification_status": "Approved",
 
             "email_verified": True,
 
-            "admin_approved": False,
+            "admin_approved": True,
 
-            "account_status": "pending",
+            "account_status": "approved",
 
             "document_type": "Food Certificate",
 
@@ -128,15 +128,15 @@ def ensure_demo_users():
 
             "address": "456 NGO Avenue, Madurai",
 
-            "status": "Pending",
+            "status": "Approved",
 
-            "verification_status": "Pending",
+            "verification_status": "Approved",
 
             "email_verified": True,
 
-            "admin_approved": False,
+            "admin_approved": True,
 
-            "account_status": "pending",
+            "account_status": "approved",
 
             "document_type": "NGO Certificate",
 
@@ -182,15 +182,15 @@ def ensure_demo_users():
 
             "address": "789 Volunteer Road, Madurai",
 
-            "status": "Pending",
+            "status": "Approved",
 
-            "verification_status": "Pending",
+            "verification_status": "Approved",
 
             "email_verified": True,
 
-            "admin_approved": False,
+            "admin_approved": True,
 
-            "account_status": "pending",
+            "account_status": "approved",
 
             "document_type": "Aadhaar / Vehicle License",
 
@@ -237,15 +237,15 @@ def ensure_demo_users():
 
             "address": "Anna Salai, Chennai",
 
-            "status": "Pending",
+            "status": "Approved",
 
-            "verification_status": "Pending",
+            "verification_status": "Approved",
 
             "email_verified": True,
 
-            "admin_approved": False,
+            "admin_approved": True,
 
-            "account_status": "pending",
+            "account_status": "approved",
 
             "document_type": "Aadhaar / Vehicle License",
 
@@ -289,15 +289,15 @@ def ensure_demo_users():
 
             "address": "100 Feet Road, Coimbatore",
 
-            "status": "Pending",
+            "status": "Approved",
 
-            "verification_status": "Pending",
+            "verification_status": "Approved",
 
             "email_verified": True,
 
-            "admin_approved": False,
+            "admin_approved": True,
 
-            "account_status": "pending",
+            "account_status": "approved",
 
             "document_type": "NGO Certificate",
 
